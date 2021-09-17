@@ -3,7 +3,6 @@
 namespace Tests\Cases;
 
 use FastyBird\RedisDbExchangePlugin;
-use FastyBird\RedisDbExchangePlugin\Connections;
 use FastyBird\RedisDbExchangePlugin\Consumer;
 use FastyBird\RedisDbExchangePlugin\Subscribers;
 use Tester\Assert;
