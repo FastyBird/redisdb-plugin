@@ -1,0 +1,37 @@
+#
+# Redis DB exchange plugin DI configuration
+#
+# @license		More in license.md
+# @copyright	https://www.fastybird.com
+# @author		Adam Kadlec <adam.kadlec@fastybird.com>
+# @package		FastyBird:RedisDbExchangePlugin!
+# @subpackage	config
+# @since		0.1.0
+#
+# @date			19.07.20
+
+php:
+	date.timezone: Europe/Prague
+
+extensions:
+	contributteConsole		: Contributte\Console\DI\ConsoleExtension(%consoleMode%)
+	contributeEvents		: Contributte\EventDispatcher\DI\EventDispatcherExtension
+	fbDateTimeFactory		: FastyBird\DateTimeFactory\DI\DateTimeFactoryExtension
+	fbApplicationExchange	: FastyBird\ApplicationExchange\DI\ApplicationExchangeExtension
+	fbModulesMetadata		: FastyBird\ModulesMetadata\DI\ModulesMetadataExtension
+	fbWebServer				: FastyBird\WebServer\DI\WebServerExtension(%consoleMode%)
+
+contributteConsole:
+	name: FastyBird:RedisDbExchangePlugin!
+	version: '1.0'
+	catchExceptions: true
+	autoExit: true
+	url: http://example.com
+	lazy: false
+	helperSet: \Symfony\Component\Console\Helper\HelperSet
+	helpers: []
+
+fbRedisDbExchangePlugin:
+    connection:
+        default:
+            host: 127.0.0.1

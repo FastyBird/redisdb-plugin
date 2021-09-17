@@ -1,0 +1,3 @@
+redis>=3.5
+fastybird-modules-metadata>=0.5
+setuptools>=57.4

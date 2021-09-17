@@ -1,0 +1,81 @@
+{
+  "name" : "fastybird/redisdb-exchange-plugin",
+  "type" : "library",
+  "description" : "FastyBird Redis DB data exchange plugin",
+  "keywords" : [
+    "fastybird",
+    "fb",
+    "libs",
+    "library",
+    "exchange",
+    "messages",
+    "queue",
+    "redis"
+  ],
+
+  "homepage" : "https://www.fastybird.com",
+
+  "license" : "Apache-2.0",
+
+  "authors" : [
+    {
+      "name" : "FastyBird s.r.o.",
+      "email" : "code@fastybird.com",
+      "homepage" : "https://www.fastybird.com/"
+    },
+    {
+      "name" : "Adam Kadlec",
+      "email" : "adam.kadlec@fastybird.com"
+    }
+  ],
+
+  "prefer-stable" : true,
+
+  "minimum-stability" : "dev",
+
+  "require" : {
+    "php": ">=7.4.0",
+    "clue/redis-react": "^2.4",
+    "contributte/console": "^0.9",
+    "fastybird/application-exchange": "^0.1",
+    "fastybird/datetime-factory": "^0.1",
+    "fastybird/modules-metadata": "^0.5",
+    "fastybird/web-server": "^0.1",
+    "nette/bootstrap": "^3.0",
+    "nette/di": "^3.0",
+    "nette/utils": "^3.2",
+    "predis/predis": "^1.1",
+    "psr/log": "^1.1",
+    "ramsey/uuid": "^3.5 || ^4.0"
+  },
+
+  "require-dev" : {
+    "mockery/mockery": "^1.4",
+    "ninjify/nunjuck": "^0.3",
+    "ninjify/qa": "^0.12",
+    "pds/skeleton": "~1.0",
+    "phpstan/extension-installer": "^1.1",
+    "phpstan/phpstan": "^0.12",
+    "phpstan/phpstan-deprecation-rules": "^0.12",
+    "phpstan/phpstan-nette": "^0.12",
+    "phpstan/phpstan-strict-rules" : "^0.12",
+    "tracy/tracy": "^2.8"
+  },
+
+  "autoload" : {
+    "psr-4" : {
+      "FastyBird\\RedisDbExchangePlugin\\" : "src/"
+    }
+  },
+
+  "autoload-dev" : {
+    "psr-4" : {
+      "Tests\\Cases\\" : "tests/cases",
+      "Tests\\Fixtures\\" : "tests/fixtures"
+    }
+  },
+
+  "config" : {
+    "sort-packages" : true
+  }
+}
