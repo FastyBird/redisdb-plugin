@@ -32,6 +32,7 @@ contributteConsole:
 	helpers: []
 
 fbRedisDbExchangePlugin:
-    connection:
-        default:
-            host: 127.0.0.1
+	async: true
+	connection:
+		default:
+			host: 127.0.0.1

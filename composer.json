@@ -35,7 +35,7 @@
 
   "require" : {
     "php": ">=7.4.0",
-    "clue/redis-react": "^2.4",
+    "clue/redis-react": "^2.5",
     "contributte/console": "^0.9",
     "fastybird/application-exchange": "^0.1",
     "fastybird/datetime-factory": "^0.1",

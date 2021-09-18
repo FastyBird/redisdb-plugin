@@ -46,9 +46,4 @@ interface IConnection
 	 */
 	public function getPassword(): ?string;
 
-	/**
-	 * @return int
-	 */
-	public function getDatabase(): int;
-
 }

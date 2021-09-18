@@ -44,10 +44,9 @@ class Client implements IClient
 		$this->connection = $connection;
 
 		$options = [
-			'scheme'   => 'tcp',
-			'host'     => $connection->getHost(),
-			'port'     => $connection->getPort(),
-			'database' => $connection->getDatabase(),
+			'scheme' => 'tcp',
+			'host'   => $connection->getHost(),
+			'port'   => $connection->getPort(),
 		];
 
 		if ($connection->getUsername() !== null) {

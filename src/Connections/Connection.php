@@ -42,21 +42,16 @@ final class Connection implements IConnection
 	/** @var string|null */
 	private ?string $password;
 
-	/** @var int */
-	private int $database;
-
 	public function __construct(
 		string $host = '127.0.0.1',
 		int $port = 6379,
 		?string $username = null,
-		?string $password = null,
-		?int $database = null
+		?string $password = null
 	) {
 		$this->host = $host;
 		$this->port = $port;
 		$this->username = $username;
 		$this->password = $password;
-		$this->database = $database ?? 0;
 	}
 
 	/**
@@ -89,14 +84,6 @@ final class Connection implements IConnection
 	public function getPassword(): ?string
 	{
 		return $this->password;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function getDatabase(): int
-	{
-		return $this->database;
 	}
 
 }

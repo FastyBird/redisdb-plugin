@@ -20,6 +20,7 @@ use FastyBird\RedisDbExchangePlugin;
 use FastyBird\RedisDbExchangePlugin\Client;
 use FastyBird\RedisDbExchangePlugin\Connections;
 use FastyBird\RedisDbExchangePlugin\Consumer;
+use FastyBird\RedisDbExchangePlugin\Exceptions;
 use FastyBird\RedisDbExchangePlugin\Publisher;
 use FastyBird\RedisDbExchangePlugin\Subscribers;
 use Nette;
@@ -62,13 +63,14 @@ class RedisDbExchangePluginExtension extends DI\CompilerExtension
 	public function getConfigSchema(): Schema\Schema
 	{
 		return Schema\Expect::structure([
+			'channel'    => Schema\Expect::string()->default('fb_exchange'),
 			'connection' => Schema\Expect::arrayOf(Schema\Expect::structure([
 				'host'     => Schema\Expect::string()->default('127.0.0.1'),
 				'port'     => Schema\Expect::int(6379),
 				'username' => Schema\Expect::string(null)->nullable(),
 				'password' => Schema\Expect::string(null)->nullable(),
-				'database' => Schema\Expect::int(0),
 			])),
+			'async'      => Schema\Expect::bool(false),
 		]);
 	}
 
@@ -91,38 +93,50 @@ class RedisDbExchangePluginExtension extends DI\CompilerExtension
 					'port'     => $connection->port,
 					'username' => $connection->username,
 					'password' => $connection->password,
-					'database' => $connection->database,
 				])
 				->setAutowired(false);
 
-			$clientService = $builder->addDefinition($this->prefix('client.' . $name))
-				->setType(Client\Client::class)
-				->setArguments([
-					'connection' => $connectionService,
-				])
-				->setAutowired($name === 'default');
+			if ($configuration->async === false) {
+				$clientService = $builder->addDefinition($this->prefix('client.' . $name))
+					->setType(Client\Client::class)
+					->setArguments([
+						'connection' => $connectionService,
+					])
+					->setAutowired($name === 'default');
 
-			$builder->addDefinition($this->prefix('publisher.' . $name))
-				->setType(Publisher\Publisher::class)
-				->setArguments([
-					'client' => $clientService,
-				])
-				->setAutowired($name === 'default');
+				$builder->addDefinition($this->prefix('publisher.' . $name))
+					->setType(Publisher\Publisher::class)
+					->setArguments([
+						'client' => $clientService,
+					])
+					->setAutowired(false);
+			}
 
-			if ($name === 'default') {
-				$asyncClientService = $builder->addDefinition($this->prefix('asyncClient.' . $name))
+			if ($name === 'default' && $configuration->async) {
+				$asyncClientService = $builder->addDefinition($this->prefix('asyncClient'))
 					->setType(Client\AsyncClient::class)
 					->setArguments([
 						'connection' => $connectionService,
 					])
 					->setAutowired(true);
+
+				$builder->addDefinition($this->prefix('asyncPublisher'))
+					->setType(Publisher\AsyncPublisher::class)
+					->setArguments([
+						'client' => $asyncClientService,
+					])
+					->setAutowired(false);
 			}
 		}
 
 		$builder->addDefinition($this->prefix('consumer'))
 			->setType(Consumer\ConsumerProxy::class);
 
-		if ($asyncClientService !== null) {
+		if ($configuration->async) {
+			if ($asyncClientService === null) {
+				throw new Exceptions\InvalidStateException('Asynchronous client could not be created missing "default" connection configuration');
+			}
+
 			$builder->addDefinition($this->prefix('exchange'))
 				->setType(RedisDbExchangePlugin\Exchange::class)
 				->setArguments([
