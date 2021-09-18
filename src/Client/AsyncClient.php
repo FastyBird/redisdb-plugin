@@ -23,6 +23,7 @@ use FastyBird\RedisDbExchangePlugin\Exceptions;
 use Nette;
 use Nette\Utils;
 use Psr\Log;
+use Ramsey\Uuid;
 use React\EventLoop;
 use React\Promise;
 use React\Socket;
@@ -73,6 +74,9 @@ class AsyncClient implements IAsyncClient
 
 	/** @var string */
 	private string $channelName;
+
+	/** @var string */
+	private string $identifier;
 
 	/** @var bool */
 	private bool $isConnected = false;
@@ -130,6 +134,8 @@ class AsyncClient implements IAsyncClient
 		$this->eventLoop = $eventLoop;
 
 		$this->logger = $logger ?? new Log\NullLogger();
+
+		$this->identifier = Uuid\Uuid::uuid4()->toString();
 	}
 
 	/**
@@ -331,6 +337,14 @@ class AsyncClient implements IAsyncClient
 		if ($promise instanceof Promise\ExtendedPromiseInterface) {
 			$promise->done();
 		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getIdentifier(): string
+	{
+		return $this->identifier;
 	}
 
 	/**

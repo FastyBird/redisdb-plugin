@@ -78,4 +78,9 @@ interface IAsyncClient
 	 */
 	public function initialize(): void;
 
+	/**
+	 * @return string
+	 */
+	public function getIdentifier(): string;
+
 }

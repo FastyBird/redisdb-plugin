@@ -62,27 +62,9 @@ final class Publisher implements IPublisher
 		array $data
 	): void {
 		try {
-			// Compose message
-			$message = Utils\Json::encode($data);
-
-		} catch (Utils\JsonException $ex) {
-			$this->logger->error('[FB:PLUGIN:REDISDB_EXCHANGE] Data could not be converted to message', [
-				'message'   => [
-					'routingKey' => $routingKey,
-					'origin' => $origin,
-				],
-				'exception' => [
-					'message' => $ex->getMessage(),
-					'code'    => $ex->getCode(),
-				],
-			]);
-
-			return;
-		}
-
-		try {
 			$result = $this->client->publish(
 				Utils\Json::encode([
+					'sender_id'   => $this->client->getIdentifier(),
 					'origin'      => $origin,
 					'routing_key' => $routingKey,
 					'created'     => $this->dateTimeFactory->getNow()->format(DATE_ATOM),
@@ -95,7 +77,7 @@ final class Publisher implements IPublisher
 				'message'   => [
 					'routingKey' => $routingKey,
 					'origin'     => $origin,
-					'body'       => $message,
+					'data'       => $data,
 				],
 				'exception' => [
 					'message' => $ex->getMessage(),
@@ -111,7 +93,7 @@ final class Publisher implements IPublisher
 				'message' => [
 					'routingKey' => $routingKey,
 					'origin'     => $origin,
-					'body'       => $message,
+					'data'       => $data,
 				],
 			]);
 		} else {
@@ -119,7 +101,7 @@ final class Publisher implements IPublisher
 				'message' => [
 					'routingKey' => $routingKey,
 					'origin'     => $origin,
-					'body'       => $message,
+					'data'       => $data,
 				],
 			]);
 		}

@@ -41,9 +41,6 @@ final class ConsumerProxy implements IConsumer
 
 	use Nette\SmartObject;
 
-	/** @var string|null */
-	private ?string $queueName = null;
-
 	/** @var SplObjectStorage<ApplicationExchangeConsumer\IConsumer, null> */
 	private SplObjectStorage $consumers;
 
@@ -73,22 +70,6 @@ final class ConsumerProxy implements IConsumer
 		$this->consumers = new SplObjectStorage();
 
 		$this->logger = $logger ?? new Log\NullLogger();
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function getQueueName(): ?string
-	{
-		return $this->queueName;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function setQueueName(?string $queueName): void
-	{
-		$this->queueName = $queueName;
 	}
 
 	/**

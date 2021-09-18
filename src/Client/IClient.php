@@ -33,4 +33,9 @@ interface IClient
 	 */
 	public function publish(string $content): bool;
 
+	/**
+	 * @return string
+	 */
+	public function getIdentifier(): string;
+
 }

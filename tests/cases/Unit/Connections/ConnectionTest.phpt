@@ -11,7 +11,7 @@ require_once __DIR__ . '/../../../bootstrap.php';
 /**
  * @testCase
  */
-final class RedisTest extends BaseMockeryTestCase
+final class ConnectionTest extends BaseMockeryTestCase
 {
 
 	public function testDefaultValues(): void
@@ -26,5 +26,5 @@ final class RedisTest extends BaseMockeryTestCase
 
 }
 
-$test_case = new RedisTest();
+$test_case = new ConnectionTest();
 $test_case->run();
