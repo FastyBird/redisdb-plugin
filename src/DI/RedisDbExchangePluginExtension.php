@@ -16,7 +16,6 @@
 namespace FastyBird\RedisDbExchangePlugin\DI;
 
 use FastyBird\ApplicationExchange\Consumer as ApplicationExchangeConsumer;
-use FastyBird\RedisDbExchangePlugin;
 use FastyBird\RedisDbExchangePlugin\Client;
 use FastyBird\RedisDbExchangePlugin\Connections;
 use FastyBird\RedisDbExchangePlugin\Consumer;
@@ -63,14 +62,15 @@ class RedisDbExchangePluginExtension extends DI\CompilerExtension
 	public function getConfigSchema(): Schema\Schema
 	{
 		return Schema\Expect::structure([
-			'channel'    => Schema\Expect::string()->default('fb_exchange'),
-			'connection' => Schema\Expect::arrayOf(Schema\Expect::structure([
+			'connection'    => Schema\Expect::arrayOf(Schema\Expect::structure([
 				'host'     => Schema\Expect::string()->default('127.0.0.1'),
 				'port'     => Schema\Expect::int(6379),
 				'username' => Schema\Expect::string(null)->nullable(),
 				'password' => Schema\Expect::string(null)->nullable(),
+				'channel'  => Schema\Expect::string()->default('fb_exchange'),
 			])),
-			'async'      => Schema\Expect::bool(false),
+			'enableClassic' => Schema\Expect::bool(true),
+			'enableAsync'   => Schema\Expect::bool(false),
 		]);
 	}
 
@@ -96,11 +96,12 @@ class RedisDbExchangePluginExtension extends DI\CompilerExtension
 				])
 				->setAutowired(false);
 
-			if ($configuration->async === false) {
+			if ($configuration->enableClassic) {
 				$clientService = $builder->addDefinition($this->prefix('client.' . $name))
 					->setType(Client\Client::class)
 					->setArguments([
-						'connection' => $connectionService,
+						'channelName' => $connection->channel,
+						'connection'  => $connectionService,
 					])
 					->setAutowired($name === 'default');
 
@@ -112,11 +113,12 @@ class RedisDbExchangePluginExtension extends DI\CompilerExtension
 					->setAutowired(false);
 			}
 
-			if ($name === 'default' && $configuration->async) {
+			if ($name === 'default' && $configuration->enableAsync) {
 				$asyncClientService = $builder->addDefinition($this->prefix('asyncClient'))
 					->setType(Client\AsyncClient::class)
 					->setArguments([
-						'connection' => $connectionService,
+						'channelName' => $connection->channel,
+						'connection'  => $connectionService,
 					])
 					->setAutowired(true);
 
@@ -132,16 +134,10 @@ class RedisDbExchangePluginExtension extends DI\CompilerExtension
 		$builder->addDefinition($this->prefix('consumer'))
 			->setType(Consumer\ConsumerProxy::class);
 
-		if ($configuration->async) {
+		if ($configuration->enableAsync) {
 			if ($asyncClientService === null) {
 				throw new Exceptions\InvalidStateException('Asynchronous client could not be created missing "default" connection configuration');
 			}
-
-			$builder->addDefinition($this->prefix('exchange'))
-				->setType(RedisDbExchangePlugin\Exchange::class)
-				->setArguments([
-					'client' => $asyncClientService,
-				]);
 
 			$builder->addDefinition($this->prefix('subscribers.initialize'))
 				->setType(Subscribers\InitializeSubscriber::class);

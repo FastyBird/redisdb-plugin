@@ -2,7 +2,7 @@
 
 namespace Tests\Cases;
 
-use FastyBird\RedisDbExchangePlugin;
+use FastyBird\RedisDbExchangePlugin\Client;
 use FastyBird\RedisDbExchangePlugin\Subscribers;
 use FastyBird\WebServer\Events as WebServerEvents;
 use Mockery;
@@ -20,12 +20,12 @@ final class InitializeSubscriberTest extends BaseMockeryTestCase
 
 	public function testSubscriberEvents(): void
 	{
-		$exchange = Mockery::mock(RedisDbExchangePlugin\Exchange::class);
+		$asyncClient = Mockery::mock(Client\IAsyncClient::class);
 
 		$eventLoop = Mockery::mock(EventLoop\LoopInterface::class);
 
 		$subscriber = new Subscribers\InitializeSubscriber(
-			$exchange,
+			$asyncClient,
 			$eventLoop,
 		);
 
@@ -34,16 +34,16 @@ final class InitializeSubscriberTest extends BaseMockeryTestCase
 
 	public function testInitialize(): void
 	{
-		$exchange = Mockery::mock(RedisDbExchangePlugin\Exchange::class);
-		$exchange
-			->shouldReceive('initializeAsync')
+		$asyncClient = Mockery::mock(Client\IAsyncClient::class);
+		$asyncClient
+			->shouldReceive('initialize')
 			->withNoArgs()
 			->times(1);
 
 		$eventLoop = Mockery::mock(EventLoop\LoopInterface::class);
 
 		$subscriber = new Subscribers\InitializeSubscriber(
-			$exchange,
+			$asyncClient,
 			$eventLoop,
 		);
 

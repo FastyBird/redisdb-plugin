@@ -18,8 +18,11 @@ namespace FastyBird\RedisDbExchangePlugin\Client;
 use Closure;
 use Clue\Redis\Protocol as RedisProtocol;
 use FastyBird\RedisDbExchangePlugin\Connections;
+use FastyBird\RedisDbExchangePlugin\Consumer;
 use FastyBird\RedisDbExchangePlugin\Exceptions;
 use Nette;
+use Nette\Utils;
+use Psr\Log;
 use React\EventLoop;
 use React\Promise;
 use React\Socket;
@@ -39,6 +42,8 @@ use UnderflowException;
  * @method onMessage(string $channel, string $payload, IAsyncClient $client)
  * @method onPmessage(string $patern, string $channel, string $payload, IAsyncClient $client)
  * @method onError(Throwable $ex, IAsyncClient $client)
+ * @method onBeforeConsumeMessage(string $payload)
+ * @method onAfterConsumeMessage(string $payload)
  */
 class AsyncClient implements IAsyncClient
 {
@@ -60,6 +65,15 @@ class AsyncClient implements IAsyncClient
 	/** @var Closure[] */
 	public array $onError = [];
 
+	/** @var Closure[] */
+	public array $onBeforeConsumeMessage = [];
+
+	/** @var Closure[] */
+	public array $onAfterConsumeMessage = [];
+
+	/** @var string */
+	private string $channelName;
+
 	/** @var bool */
 	private bool $isConnected = false;
 
@@ -74,6 +88,9 @@ class AsyncClient implements IAsyncClient
 
 	/** @var Connections\IConnection */
 	private Connections\IConnection $connection;
+
+	/** @var Consumer\IConsumer */
+	private Consumer\IConsumer $consumer;
 
 	/** @var Promise\Deferred[] */
 	private array $requests = [];
@@ -90,11 +107,20 @@ class AsyncClient implements IAsyncClient
 	/** @var EventLoop\LoopInterface */
 	private EventLoop\LoopInterface $eventLoop;
 
+	/** @var Log\LoggerInterface */
+	private Log\LoggerInterface $logger;
+
 	public function __construct(
+		string $channelName,
 		Connections\IConnection $connection,
-		EventLoop\LoopInterface $eventLoop
+		Consumer\IConsumer $consumer,
+		EventLoop\LoopInterface $eventLoop,
+		?Log\LoggerInterface $logger = null
 	) {
+		$this->channelName = $channelName;
+
 		$this->connection = $connection;
+		$this->consumer = $consumer;
 
 		$factory = new RedisProtocol\Factory();
 
@@ -102,6 +128,8 @@ class AsyncClient implements IAsyncClient
 		$this->serializer = $factory->createSerializer();
 
 		$this->eventLoop = $eventLoop;
+
+		$this->logger = $logger ?? new Log\NullLogger();
 	}
 
 	/**
@@ -148,6 +176,161 @@ class AsyncClient implements IAsyncClient
 		$promise = $deferred->promise();
 
 		return $promise;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function close(): void
+	{
+		if (!$this->isConnected) {
+			return;
+		}
+
+		$this->closing = true;
+		$this->isConnected = false;
+
+		if ($this->stream !== null) {
+			$this->stream->close();
+		}
+
+		$this->onClose($this);
+
+		// Reject all remaining requests in the queue
+		while ($this->requests) {
+			$request = array_shift($this->requests);
+			$request->reject(new Exceptions\RuntimeException('Connection closing'));
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function disconnect(): void
+	{
+		$this->closing = true;
+
+		if ($this->requests === []) {
+			$this->close();
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function subscribe(string $channel): Promise\PromiseInterface
+	{
+		$request = new Promise\Deferred();
+		$promise = $request->promise();
+
+		if ($this->stream === null || $this->closing) {
+			$request->reject(new Exceptions\RuntimeException('Connection closed'));
+
+			return $promise;
+		}
+
+		$this->stream->write($this->serializer->getRequestMessage('subscribe', [$channel]));
+
+		$this->requests[] = $request;
+
+		return $promise;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function unsubscribe(string $channel): Promise\PromiseInterface
+	{
+		$request = new Promise\Deferred();
+		$promise = $request->promise();
+
+		if ($this->stream === null || $this->closing) {
+			$request->reject(new Exceptions\RuntimeException('Connection closed'));
+
+			return $promise;
+		}
+
+		$this->stream->write($this->serializer->getRequestMessage('unsubscribe', [$channel]));
+
+		$this->requests[] = $request;
+
+		return $promise;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function publish(string $content): Promise\PromiseInterface
+	{
+		$request = new Promise\Deferred();
+		$promise = $request->promise();
+
+		if ($this->stream === null || $this->closing) {
+			$request->reject(new Exceptions\RuntimeException('Connection closed'));
+
+			return $promise;
+		}
+
+		$this->stream->write($this->serializer->getRequestMessage('publish', [$this->channelName, $content]));
+
+		$this->requests[] = $request;
+
+		return $promise;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function initialize(): void
+	{
+		$promise = $this
+			->connect()
+			->then(function (AsyncClient $client): void {
+				$client->subscribe($this->channelName);
+
+				$client->onMessage[] = function (string $channel, string $payload) use ($client): void {
+					if ($channel === $this->channelName) {
+						$this->onBeforeConsumeMessage($payload);
+
+						try {
+							$data = Utils\ArrayHash::from(Utils\Json::decode($payload, Utils\Json::FORCE_ARRAY));
+
+							if (
+								$data->offsetExists('origin')
+								&& $data->offsetExists('routing_key')
+								&& $data->offsetExists('data')
+							) {
+								$this->consumer->consume(
+									$data->offsetGet('origin'),
+									$data->offsetGet('routing_key'),
+									$data->offsetGet('data')
+								);
+
+							} else {
+								// Log error action reason
+								$this->logger->warning('[FB:PLUGIN:REDISDB_EXCHANGE] Received message is not in valid format');
+							}
+						} catch (Utils\JsonException $ex) {
+							// Log error action reason
+							$this->logger->warning('[FB:PLUGIN:REDISDB_EXCHANGE] Received message is not valid json', [
+								'exception' => [
+									'message' => $ex->getMessage(),
+									'code'    => $ex->getCode(),
+								],
+							]);
+
+						} catch (Exceptions\TerminateException $ex) {
+							$client->close();
+						}
+
+						$this->onAfterConsumeMessage($payload);
+					}
+				};
+			});
+
+		if ($promise instanceof Promise\ExtendedPromiseInterface) {
+			$promise->done();
+		}
 	}
 
 	/**
@@ -229,31 +412,6 @@ class AsyncClient implements IAsyncClient
 	}
 
 	/**
-	 * {@inheritDoc}
-	 */
-	public function close(): void
-	{
-		if (!$this->isConnected) {
-			return;
-		}
-
-		$this->closing = true;
-		$this->isConnected = false;
-
-		if ($this->stream !== null) {
-			$this->stream->close();
-		}
-
-		$this->onClose($this);
-
-		// Reject all remaining requests in the queue
-		while ($this->requests) {
-			$request = array_shift($this->requests);
-			$request->reject(new Exceptions\RuntimeException('Connection closing'));
-		}
-	}
-
-	/**
 	 * @param RedisProtocol\Model\ModelInterface $message
 	 *
 	 * @return void
@@ -301,81 +459,6 @@ class AsyncClient implements IAsyncClient
 		if ($this->closing && $this->requests === []) {
 			$this->close();
 		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function disconnect(): void
-	{
-		$this->closing = true;
-
-		if ($this->requests === []) {
-			$this->close();
-		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function subscribe(string $channel): Promise\PromiseInterface
-	{
-		$request = new Promise\Deferred();
-		$promise = $request->promise();
-
-		if ($this->stream === null || $this->closing) {
-			$request->reject(new Exceptions\RuntimeException('Connection closed'));
-
-			return $promise;
-		}
-
-		$this->stream->write($this->serializer->getRequestMessage('subscribe', [$channel]));
-
-		$this->requests[] = $request;
-
-		return $promise;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function unsubscribe(string $channel): Promise\PromiseInterface
-	{
-		$request = new Promise\Deferred();
-		$promise = $request->promise();
-
-		if ($this->stream === null || $this->closing) {
-			$request->reject(new Exceptions\RuntimeException('Connection closed'));
-
-			return $promise;
-		}
-
-		$this->stream->write($this->serializer->getRequestMessage('unsubscribe', [$channel]));
-
-		$this->requests[] = $request;
-
-		return $promise;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function publish(string $channel, string $content): Promise\PromiseInterface
-	{
-		$request = new Promise\Deferred();
-		$promise = $request->promise();
-
-		if ($this->stream === null || $this->closing) {
-			$request->reject(new Exceptions\RuntimeException('Connection closed'));
-
-			return $promise;
-		}
-
-		$this->stream->write($this->serializer->getRequestMessage('publish', [$channel, $content]));
-
-		$this->requests[] = $request;
-
-		return $promise;
 	}
 
 }

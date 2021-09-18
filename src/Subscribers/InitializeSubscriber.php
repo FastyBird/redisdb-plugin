@@ -15,7 +15,7 @@
 
 namespace FastyBird\RedisDbExchangePlugin\Subscribers;
 
-use FastyBird\RedisDbExchangePlugin;
+use FastyBird\RedisDbExchangePlugin\Client;
 use FastyBird\WebServer\Events as WebServerEvents;
 use Psr\Log;
 use React\EventLoop;
@@ -33,8 +33,8 @@ use Throwable;
 class InitializeSubscriber implements EventDispatcher\EventSubscriberInterface
 {
 
-	/** @var RedisDbExchangePlugin\Exchange */
-	private RedisDbExchangePlugin\Exchange $exchange;
+	/** @var Client\IAsyncClient */
+	private Client\IAsyncClient $client;
 
 	/** @var EventLoop\LoopInterface */
 	private EventLoop\LoopInterface $eventLoop;
@@ -43,11 +43,11 @@ class InitializeSubscriber implements EventDispatcher\EventSubscriberInterface
 	private Log\LoggerInterface $logger;
 
 	public function __construct(
-		RedisDbExchangePlugin\Exchange $exchange,
+		Client\IAsyncClient $client,
 		EventLoop\LoopInterface $eventLoop,
 		?Log\LoggerInterface $logger = null
 	) {
-		$this->exchange = $exchange;
+		$this->client = $client;
 		$this->eventLoop = $eventLoop;
 
 		$this->logger = $logger ?? new Log\NullLogger();
@@ -70,7 +70,7 @@ class InitializeSubscriber implements EventDispatcher\EventSubscriberInterface
 	{
 		try {
 			// Prepare exchange
-			$this->exchange->initializeAsync();
+			$this->client->initialize();
 
 		} catch (Throwable $ex) {
 			// Log error action reason

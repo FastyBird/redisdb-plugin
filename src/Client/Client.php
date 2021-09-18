@@ -32,6 +32,9 @@ class Client implements IClient
 
 	use Nette\SmartObject;
 
+	/** @var string */
+	private string $channelName;
+
 	/** @var Connections\IConnection */
 	private Connections\IConnection $connection;
 
@@ -39,8 +42,11 @@ class Client implements IClient
 	private Predis\Client $redis;
 
 	public function __construct(
+		string $channelName,
 		Connections\IConnection $connection
 	) {
+		$this->channelName = $channelName;
+
 		$this->connection = $connection;
 
 		$options = [
@@ -63,9 +69,9 @@ class Client implements IClient
 	/**
 	 * {@inheritDoc}
 	 */
-	public function publish(string $channel, string $content): bool
+	public function publish(string $content): bool
 	{
-		$response = $this->redis->publish($channel, $content);
+		$response = $this->redis->publish($this->channelName, $content);
 
 		return $response === 1;
 	}

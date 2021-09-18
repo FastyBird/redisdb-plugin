@@ -27,11 +27,10 @@ interface IClient
 {
 
 	/**
-	 * @param string $channel
 	 * @param string $content
 	 *
 	 * @return bool
 	 */
-	public function publish(string $channel, string $content): bool;
+	public function publish(string $content): bool;
 
 }

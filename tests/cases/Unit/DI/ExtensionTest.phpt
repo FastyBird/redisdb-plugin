@@ -2,7 +2,7 @@
 
 namespace Tests\Cases;
 
-use FastyBird\RedisDbExchangePlugin;
+use FastyBird\RedisDbExchangePlugin\Client;
 use FastyBird\RedisDbExchangePlugin\Consumer;
 use FastyBird\RedisDbExchangePlugin\Subscribers;
 use Tester\Assert;
@@ -20,7 +20,8 @@ final class ExtensionTest extends BaseTestCase
 	{
 		$container = $this->createContainer();
 
-		Assert::notNull($container->getByType(RedisDbExchangePlugin\Exchange::class));
+		Assert::notNull($container->getByType(Client\IClient::class));
+		Assert::notNull($container->getByType(Client\IAsyncClient::class));
 
 		Assert::notNull($container->getByType(Consumer\IConsumer::class));
 

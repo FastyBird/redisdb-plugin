@@ -16,7 +16,6 @@
 namespace FastyBird\RedisDbExchangePlugin\Publisher;
 
 use FastyBird\DateTimeFactory;
-use FastyBird\RedisDbExchangePlugin;
 use FastyBird\RedisDbExchangePlugin\Client;
 use Nette;
 use Nette\Utils;
@@ -84,7 +83,6 @@ final class AsyncPublisher implements IPublisher
 
 		try {
 			$result = $this->client->publish(
-				RedisDbExchangePlugin\Constants::EXCHANGE_CHANNEL,
 				Utils\Json::encode([
 					'origin'      => $origin,
 					'routing_key' => $routingKey,

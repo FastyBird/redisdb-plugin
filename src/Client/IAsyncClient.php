@@ -65,11 +65,17 @@ interface IAsyncClient
 	public function unsubscribe(string $channel): Promise\PromiseInterface;
 
 	/**
-	 * @param string $channel
 	 * @param string $content
 	 *
 	 * @return Promise\PromiseInterface
 	 */
-	public function publish(string $channel, string $content): Promise\PromiseInterface;
+	public function publish(string $content): Promise\PromiseInterface;
+
+	/**
+	 * @return void
+	 *
+	 * @throws Throwable
+	 */
+	public function initialize(): void;
 
 }
