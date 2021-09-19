@@ -100,7 +100,7 @@ class AsyncClient implements IAsyncClient
 	private array $requests = [];
 
 	/** @var Socket\ConnectionInterface|null */
-	private ?Socket\ConnectionInterface $stream;
+	private ?Socket\ConnectionInterface $stream = null;
 
 	/** @var RedisProtocol\Parser\ParserInterface */
 	private RedisProtocol\Parser\ParserInterface $parser;
