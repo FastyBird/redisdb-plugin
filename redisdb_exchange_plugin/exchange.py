@@ -102,4 +102,5 @@ class RedisExchange:
     # -----------------------------------------------------------------------------
 
     def is_healthy(self) -> bool:
+        """Check if exchange is healthy"""
         return self.__consumer.is_alive()
