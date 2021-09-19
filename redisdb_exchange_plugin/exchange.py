@@ -80,6 +80,12 @@ class RedisExchange:
 
     # -----------------------------------------------------------------------------
 
+    def run(self) -> None:
+        """Start exchange services"""
+        self.__consumer.start()
+
+    # -----------------------------------------------------------------------------
+
     def close(self) -> None:
         """Close all opened connections & stop server thread"""
         self.__publisher.close()
