@@ -98,3 +98,8 @@ class RedisExchange:
     def publish(self, origin: ModuleOrigin, routing_key: RoutingKey, data: dict) -> None:
         """Publish message to Redis exchange"""
         self.__publisher.publish(origin=origin, routing_key=routing_key, data=data)
+
+    # -----------------------------------------------------------------------------
+
+    def is_healthy(self) -> bool:
+        return self.__consumer.is_alive()
