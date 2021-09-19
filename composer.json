@@ -38,7 +38,7 @@
     "clue/redis-react": "^2.5",
     "contributte/console": "^0.9",
     "fastybird/application-exchange": "^0.1",
-    "fastybird/datetime-factory": "^0.1",
+    "fastybird/datetime-factory": "^0.2",
     "fastybird/modules-metadata": "^0.5",
     "fastybird/web-server": "^0.1",
     "nette/bootstrap": "^3.0",
