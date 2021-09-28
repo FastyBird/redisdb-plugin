@@ -2,9 +2,9 @@
 
 [![Build Status](https://badgen.net/github/checks/FastyBird/redisdb-exchange-plugin/master?cache=300&style=flat-square)](https://github.com/FastyBird/redisdb-exchange-plugin/actions)
 [![Licence](https://badgen.net/github/license/FastyBird/redisdb-exchange-plugin?cache=300&style=flat-square)](https://github.com/FastyBird/redisdb-exchange-plugin/blob/master/LICENSE.md)
+[![Code coverage](https://badgen.net/coveralls/c/github/FastyBird/redisdb-exchange-plugin?cache=300&style=flat-square)](https://coveralls.io/r/FastyBird/redisdb-exchange-plugin)
 
 ![PHP](https://badgen.net/packagist/php/FastyBird/redisdb-exchange-plugin?cache=300&style=flat-square)
-[![PHP code coverage](https://badgen.net/coveralls/c/github/FastyBird/redisdb-exchange-plugin?cache=300&style=flat-square)](https://coveralls.io/r/FastyBird/redisdb-exchange-plugin)
 [![PHP latest stable](https://badgen.net/packagist/v/FastyBird/redisdb-exchange-plugin/latest?cache=300&style=flat-square)](https://packagist.org/packages/FastyBird/redisdb-exchange-plugin)
 [![PHP downloads total](https://badgen.net/packagist/dt/FastyBird/redisdb-exchange-plugin?cache=300&style=flat-square)](https://packagist.org/packages/FastyBird/redisdb-exchange-plugin)
 [![PHPStan](https://img.shields.io/badge/phpstan-enabled-brightgreen.svg?style=flat-square)](https://github.com/phpstan/phpstan)
