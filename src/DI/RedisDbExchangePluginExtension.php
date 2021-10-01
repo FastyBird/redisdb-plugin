@@ -86,7 +86,7 @@ class RedisDbExchangePluginExtension extends DI\CompilerExtension
 		$asyncClientService = null;
 
 		foreach ($configuration->connection as $name => $connection) {
-			$connectionService = $builder->addDefinition($this->prefix('connection.' . $name))
+			$connectionService = $builder->addDefinition($this->prefix('connection.' . $name), new DI\Definitions\ServiceDefinition())
 				->setType(Connections\Connection::class)
 				->setArguments([
 					'host'     => $connection->host,
@@ -97,7 +97,7 @@ class RedisDbExchangePluginExtension extends DI\CompilerExtension
 				->setAutowired(false);
 
 			if ($configuration->enableClassic) {
-				$clientService = $builder->addDefinition($this->prefix('client.' . $name))
+				$clientService = $builder->addDefinition($this->prefix('client.' . $name), new DI\Definitions\ServiceDefinition())
 					->setType(Client\Client::class)
 					->setArguments([
 						'channelName' => $connection->channel,
@@ -105,7 +105,7 @@ class RedisDbExchangePluginExtension extends DI\CompilerExtension
 					])
 					->setAutowired($name === 'default');
 
-				$builder->addDefinition($this->prefix('publisher.' . $name))
+				$builder->addDefinition($this->prefix('publisher.' . $name), new DI\Definitions\ServiceDefinition())
 					->setType(Publisher\Publisher::class)
 					->setArguments([
 						'client' => $clientService,
@@ -114,7 +114,7 @@ class RedisDbExchangePluginExtension extends DI\CompilerExtension
 			}
 
 			if ($name === 'default' && $configuration->enableAsync) {
-				$asyncClientService = $builder->addDefinition($this->prefix('asyncClient'))
+				$asyncClientService = $builder->addDefinition($this->prefix('asyncClient'), new DI\Definitions\ServiceDefinition())
 					->setType(Client\AsyncClient::class)
 					->setArguments([
 						'channelName' => $connection->channel,
@@ -122,7 +122,7 @@ class RedisDbExchangePluginExtension extends DI\CompilerExtension
 					])
 					->setAutowired(true);
 
-				$builder->addDefinition($this->prefix('asyncPublisher'))
+				$builder->addDefinition($this->prefix('asyncPublisher'), new DI\Definitions\ServiceDefinition())
 					->setType(Publisher\AsyncPublisher::class)
 					->setArguments([
 						'client' => $asyncClientService,
@@ -131,7 +131,7 @@ class RedisDbExchangePluginExtension extends DI\CompilerExtension
 			}
 		}
 
-		$builder->addDefinition($this->prefix('consumer'))
+		$builder->addDefinition($this->prefix('consumer'), new DI\Definitions\ServiceDefinition())
 			->setType(Consumer\ConsumerProxy::class);
 
 		if ($configuration->enableAsync) {
@@ -139,7 +139,7 @@ class RedisDbExchangePluginExtension extends DI\CompilerExtension
 				throw new Exceptions\InvalidStateException('Asynchronous client could not be created missing "default" connection configuration');
 			}
 
-			$builder->addDefinition($this->prefix('subscribers.initialize'))
+			$builder->addDefinition($this->prefix('subscribers.initialize'), new DI\Definitions\ServiceDefinition())
 				->setType(Subscribers\InitializeSubscriber::class);
 		}
 	}
