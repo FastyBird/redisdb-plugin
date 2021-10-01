@@ -2,9 +2,9 @@
 
 namespace Tests\Cases;
 
+use FastyBird\ApplicationExchange\Events as ApplicationExchangeEvents;
 use FastyBird\RedisDbExchangePlugin\Client;
 use FastyBird\RedisDbExchangePlugin\Subscribers;
-use FastyBird\WebServer\Events as WebServerEvents;
 use Mockery;
 use Ninjify\Nunjuck\TestCase\BaseMockeryTestCase;
 use React\EventLoop;
@@ -15,7 +15,7 @@ require_once __DIR__ . '/../../../bootstrap.php';
 /**
  * @testCase
  */
-final class InitializeSubscriberTest extends BaseMockeryTestCase
+final class ApplicationSubscriberTest extends BaseMockeryTestCase
 {
 
 	public function testSubscriberEvents(): void
@@ -24,12 +24,12 @@ final class InitializeSubscriberTest extends BaseMockeryTestCase
 
 		$eventLoop = Mockery::mock(EventLoop\LoopInterface::class);
 
-		$subscriber = new Subscribers\InitializeSubscriber(
+		$subscriber = new Subscribers\ApplicationSubscriber(
 			$asyncClient,
 			$eventLoop,
 		);
 
-		Assert::same([WebServerEvents\InitializeEvent::class => 'initialize'], $subscriber->getSubscribedEvents());
+		Assert::same([ApplicationExchangeEvents\ApplicationInitializeEvent::class => 'initialize'], $subscriber->getSubscribedEvents());
 	}
 
 	public function testInitialize(): void
@@ -42,7 +42,7 @@ final class InitializeSubscriberTest extends BaseMockeryTestCase
 
 		$eventLoop = Mockery::mock(EventLoop\LoopInterface::class);
 
-		$subscriber = new Subscribers\InitializeSubscriber(
+		$subscriber = new Subscribers\ApplicationSubscriber(
 			$asyncClient,
 			$eventLoop,
 		);
@@ -54,5 +54,5 @@ final class InitializeSubscriberTest extends BaseMockeryTestCase
 
 }
 
-$test_case = new InitializeSubscriberTest();
+$test_case = new ApplicationSubscriberTest();
 $test_case->run();

@@ -25,7 +25,7 @@ final class ExtensionTest extends BaseTestCase
 
 		Assert::notNull($container->getByType(Consumer\IConsumer::class));
 
-		Assert::notNull($container->getByType(Subscribers\InitializeSubscriber::class));
+		Assert::notNull($container->getByType(Subscribers\ApplicationSubscriber::class));
 	}
 
 }

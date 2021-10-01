@@ -1,7 +1,7 @@
 <?php declare(strict_types = 1);
 
 /**
- * InitializeSubscriber.php
+ * ApplicationSubscriber.php
  *
  * @license        More in license.md
  * @copyright      https://www.fastybird.com
@@ -15,8 +15,8 @@
 
 namespace FastyBird\RedisDbExchangePlugin\Subscribers;
 
+use FastyBird\ApplicationExchange\Events as ApplicationExchangeEvents;
 use FastyBird\RedisDbExchangePlugin\Client;
-use FastyBird\WebServer\Events as WebServerEvents;
 use Psr\Log;
 use React\EventLoop;
 use Symfony\Component\EventDispatcher;
@@ -30,7 +30,7 @@ use Throwable;
  *
  * @author          Adam Kadlec <adam.kadlec@fastybird.com>
  */
-class InitializeSubscriber implements EventDispatcher\EventSubscriberInterface
+class ApplicationSubscriber implements EventDispatcher\EventSubscriberInterface
 {
 
 	/** @var Client\IAsyncClient */
@@ -59,7 +59,7 @@ class InitializeSubscriber implements EventDispatcher\EventSubscriberInterface
 	public static function getSubscribedEvents(): array
 	{
 		return [
-			WebServerEvents\InitializeEvent::class => 'initialize',
+			ApplicationExchangeEvents\ApplicationInitializeEvent::class => 'initialize',
 		];
 	}
 
