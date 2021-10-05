@@ -15,7 +15,7 @@
 
 namespace FastyBird\RedisDbExchangePlugin\Subscribers;
 
-use FastyBird\ApplicationExchange\Events as ApplicationExchangeEvents;
+use FastyBird\WebServer\Events as WebServerEvents;
 use FastyBird\RedisDbExchangePlugin\Client;
 use Psr\Log;
 use React\EventLoop;
@@ -59,7 +59,7 @@ class ApplicationSubscriber implements EventDispatcher\EventSubscriberInterface
 	public static function getSubscribedEvents(): array
 	{
 		return [
-			ApplicationExchangeEvents\ApplicationInitializeEvent::class => 'initialize',
+			WebServerEvents\InitializeEvent::class => 'initialize',
 		];
 	}
 

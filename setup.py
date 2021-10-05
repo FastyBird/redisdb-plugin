@@ -51,7 +51,7 @@ setup(
     author="FastyBird",
     author_email="code@fastybird.com",
     license="Apache Software License (Apache Software License 2.0)",
-    description="FastyBird Redis database data exchange",
+    description="FastyBird Redis database data exchange plugin",
     url="https://github.com/FastyBird/redisdb-exchange-plugin",
     long_description=long_description,
     long_description_content_type="text/markdown",

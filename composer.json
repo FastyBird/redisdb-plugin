@@ -1,7 +1,7 @@
 {
   "name" : "fastybird/redisdb-exchange-plugin",
   "type" : "library",
-  "description" : "FastyBird Redis DB data exchange plugin",
+  "description" : "FastyBird Redis database data exchange plugin",
   "keywords" : [
     "fastybird",
     "fb",
@@ -37,9 +37,9 @@
     "php": ">=7.4.0|>=8.0.0",
     "clue/redis-react": "^2.5",
     "contributte/console": "^0.9",
-    "fastybird/application-exchange": "^0.2",
     "fastybird/datetime-factory": "^0.2",
     "fastybird/modules-metadata": "^0.7",
+    "fastybird/web-server": "^0.3.0",
     "nette/bootstrap": "^3.0",
     "nette/di": "^3.0",
     "nette/utils": "^3.2",
