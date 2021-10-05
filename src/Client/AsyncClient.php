@@ -17,6 +17,7 @@ namespace FastyBird\RedisDbExchangePlugin\Client;
 
 use Closure;
 use Clue\Redis\Protocol as RedisProtocol;
+use FastyBird\ModulesMetadata\Types as ModulesMetadataTypes;
 use FastyBird\RedisDbExchangePlugin\Connections;
 use FastyBird\RedisDbExchangePlugin\Consumer;
 use FastyBird\RedisDbExchangePlugin\Exceptions;
@@ -307,8 +308,8 @@ class AsyncClient implements IAsyncClient
 								&& $data->offsetExists('data')
 							) {
 								$this->consumer->consume(
-									$data->offsetGet('origin'),
-									$data->offsetGet('routing_key'),
+									ModulesMetadataTypes\ModuleOriginType::get($data->offsetGet('origin')),
+									ModulesMetadataTypes\RoutingKeyType::get($data->offsetGet('routing_key')),
 									$data->offsetGet('data')
 								);
 

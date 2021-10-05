@@ -15,7 +15,7 @@
 
 namespace FastyBird\RedisDbExchangePlugin\Publisher;
 
-use FastyBird\ApplicationExchange\Publisher as ApplicationExchangePublisher;
+use FastyBird\ExchangePlugin\Publisher as ExchangePluginPublisher;
 
 /**
  * Redis DB exchange publisher interface
@@ -25,7 +25,7 @@ use FastyBird\ApplicationExchange\Publisher as ApplicationExchangePublisher;
  *
  * @author         Adam Kadlec <adam.kadlec@fastybird.com>
  */
-interface IPublisher extends ApplicationExchangePublisher\IPublisher
+interface IPublisher extends ExchangePluginPublisher\IPublisher
 {
 
 }

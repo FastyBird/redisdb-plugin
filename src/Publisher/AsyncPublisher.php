@@ -16,6 +16,7 @@
 namespace FastyBird\RedisDbExchangePlugin\Publisher;
 
 use FastyBird\DateTimeFactory;
+use FastyBird\ModulesMetadata\Types as ModulesMetadataTypes;
 use FastyBird\RedisDbExchangePlugin\Client;
 use Nette;
 use Nette\Utils;
@@ -58,16 +59,16 @@ final class AsyncPublisher implements IPublisher
 	 * {@inheritDoc}
 	 */
 	public function publish(
-		string $origin,
-		string $routingKey,
+		ModulesMetadataTypes\ModuleOriginType $origin,
+		ModulesMetadataTypes\RoutingKeyType $routingKey,
 		array $data
 	): void {
 		try {
 			$result = $this->client->publish(
 				Utils\Json::encode([
 					'sender_id'   => $this->client->getIdentifier(),
-					'origin'      => $origin,
-					'routing_key' => $routingKey,
+					'origin'      => $origin->getValue(),
+					'routing_key' => $routingKey->getValue(),
 					'created'     => $this->dateTimeFactory->getNow()->format(DATE_ATOM),
 					'data'        => $data,
 				]),
@@ -76,8 +77,8 @@ final class AsyncPublisher implements IPublisher
 			$result->then(function () use ($routingKey, $origin, $data): void {
 				$this->logger->info('[FB:PLUGIN:REDISDB_EXCHANGE] Received message was pushed into data exchange', [
 					'message' => [
-						'routingKey' => $routingKey,
-						'origin'     => $origin,
+						'routingKey' => $routingKey->getValue(),
+						'origin'     => $origin->getValue(),
 						'data'       => $data,
 					],
 				]);
@@ -87,8 +88,8 @@ final class AsyncPublisher implements IPublisher
 				$result->otherwise(function () use ($routingKey, $origin, $data): void {
 					$this->logger->error('[FB:PLUGIN:REDISDB_EXCHANGE] Received message could not be pushed into data exchange', [
 						'message' => [
-							'routingKey' => $routingKey,
-							'origin'     => $origin,
+							'routingKey' => $routingKey->getValue(),
+							'origin'     => $origin->getValue(),
 							'data'       => $data,
 						],
 					]);
@@ -97,8 +98,8 @@ final class AsyncPublisher implements IPublisher
 		} catch (Utils\JsonException $ex) {
 			$this->logger->error('[FB:PLUGIN:REDISDB_EXCHANGE] Data could not be converted to message', [
 				'message'   => [
-					'routingKey' => $routingKey,
-					'origin'     => $origin,
+					'routingKey' => $routingKey->getValue(),
+					'origin'     => $origin->getValue(),
 					'data'       => $data,
 				],
 				'exception' => [

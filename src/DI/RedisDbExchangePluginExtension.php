@@ -15,7 +15,7 @@
 
 namespace FastyBird\RedisDbExchangePlugin\DI;
 
-use FastyBird\ApplicationExchange\Consumer as ApplicationExchangeConsumer;
+use FastyBird\ExchangePlugin\Consumer as ExchangePluginConsumer;
 use FastyBird\RedisDbExchangePlugin\Client;
 use FastyBird\RedisDbExchangePlugin\Connections;
 use FastyBird\RedisDbExchangePlugin\Consumer;
@@ -159,7 +159,7 @@ class RedisDbExchangePluginExtension extends DI\CompilerExtension
 		/** @var DI\Definitions\ServiceDefinition $consumerProxyService */
 		$consumerProxyService = $builder->getDefinition($consumerProxyServiceName);
 
-		$consumerServices = $builder->findByType(ApplicationExchangeConsumer\IConsumer::class);
+		$consumerServices = $builder->findByType(ExchangePluginConsumer\IConsumer::class);
 
 		foreach ($consumerServices as $consumerService) {
 			$consumerProxyService->addSetup('?->registerConsumer(?)', [

@@ -15,8 +15,8 @@
 
 namespace FastyBird\RedisDbExchangePlugin\Subscribers;
 
-use FastyBird\WebServer\Events as WebServerEvents;
 use FastyBird\RedisDbExchangePlugin\Client;
+use FastyBird\WebServer\Events as WebServerEvents;
 use Psr\Log;
 use React\EventLoop;
 use Symfony\Component\EventDispatcher;

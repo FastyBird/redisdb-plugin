@@ -15,7 +15,8 @@
 
 namespace FastyBird\RedisDbExchangePlugin\Consumer;
 
-use FastyBird\ApplicationExchange\Consumer as ApplicationExchangeConsumer;
+use FastyBird\ExchangePlugin\Consumer as ExchangePluginConsumer;
+use FastyBird\ModulesMetadata\Types as ModulesMetadataTypes;
 use Nette\Utils;
 
 /**
@@ -30,22 +31,22 @@ interface IConsumer
 {
 
 	/**
-	 * @param ApplicationExchangeConsumer\IConsumer $consumer
+	 * @param ExchangePluginConsumer\IConsumer $consumer
 	 *
 	 * @return void
 	 */
-	public function registerConsumer(ApplicationExchangeConsumer\IConsumer $consumer): void;
+	public function registerConsumer(ExchangePluginConsumer\IConsumer $consumer): void;
 
 	/**
-	 * @param string $origin
-	 * @param string $routingKey
+	 * @param ModulesMetadataTypes\ModuleOriginType $origin
+	 * @param ModulesMetadataTypes\RoutingKeyType $routingKey
 	 * @param Utils\ArrayHash $data
 	 *
 	 * @return void
 	 */
 	public function consume(
-		string $origin,
-		string $routingKey,
+		ModulesMetadataTypes\ModuleOriginType $origin,
+		ModulesMetadataTypes\RoutingKeyType $routingKey,
 		Utils\ArrayHash $data
 	): void;
 

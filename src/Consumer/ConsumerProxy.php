@@ -15,11 +15,12 @@
 
 namespace FastyBird\RedisDbExchangePlugin\Consumer;
 
-use FastyBird\ApplicationExchange\Consumer as ApplicationExchangeConsumer;
-use FastyBird\ApplicationExchange\Events as ApplicationExchangeEvents;
+use FastyBird\ExchangePlugin\Consumer as ExchangePluginConsumer;
+use FastyBird\ExchangePlugin\Events as ExchangePluginEvents;
 use FastyBird\ModulesMetadata\Exceptions as ModulesMetadataExceptions;
 use FastyBird\ModulesMetadata\Loaders as ModulesMetadataLoaders;
 use FastyBird\ModulesMetadata\Schemas as ModulesMetadataSchemas;
+use FastyBird\ModulesMetadata\Types as ModulesMetadataTypes;
 use FastyBird\RedisDbExchangePlugin\Exceptions;
 use Nette;
 use Nette\Utils;
@@ -41,7 +42,7 @@ final class ConsumerProxy implements IConsumer
 
 	use Nette\SmartObject;
 
-	/** @var SplObjectStorage<ApplicationExchangeConsumer\IConsumer, null> */
+	/** @var SplObjectStorage<ExchangePluginConsumer\IConsumer, null> */
 	private SplObjectStorage $consumers;
 
 	/** @var ModulesMetadataLoaders\ISchemaLoader */
@@ -51,7 +52,7 @@ final class ConsumerProxy implements IConsumer
 	private ModulesMetadataSchemas\IValidator $validator;
 
 	/** @var EventDispatcher\EventDispatcherInterface */
-	private $dispatcher;
+	private EventDispatcher\EventDispatcherInterface $dispatcher;
 
 	/** @var Log\LoggerInterface */
 	private Log\LoggerInterface $logger;
@@ -75,7 +76,7 @@ final class ConsumerProxy implements IConsumer
 	/**
 	 * {@inheritDoc}
 	 */
-	public function registerConsumer(ApplicationExchangeConsumer\IConsumer $consumer): void
+	public function registerConsumer(ExchangePluginConsumer\IConsumer $consumer): void
 	{
 		if (!$this->consumers->contains($consumer)) {
 			$this->consumers->attach($consumer);
@@ -88,12 +89,12 @@ final class ConsumerProxy implements IConsumer
 	 * @throws Exceptions\TerminateException
 	 */
 	public function consume(
-		string $origin,
-		string $routingKey,
+		ModulesMetadataTypes\ModuleOriginType $origin,
+		ModulesMetadataTypes\RoutingKeyType $routingKey,
 		Utils\ArrayHash $data
 	): void {
 		try {
-			$schema = $this->schemaLoader->load($origin, $routingKey);
+			$schema = $this->schemaLoader->load($origin->getValue(), $routingKey->getValue());
 
 		} catch (ModulesMetadataExceptions\InvalidArgumentException $ex) {
 			return;
@@ -106,7 +107,7 @@ final class ConsumerProxy implements IConsumer
 			return;
 		}
 
-		/** @var ApplicationExchangeConsumer\IConsumer $consumer */
+		/** @var ExchangePluginConsumer\IConsumer $consumer */
 		foreach ($this->consumers as $consumer) {
 			try {
 				$this->processMessage($origin, $routingKey, $data, $consumer);
@@ -124,22 +125,22 @@ final class ConsumerProxy implements IConsumer
 			}
 		}
 
-		$this->dispatcher->dispatch(new ApplicationExchangeEvents\MessageConsumedEvent($origin, $routingKey, $data));
+		$this->dispatcher->dispatch(new ExchangePluginEvents\MessageConsumedEvent($origin, $routingKey, $data));
 	}
 
 	/**
-	 * @param string $origin
-	 * @param string $routingKey
+	 * @param ModulesMetadataTypes\ModuleOriginType $origin
+	 * @param ModulesMetadataTypes\RoutingKeyType $routingKey
 	 * @param Utils\ArrayHash $data
-	 * @param ApplicationExchangeConsumer\IConsumer $consumer
+	 * @param ExchangePluginConsumer\IConsumer $consumer
 	 *
 	 * @return void
 	 */
 	private function processMessage(
-		string $origin,
-		string $routingKey,
+		ModulesMetadataTypes\ModuleOriginType $origin,
+		ModulesMetadataTypes\RoutingKeyType $routingKey,
 		Utils\ArrayHash $data,
-		ApplicationExchangeConsumer\IConsumer $consumer
+		ExchangePluginConsumer\IConsumer $consumer
 	): void {
 		try {
 			$consumer->consume($origin, $routingKey, $data);
