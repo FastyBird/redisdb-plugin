@@ -17,7 +17,7 @@ extensions:
 	contributteConsole		: Contributte\Console\DI\ConsoleExtension(%consoleMode%)
 	contributeEvents		: Contributte\EventDispatcher\DI\EventDispatcherExtension
 	fbDateTimeFactory		: FastyBird\DateTimeFactory\DI\DateTimeFactoryExtension
-	fbApplicationExchange	: FastyBird\ApplicationExchange\DI\ApplicationExchangeExtension
+	fbExchangePlugin		: FastyBird\ExchangePlugin\DI\ExchangePluginExtension
 	fbModulesMetadata		: FastyBird\ModulesMetadata\DI\ModulesMetadataExtension
 
 contributteConsole:
