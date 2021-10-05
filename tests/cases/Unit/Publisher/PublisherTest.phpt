@@ -4,7 +4,6 @@ namespace Tests\Cases;
 
 use DateTime;
 use FastyBird\DateTimeFactory;
-use FastyBird\ModulesMetadata;
 use FastyBird\ModulesMetadata\Types as ModulesMetadataTypes;
 use FastyBird\RedisDbExchangePlugin\Client;
 use FastyBird\RedisDbExchangePlugin\Publisher;
@@ -31,8 +30,8 @@ final class PublisherTest extends BaseMockeryTestCase
 			->withArgs(function ($data) use ($now): bool {
 				Assert::same(Utils\Json::encode([
 					'sender_id'   => 'redis_client_identifier',
-					'origin'      => ModulesMetadataTypes\ModuleOriginType::TYPE_MODULE_DEVICES_ORIGIN,
-					'routing_key' => ModulesMetadata\Constants::MESSAGE_BUS_DEVICES_UPDATED_ENTITY_ROUTING_KEY,
+					'origin'      => ModulesMetadataTypes\ModuleOriginType::ORIGIN_MODULE_DEVICES,
+					'routing_key' => ModulesMetadataTypes\RoutingKeyType::ROUTE_DEVICES_ENTITY_UPDATED,
 					'created'     => $now->format(DATE_ATOM),
 					'data'        => [
 						'key_one' => 'value_one',
@@ -60,8 +59,8 @@ final class PublisherTest extends BaseMockeryTestCase
 		$publisher = new Publisher\Publisher($client, $dateTimeFactory);
 
 		$publisher->publish(
-			ModulesMetadataTypes\ModuleOriginType::TYPE_MODULE_DEVICES_ORIGIN,
-			ModulesMetadata\Constants::MESSAGE_BUS_DEVICES_UPDATED_ENTITY_ROUTING_KEY,
+			ModulesMetadataTypes\ModuleOriginType::get(ModulesMetadataTypes\ModuleOriginType::ORIGIN_MODULE_DEVICES),
+			ModulesMetadataTypes\RoutingKeyType::get(ModulesMetadataTypes\RoutingKeyType::ROUTE_DEVICES_ENTITY_UPDATED),
 			[
 				'key_one' => 'value_one',
 				'key_two' => 'value_two',
