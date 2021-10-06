@@ -4,7 +4,7 @@ namespace Tests\Cases;
 
 use FastyBird\RedisDbExchangePlugin\Client;
 use FastyBird\RedisDbExchangePlugin\Subscribers;
-use FastyBird\WebServer\Events as WebServerEvents;
+use FastyBird\SocketServerFactory\Events as SocketServerFactoryEvents;
 use Mockery;
 use Ninjify\Nunjuck\TestCase\BaseMockeryTestCase;
 use React\EventLoop;
@@ -29,7 +29,7 @@ final class ApplicationSubscriberTest extends BaseMockeryTestCase
 			$eventLoop,
 		);
 
-		Assert::same([WebServerEvents\InitializeEvent::class => 'initialize'], $subscriber->getSubscribedEvents());
+		Assert::same([SocketServerFactoryEvents\InitializeEvent::class => 'initialize'], $subscriber->getSubscribedEvents());
 	}
 
 	public function testInitialize(): void

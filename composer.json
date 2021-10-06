@@ -40,7 +40,7 @@
     "fastybird/datetime-factory": "^0.2",
     "fastybird/exchange-plugin": "^0.3.1",
     "fastybird/modules-metadata": "^0.7",
-    "fastybird/web-server": "^0.3.0",
+    "fastybird/socket-server-factory": "^0.1",
     "nette/bootstrap": "^3.0",
     "nette/di": "^3.0",
     "nette/utils": "^3.2",

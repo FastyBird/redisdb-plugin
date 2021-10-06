@@ -19,6 +19,7 @@ extensions:
 	fbDateTimeFactory		: FastyBird\DateTimeFactory\DI\DateTimeFactoryExtension
 	fbExchangePlugin		: FastyBird\ExchangePlugin\DI\ExchangePluginExtension
 	fbModulesMetadata		: FastyBird\ModulesMetadata\DI\ModulesMetadataExtension
+	fbSocketServerFactory	: FastyBird\SocketServerFactory\DI\SocketServerFactoryExtension
 
 contributteConsole:
 	name: FastyBird:RedisDbExchangePlugin!
@@ -35,9 +36,3 @@ fbRedisDbExchangePlugin:
 	connection:
 		default:
 			host: 127.0.0.1
-
-services:
-    - {
-        type: React\EventLoop\LoopInterface
-        factory: React\EventLoop\Factory::create
-    }
