@@ -15,11 +15,13 @@
 #     limitations under the License.
 
 """
-Redis data exchange
+Redis DB exchange plugin publisher
 """
 
 # Library dependencies
-import json
+from typing import Dict
+from exchange_plugin.publisher import IPublisher
+from kink import inject
 from modules_metadata.routing import RoutingKey
 from modules_metadata.types import ModuleOrigin
 
@@ -27,33 +29,28 @@ from modules_metadata.types import ModuleOrigin
 from redisdb_exchange_plugin.connection import RedisClient
 
 
-class Publisher(RedisClient):
+@inject
+class Publisher(IPublisher):
     """
-    Redis data exchange publisher
+    Exchange data publisher
 
     @package        FastyBird:RedisDbExchangePlugin!
     @module         publisher
 
     @author         Adam Kadlec <adam.kadlec@fastybird.com>
     """
-    def publish(self, origin: ModuleOrigin, routing_key: RoutingKey, data: dict) -> None:
-        """Publish message to Redis exchange"""
-        message: dict = {
-            "routing_key": routing_key.value,
-            "origin": origin.value,
-            "sender_id": self.identifier,
-            "data": data,
-        }
-
-        result: int = self.client.publish(self.channel_name, json.dumps(message))
-
-        self.logger.debug(
-            "Successfully published message to: %d consumers via Redis with key: %s",
-            result,
-            routing_key
-        )
+    __redis_client: RedisClient
 
     # -----------------------------------------------------------------------------
 
-    def __del__(self):
-        self.close()
+    def __init__(
+        self,
+        redis_client: RedisClient,
+    ) -> None:
+        self.__redis_client = redis_client
+
+    # -----------------------------------------------------------------------------
+
+    def publish(self, origin: ModuleOrigin, routing_key: RoutingKey, data: Dict or None) -> None:
+        """Publish message to Redis exchange"""
+        self.__redis_client.publish(origin=origin, routing_key=routing_key, data=data)

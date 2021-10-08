@@ -15,17 +15,24 @@
 #     limitations under the License.
 
 """
-Redis connections
+Redis DB exchange plugin connection service
 """
 
 # Library dependencies
-import logging
-from abc import ABC
+import json
+import uuid
 from typing import Dict
+from modules_metadata.routing import RoutingKey
+from modules_metadata.types import ModuleOrigin
 from redis import Redis
+from redis.client import PubSub
+
+# Library libs
+from redisdb_exchange_plugin.exceptions import InvalidStateException
+from redisdb_exchange_plugin.logger import Logger
 
 
-class RedisClient(ABC):
+class RedisClient:
     """
     Redis client
 
@@ -36,67 +43,134 @@ class RedisClient(ABC):
     """
     __redis_client: Redis
 
+    __pub_sub: PubSub or None = None
+
     __identifier: str
     __channel_name: str
 
-    __logger: logging.Logger
+    __logger: Logger
 
     # -----------------------------------------------------------------------------
 
     def __init__(
         self,
-        config: Dict,
-        identifier: str,
-        channel_name: str = "fb_exchange",
+        host: str,
+        port: int,
+        channel_name: str,
+        logger: Logger,
+        username: str or None = None,
+        password: str or None = None,
     ) -> None:
         self.__redis_client = Redis(
-            host=config.get("host", "127.0.0.1"),
-            port=int(config.get("port", 6379)),
-            username=config.get("username", None),
-            password=config.get("password", None),
+            host=host,
+            port=port,
+            username=username,
+            password=password,
         )
 
-        self.__identifier = identifier
+        self.__identifier = uuid.uuid4().__str__()
         self.__channel_name = channel_name
 
-        self.__logger = logging.getLogger("dummy")
-
-    # -----------------------------------------------------------------------------
-
-    @property
-    def client(self) -> Redis:
-        """Get Redis client connection"""
-        return self.__redis_client
-
-    # -----------------------------------------------------------------------------
-
-    @property
-    def identifier(self) -> str:
-        """Get created exchange instance identifier"""
-        return self.__identifier
-
-    # -----------------------------------------------------------------------------
-
-    @property
-    def channel_name(self) -> str:
-        """Get exchange channel name"""
-        return self.__channel_name
-
-    # -----------------------------------------------------------------------------
-
-    @property
-    def logger(self) -> logging.Logger:
-        """Get application logger"""
-        return self.__logger
-
-    # -----------------------------------------------------------------------------
-
-    def set_logger(self, logger: logging.Logger) -> None:
-        """Configure custom logger handler"""
         self.__logger = logger
+
+    # -----------------------------------------------------------------------------
+
+    def publish(self, origin: ModuleOrigin, routing_key: RoutingKey, data: Dict or None) -> None:
+        """Publish message to default exchange channel"""
+        message: dict = {
+            "routing_key": routing_key.value,
+            "origin": origin.value,
+            "sender_id": self.__identifier,
+            "data": data,
+        }
+
+        result: int = self.__redis_client.publish(channel=self.__channel_name, message=json.dumps(message))
+
+        self.__logger.debug(
+            "Successfully published message to: %d consumers via RedisDB exchange plugin with key: %s",
+            result,
+            routing_key
+        )
+
+    # -----------------------------------------------------------------------------
+
+    def subscribe(self) -> None:
+        """Subscribe to default exchange channel"""
+        if self.__pub_sub is not None:
+            raise InvalidStateException("Exchange is already subscribed to exchange")
+
+        # Connect to pub sub exchange
+        self.__pub_sub = self.__redis_client.pubsub()
+        # Subscribe to channel
+        self.__pub_sub.subscribe(self.__channel_name)
+
+        self.__logger.debug(
+            "Successfully subscribed to RedisDB exchange channel: %s",
+            self.__channel_name,
+        )
+
+    # -----------------------------------------------------------------------------
+
+    def unsubscribe(self) -> None:
+        """Unsubscribe from default exchange channel"""
+        if self.__pub_sub is not None:
+            # Unsubscribe from channel
+            self.__pub_sub.unsubscribe(self.__channel_name)
+            # Disconnect from pub sub exchange
+            self.__pub_sub.close()
+
+            self.__logger.debug(
+                "Successfully unsubscribed from RedisDB exchange channel: %s",
+                self.__channel_name,
+            )
+
+    # -----------------------------------------------------------------------------
+
+    def receive(self) -> Dict or None:
+        """Try to receive new message from exchange"""
+        result = self.__pub_sub.get_message()
+
+        if (
+                result is not None
+                and result.get("type") == "message"
+                and isinstance(result.get("data", bytes("{}", "utf-8")), bytes)
+        ):
+            message = result.get("data", bytes("{}", "utf-8"))
+            message = message.decode("utf-8")
+
+            try:
+                data: dict = json.loads(message)
+
+                # Ignore own messages
+                if (
+                        data.get("sender_id", None) is not None
+                        and data.get("sender_id", None) == self.__identifier
+                ):
+                    return None
+
+                return data
+
+            except json.JSONDecodeError as ex:
+                self.__logger.exception(ex)
+
+        return None
 
     # -----------------------------------------------------------------------------
 
     def close(self) -> None:
         """Close opened connection to Redis database"""
+        self.unsubscribe()
+
+        self.__redis_client.close()
+
+    # -----------------------------------------------------------------------------
+
+    @property
+    def identifier(self) -> str:
+        """Get connection generated identifier"""
+        return self.__identifier
+
+    # -----------------------------------------------------------------------------
+
+    def __del__(self) -> None:
         self.__redis_client.close()

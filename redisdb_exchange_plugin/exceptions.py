@@ -15,13 +15,24 @@
 #     limitations under the License.
 
 """
-Package exceptions classes
+Redis DB exchange plugin exceptions classes
 """
 
 
 class HandleDataException(Exception):
     """
     Exception raised by invalid received data
+
+    @package        FastyBird:RedisDbExchangePlugin!
+    @module         exceptions
+
+    @author         Adam Kadlec <adam.kadlec@fastybird.com>
+    """
+
+
+class InvalidStateException(Exception):
+    """
+    Exception raised when invalid state occur
 
     @package        FastyBird:RedisDbExchangePlugin!
     @module         exceptions

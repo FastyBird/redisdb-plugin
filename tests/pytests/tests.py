@@ -13,47 +13,54 @@
 #     limitations under the License.
 
 # Test dependencies
-import datetime
 import json
+import redis
 import unittest
-import uuid
-from unittest.mock import patch, Mock
-from typing import Dict, List
+from exchange_plugin.bootstrap import create_container as exchange_plugin_create_container
+from kink import inject
 from modules_metadata.types import ModuleOrigin
 from modules_metadata.routing import RoutingKey
+from unittest.mock import patch
 
+# Library libs
+from redisdb_exchange_plugin.bootstrap import create_container
+from redisdb_exchange_plugin.connection import RedisClient
 from redisdb_exchange_plugin.publisher import Publisher
 
 
 class TestPublisher(unittest.TestCase):
-    @patch('redis.Redis.publish')
-    def test_publish(self, mock_redis_publish):
-        identifier: uuid.UUID = uuid.uuid4()
+    @classmethod
+    def setUpClass(cls) -> None:
+        exchange_plugin_create_container()
+        create_container({})
 
-        publisher = Publisher({}, identifier.__str__())
+    # -----------------------------------------------------------------------------
 
+    @inject
+    def test_publish(self, publisher: Publisher, redis_client: RedisClient):
         message = {
             "routing_key": RoutingKey(RoutingKey.DEVICES_ENTITY_UPDATED).value,
             "origin": ModuleOrigin(ModuleOrigin.DEVICES_MODULE).value,
-            "sender_id": identifier.__str__(),
+            "sender_id": redis_client.identifier,
             "data": {
                 "key_one": "value_one",
                 "key_two": "value_two",
             },
         }
 
-        mock_redis_publish.return_value = True
+        with patch.object(redis.Redis, "publish") as mock_redis_publish:
+            mock_redis_publish.return_value = True
 
-        publisher.publish(
-            origin=ModuleOrigin(ModuleOrigin.DEVICES_MODULE),
-            routing_key=RoutingKey(RoutingKey.DEVICES_ENTITY_UPDATED),
-            data={
-                "key_one": "value_one",
-                "key_two": "value_two",
-            },
-        )
+            publisher.publish(
+                origin=ModuleOrigin(ModuleOrigin.DEVICES_MODULE),
+                routing_key=RoutingKey(RoutingKey.DEVICES_ENTITY_UPDATED),
+                data={
+                    "key_one": "value_one",
+                    "key_two": "value_two",
+                },
+            )
 
-        mock_redis_publish.assert_called_with("fb_exchange", json.dumps(message))
+        mock_redis_publish.assert_called_with(channel="fb_exchange", message=json.dumps(message))
 
 
 if __name__ == '__main__':

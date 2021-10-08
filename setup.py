@@ -59,6 +59,7 @@ setup(
     packages=find_packages(),
     install_requires=[
         "fastybird-modules-metadata",
+        "kink",
         "redis",
         "setuptools",
     ],
