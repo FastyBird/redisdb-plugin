@@ -58,6 +58,7 @@ setup(
     python_requires=">=3.7",
     packages=find_packages(),
     install_requires=[
+        "fastybird-exchange-plugin",
         "fastybird-modules-metadata",
         "kink",
         "redis",

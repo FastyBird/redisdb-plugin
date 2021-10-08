@@ -23,12 +23,12 @@ import json
 import logging
 import time
 from typing import Dict
-from kink import inject
 from threading import Thread
+from kink import inject
 from exchange_plugin.consumer import IConsumer
-import modules_metadata.exceptions as metadata_exceptions
 from exchange_plugin.dispatcher import EventDispatcher
 from exchange_plugin.events.messages import MessageReceivedEvent
+import modules_metadata.exceptions as metadata_exceptions
 from modules_metadata.loader import load_schema
 from modules_metadata.routing import RoutingKey
 from modules_metadata.types import ModuleOrigin
