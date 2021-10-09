@@ -15,12 +15,10 @@
 
 namespace FastyBird\RedisDbExchangePlugin\DI;
 
-use FastyBird\ExchangePlugin\Consumer as ExchangePluginConsumer;
 use FastyBird\RedisDbExchangePlugin\Client;
 use FastyBird\RedisDbExchangePlugin\Connections;
-use FastyBird\RedisDbExchangePlugin\Consumer;
 use FastyBird\RedisDbExchangePlugin\Exceptions;
-use FastyBird\RedisDbExchangePlugin\Publisher;
+use FastyBird\RedisDbExchangePlugin\Publishers;
 use FastyBird\RedisDbExchangePlugin\Subscribers;
 use Nette;
 use Nette\DI;
@@ -106,7 +104,7 @@ class RedisDbExchangePluginExtension extends DI\CompilerExtension
 					->setAutowired($name === 'default');
 
 				$builder->addDefinition($this->prefix('publisher.' . $name), new DI\Definitions\ServiceDefinition())
-					->setType(Publisher\Publisher::class)
+					->setType(Publishers\Publisher::class)
 					->setArguments([
 						'client' => $clientService,
 					])
@@ -123,16 +121,13 @@ class RedisDbExchangePluginExtension extends DI\CompilerExtension
 					->setAutowired(true);
 
 				$builder->addDefinition($this->prefix('asyncPublisher'), new DI\Definitions\ServiceDefinition())
-					->setType(Publisher\AsyncPublisher::class)
+					->setType(Publishers\AsyncPublisher::class)
 					->setArguments([
 						'client' => $asyncClientService,
 					])
 					->setAutowired(false);
 			}
 		}
-
-		$builder->addDefinition($this->prefix('consumer'), new DI\Definitions\ServiceDefinition())
-			->setType(Consumer\ConsumerProxy::class);
 
 		if ($configuration->enableAsync) {
 			if ($asyncClientService === null) {
@@ -141,31 +136,9 @@ class RedisDbExchangePluginExtension extends DI\CompilerExtension
 
 			$builder->addDefinition($this->prefix('subscribers.application'), new DI\Definitions\ServiceDefinition())
 				->setType(Subscribers\ApplicationSubscriber::class);
-		}
-	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function beforeCompile(): void
-	{
-		parent::beforeCompile();
-
-		$builder = $this->getContainerBuilder();
-
-		/** @var string $consumerProxyServiceName */
-		$consumerProxyServiceName = $builder->getByType(Consumer\ConsumerProxy::class, true);
-
-		/** @var DI\Definitions\ServiceDefinition $consumerProxyService */
-		$consumerProxyService = $builder->getDefinition($consumerProxyServiceName);
-
-		$consumerServices = $builder->findByType(ExchangePluginConsumer\IConsumer::class);
-
-		foreach ($consumerServices as $consumerService) {
-			$consumerProxyService->addSetup('?->registerConsumer(?)', [
-				'@self',
-				$consumerService,
-			]);
+			$builder->addDefinition($this->prefix('subscribers.asyncClient'), new DI\Definitions\ServiceDefinition())
+				->setType(Subscribers\AsyncClientSubscriber::class);
 		}
 	}
 

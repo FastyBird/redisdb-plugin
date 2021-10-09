@@ -15,14 +15,12 @@
 
 namespace FastyBird\RedisDbExchangePlugin\Client;
 
-use Closure;
 use Clue\Redis\Protocol as RedisProtocol;
-use FastyBird\ModulesMetadata\Types as ModulesMetadataTypes;
 use FastyBird\RedisDbExchangePlugin\Connections;
-use FastyBird\RedisDbExchangePlugin\Consumer;
+use FastyBird\RedisDbExchangePlugin\Events;
 use FastyBird\RedisDbExchangePlugin\Exceptions;
 use Nette;
-use Nette\Utils;
+use Psr\EventDispatcher;
 use Psr\Log;
 use Ramsey\Uuid;
 use React\EventLoop;
@@ -38,40 +36,11 @@ use UnderflowException;
  * @subpackage     Client
  *
  * @author         Adam Kadlec <adam.kadlec@fastybird.com>
- *
- * @method onOpen(IAsyncClient $client)
- * @method onClose(IAsyncClient $client)
- * @method onMessage(string $channel, string $payload, IAsyncClient $client)
- * @method onPmessage(string $patern, string $channel, string $payload, IAsyncClient $client)
- * @method onError(Throwable $ex, IAsyncClient $client)
- * @method onBeforeConsumeMessage(string $payload)
- * @method onAfterConsumeMessage(string $payload)
  */
 class AsyncClient implements IAsyncClient
 {
 
 	use Nette\SmartObject;
-
-	/** @var Closure[] */
-	public array $onOpen = [];
-
-	/** @var Closure[] */
-	public array $onClose = [];
-
-	/** @var Closure[] */
-	public array $onMessage = [];
-
-	/** @var Closure[] */
-	public array $onPmessage = [];
-
-	/** @var Closure[] */
-	public array $onError = [];
-
-	/** @var Closure[] */
-	public array $onBeforeConsumeMessage = [];
-
-	/** @var Closure[] */
-	public array $onAfterConsumeMessage = [];
 
 	/** @var string */
 	private string $channelName;
@@ -94,9 +63,6 @@ class AsyncClient implements IAsyncClient
 	/** @var Connections\IConnection */
 	private Connections\IConnection $connection;
 
-	/** @var Consumer\IConsumer */
-	private Consumer\IConsumer $consumer;
-
 	/** @var Promise\Deferred[] */
 	private array $requests = [];
 
@@ -109,6 +75,9 @@ class AsyncClient implements IAsyncClient
 	/** @var RedisProtocol\Serializer\SerializerInterface */
 	private RedisProtocol\Serializer\SerializerInterface $serializer;
 
+	/** @var EventDispatcher\EventDispatcherInterface */
+	private EventDispatcher\EventDispatcherInterface $eventDispatcher;
+
 	/** @var EventLoop\LoopInterface */
 	private EventLoop\LoopInterface $eventLoop;
 
@@ -118,14 +87,13 @@ class AsyncClient implements IAsyncClient
 	public function __construct(
 		string $channelName,
 		Connections\IConnection $connection,
-		Consumer\IConsumer $consumer,
 		EventLoop\LoopInterface $eventLoop,
+		EventDispatcher\EventDispatcherInterface $eventDispatcher,
 		?Log\LoggerInterface $logger = null
 	) {
 		$this->channelName = $channelName;
 
 		$this->connection = $connection;
-		$this->consumer = $consumer;
 
 		$factory = new RedisProtocol\Factory();
 
@@ -133,6 +101,8 @@ class AsyncClient implements IAsyncClient
 		$this->serializer = $factory->createSerializer();
 
 		$this->eventLoop = $eventLoop;
+
+		$this->eventDispatcher = $eventDispatcher;
 
 		$this->logger = $logger ?? new Log\NullLogger();
 
@@ -166,14 +136,14 @@ class AsyncClient implements IAsyncClient
 				function (Socket\ConnectionInterface $stream) use ($deferred): void {
 					$this->stream = $stream;
 
-					$this->onOpen($this);
+					$this->eventDispatcher->dispatch(new Events\ConnectionOpenedEvent($this));
 
 					$deferred->resolve($this);
 				},
 				function (Throwable $ex) use ($deferred): void {
 					$this->isConnecting = false;
 
-					$this->onError($ex, $this);
+					$this->eventDispatcher->dispatch(new Events\ErrorEvent($ex, $this));
 
 					$deferred->reject($ex);
 				}
@@ -201,7 +171,7 @@ class AsyncClient implements IAsyncClient
 			$this->stream->close();
 		}
 
-		$this->onClose($this);
+		$this->eventDispatcher->dispatch(new Events\ConnectionClosedEvent($this));
 
 		// Reject all remaining requests in the queue
 		while ($this->requests) {
@@ -294,45 +264,6 @@ class AsyncClient implements IAsyncClient
 			->connect()
 			->then(function (AsyncClient $client): void {
 				$client->subscribe($this->channelName);
-
-				$client->onMessage[] = function (string $channel, string $payload) use ($client): void {
-					if ($channel === $this->channelName) {
-						$this->onBeforeConsumeMessage($payload);
-
-						try {
-							$data = Utils\ArrayHash::from(Utils\Json::decode($payload, Utils\Json::FORCE_ARRAY));
-
-							if (
-								$data->offsetExists('origin')
-								&& $data->offsetExists('routing_key')
-								&& $data->offsetExists('data')
-							) {
-								$this->consumer->consume(
-									ModulesMetadataTypes\ModuleOriginType::get($data->offsetGet('origin')),
-									ModulesMetadataTypes\RoutingKeyType::get($data->offsetGet('routing_key')),
-									$data->offsetGet('data')
-								);
-
-							} else {
-								// Log error action reason
-								$this->logger->warning('[FB:PLUGIN:REDISDB_EXCHANGE] Received message is not in valid format');
-							}
-						} catch (Utils\JsonException $ex) {
-							// Log error action reason
-							$this->logger->warning('[FB:PLUGIN:REDISDB_EXCHANGE] Received message is not valid json', [
-								'exception' => [
-									'message' => $ex->getMessage(),
-									'code'    => $ex->getCode(),
-								],
-							]);
-
-						} catch (Exceptions\TerminateException $ex) {
-							$client->close();
-						}
-
-						$this->onAfterConsumeMessage($payload);
-					}
-				};
 			});
 
 		if ($promise instanceof Promise\ExtendedPromiseInterface) {
@@ -385,7 +316,7 @@ class AsyncClient implements IAsyncClient
 							$models = $this->parser->pushIncoming($chunk);
 
 						} catch (RedisProtocol\Parser\ParserException $ex) {
-							$this->onError($ex, $this);
+							$this->eventDispatcher->dispatch(new Events\ErrorEvent($ex, $this));
 
 							$this->close();
 
@@ -397,7 +328,7 @@ class AsyncClient implements IAsyncClient
 								$this->handleMessage($data);
 
 							} catch (UnderflowException $ex) {
-								$this->onError($ex, $this);
+								$this->eventDispatcher->dispatch(new Events\ErrorEvent($ex, $this));
 
 								$this->close();
 
@@ -411,7 +342,7 @@ class AsyncClient implements IAsyncClient
 					});
 
 					$stream->on('error', function (Throwable $ex): void {
-						$this->onError($ex, $this);
+						$this->eventDispatcher->dispatch(new Events\ErrorEvent($ex, $this));
 					});
 
 					$deferred->resolve($stream);
@@ -440,7 +371,7 @@ class AsyncClient implements IAsyncClient
 			// Pub/Sub messages are to be forwarded and should not be processed as request responses
 			if ($type === 'message') {
 				if (isset($array[0]) && isset($array[1])) {
-					$this->onMessage($array[0], $array[1], $this);
+					$this->eventDispatcher->dispatch(new Events\MessageReceivedEvent($array[0], $array[1], $this));
 
 					return;
 
@@ -449,7 +380,9 @@ class AsyncClient implements IAsyncClient
 				}
 			} elseif ($type === 'pmessage') {
 				if (isset($array[0]) && isset($array[1]) && isset($array[2])) {
-					$this->onPmessage($array[0], $array[1], $array[2], $this);
+					$this->eventDispatcher->dispatch(
+						new Events\PatternMessageReceivedEvent($array[0], $array[1], $array[2], $this)
+					);
 
 					return;
 				} else {

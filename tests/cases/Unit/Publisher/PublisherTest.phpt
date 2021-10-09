@@ -6,7 +6,7 @@ use DateTime;
 use FastyBird\DateTimeFactory;
 use FastyBird\ModulesMetadata\Types as ModulesMetadataTypes;
 use FastyBird\RedisDbExchangePlugin\Client;
-use FastyBird\RedisDbExchangePlugin\Publisher;
+use FastyBird\RedisDbExchangePlugin\Publishers;
 use Mockery;
 use Nette\Utils;
 use Ninjify\Nunjuck\TestCase\BaseMockeryTestCase;
@@ -56,15 +56,15 @@ final class PublisherTest extends BaseMockeryTestCase
 			->andReturn($now)
 			->times(1);
 
-		$publisher = new Publisher\Publisher($client, $dateTimeFactory);
+		$publisher = new Publishers\Publisher($client, $dateTimeFactory);
 
 		$publisher->publish(
 			ModulesMetadataTypes\ModuleOriginType::get(ModulesMetadataTypes\ModuleOriginType::ORIGIN_MODULE_DEVICES),
 			ModulesMetadataTypes\RoutingKeyType::get(ModulesMetadataTypes\RoutingKeyType::ROUTE_DEVICES_ENTITY_UPDATED),
-			[
+			Utils\ArrayHash::from([
 				'key_one' => 'value_one',
 				'key_two' => 'value_two',
-			]
+			])
 		);
 	}
 

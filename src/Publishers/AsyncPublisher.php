@@ -7,15 +7,16 @@
  * @copyright      https://www.fastybird.com
  * @author         Adam Kadlec <adam.kadlec@fastybird.com>
  * @package        FastyBird:RedisDbExchangePlugin!
- * @subpackage     Publisher
+ * @subpackage     Publishers
  * @since          0.1.0
  *
  * @date           17.09.21
  */
 
-namespace FastyBird\RedisDbExchangePlugin\Publisher;
+namespace FastyBird\RedisDbExchangePlugin\Publishers;
 
 use FastyBird\DateTimeFactory;
+use FastyBird\ExchangePlugin\Publisher as ExchangePluginPublisher;
 use FastyBird\ModulesMetadata\Types as ModulesMetadataTypes;
 use FastyBird\RedisDbExchangePlugin\Client;
 use Nette;
@@ -27,11 +28,11 @@ use React\Promise;
  * Redis DB exchange asynchronous publisher
  *
  * @package        FastyBird:RedisDbExchangePlugin!
- * @subpackage     Publisher
+ * @subpackage     Publishers
  *
  * @author         Adam Kadlec <adam.kadlec@fastybird.com>
  */
-final class AsyncPublisher implements IPublisher
+final class AsyncPublisher implements ExchangePluginPublisher\IPublisher
 {
 
 	use Nette\SmartObject;
@@ -61,7 +62,7 @@ final class AsyncPublisher implements IPublisher
 	public function publish(
 		ModulesMetadataTypes\ModuleOriginType $origin,
 		ModulesMetadataTypes\RoutingKeyType $routingKey,
-		array $data
+		?Utils\ArrayHash $data
 	): void {
 		try {
 			$result = $this->client->publish(
@@ -70,7 +71,7 @@ final class AsyncPublisher implements IPublisher
 					'origin'      => $origin->getValue(),
 					'routing_key' => $routingKey->getValue(),
 					'created'     => $this->dateTimeFactory->getNow()->format(DATE_ATOM),
-					'data'        => $data,
+					'data'        => $data !== null ? $this->dataToArray($data) : null,
 				]),
 			);
 
@@ -79,7 +80,7 @@ final class AsyncPublisher implements IPublisher
 					'message' => [
 						'routingKey' => $routingKey->getValue(),
 						'origin'     => $origin->getValue(),
-						'data'       => $data,
+						'data'       => $data !== null ? $this->dataToArray($data) : null,
 					],
 				]);
 			});
@@ -90,7 +91,7 @@ final class AsyncPublisher implements IPublisher
 						'message' => [
 							'routingKey' => $routingKey->getValue(),
 							'origin'     => $origin->getValue(),
-							'data'       => $data,
+							'data'       => $data !== null ? $this->dataToArray($data) : null,
 						],
 					]);
 				});
@@ -100,7 +101,7 @@ final class AsyncPublisher implements IPublisher
 				'message'   => [
 					'routingKey' => $routingKey->getValue(),
 					'origin'     => $origin->getValue(),
-					'data'       => $data,
+					'data'       => $data !== null ? $this->dataToArray($data) : null,
 				],
 				'exception' => [
 					'message' => $ex->getMessage(),
@@ -110,6 +111,24 @@ final class AsyncPublisher implements IPublisher
 
 			return;
 		}
+	}
+
+	/**
+	 * @param Utils\ArrayHash $data
+	 *
+	 * @return mixed[]
+	 */
+	private function dataToArray(Utils\ArrayHash $data): array
+	{
+		$transformed = (array) $data;
+
+		foreach ($transformed as $key => $value) {
+			if ($value instanceof Utils\ArrayHash) {
+				$transformed[$key] = $this->dataToArray($value);
+			}
+		}
+
+		return $transformed;
 	}
 
 }
