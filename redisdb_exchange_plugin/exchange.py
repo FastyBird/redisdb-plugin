@@ -101,12 +101,7 @@ class RedisExchange(Thread):
         """Close all opened connections & stop exchange thread"""
         self.__stopped = True
 
-        # Unsubscribe from exchange
-        self.__redis_client.unsubscribe()
-        # Disconnect from server
-        self.__redis_client.close()
-
-        self.__logger.info("Redis DB exchange was closed")
+        self.__logger.info("Closing Redis DB exchange")
 
     # -----------------------------------------------------------------------------
 
@@ -125,6 +120,13 @@ class RedisExchange(Thread):
 
             except OSError:
                 self.__stopped = True
+
+        # Unsubscribe from exchange
+        self.__redis_client.unsubscribe()
+        # Disconnect from server
+        self.__redis_client.close()
+
+        self.__logger.info("Redis DB exchange was closed")
 
     # -----------------------------------------------------------------------------
 

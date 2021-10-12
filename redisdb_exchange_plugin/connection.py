@@ -124,6 +124,8 @@ class RedisClient:
                 self.__channel_name,
             )
 
+            self.__pub_sub = None
+
     # -----------------------------------------------------------------------------
 
     def receive(self) -> Dict or None:
