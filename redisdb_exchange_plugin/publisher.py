@@ -30,7 +30,7 @@ from redisdb_exchange_plugin.connection import RedisClient
 
 
 @inject
-class Publisher(IPublisher):
+class Publisher(IPublisher):  # pylint: disable=too-few-public-methods
     """
     Exchange data publisher
 

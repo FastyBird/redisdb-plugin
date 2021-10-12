@@ -22,6 +22,7 @@ Redis DB exchange plugin DI container
 
 # Library dependencies
 from typing import Dict
+from exchange_plugin.publisher import Publisher as ExchangePublisher
 from kink import di
 
 # Library libs
@@ -51,3 +52,5 @@ def create_container(settings: Dict) -> None:
 
     di[RedisExchange] = RedisExchange(redis_client=di[RedisClient], logger=di[Logger])
     di["fb-redisdb-exchange-plugin_exchange"] = di[RedisExchange]
+
+    di[ExchangePublisher].register_publisher(di[Publisher])
