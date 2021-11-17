@@ -22,7 +22,7 @@ Redis DB exchange plugin exchange service
 import json
 import logging
 import time
-from typing import Dict
+from typing import Dict, Optional
 from threading import Thread
 from kink import inject
 from exchange_plugin.consumer import IConsumer
@@ -53,7 +53,7 @@ class RedisExchange(Thread):
     __redis_client: RedisClient
 
     __event_dispatcher: EventDispatcher
-    __exchange_consumer: IConsumer or None = None
+    __exchange_consumer: Optional[IConsumer] = None
 
     __logger: Logger
 
@@ -66,7 +66,7 @@ class RedisExchange(Thread):
         redis_client: RedisClient,
         logger: Logger,
         event_dispatcher: EventDispatcher,
-        exchange_consumer: IConsumer or None = None,
+        exchange_consumer: Optional[IConsumer] = None,
     ) -> None:
         Thread.__init__(self)
 
@@ -138,8 +138,8 @@ class RedisExchange(Thread):
 
     def __receive(self, data: Dict) -> None:
         try:
-            origin: ModuleOrigin or None = self.__validate_origin(origin=data.get("origin", None))
-            routing_key: RoutingKey or None = self.__validate_routing_key(
+            origin = self.__validate_origin(origin=data.get("origin", None))
+            routing_key = self.__validate_routing_key(
                 routing_key=data.get("routing_key", None),
             )
 
@@ -149,7 +149,7 @@ class RedisExchange(Thread):
                     and data.get("data", None) is not None
                     and isinstance(data.get("data", None), dict) is True
             ):
-                data: Dict or None = self.__validate_data(
+                data = self.__validate_data(
                     origin=origin,
                     routing_key=routing_key,
                     data=data.get("data", None),
@@ -180,7 +180,7 @@ class RedisExchange(Thread):
     # -----------------------------------------------------------------------------
 
     @staticmethod
-    def __validate_origin(origin: str or None) -> ModuleOrigin or None:
+    def __validate_origin(origin: Optional[str]) -> Optional[ModuleOrigin]:
         if (
                 origin is not None
                 and isinstance(origin, str) is True
@@ -193,7 +193,7 @@ class RedisExchange(Thread):
     # -----------------------------------------------------------------------------
 
     @staticmethod
-    def __validate_routing_key(routing_key: str or None) -> RoutingKey or None:
+    def __validate_routing_key(routing_key: Optional[str]) -> Optional[RoutingKey]:
         if (
                 routing_key is not None
                 and isinstance(routing_key, str) is True

@@ -19,7 +19,7 @@ Redis DB exchange plugin publisher
 """
 
 # Library dependencies
-from typing import Dict
+from typing import Dict, Optional
 from exchange_plugin.publisher import IPublisher
 from kink import inject
 from modules_metadata.routing import RoutingKey
@@ -51,6 +51,6 @@ class Publisher(IPublisher):  # pylint: disable=too-few-public-methods
 
     # -----------------------------------------------------------------------------
 
-    def publish(self, origin: ModuleOrigin, routing_key: RoutingKey, data: Dict or None) -> None:
+    def publish(self, origin: ModuleOrigin, routing_key: RoutingKey, data: Optional[Dict]) -> None:
         """Publish message to Redis exchange"""
         self.__redis_client.publish(origin=origin, routing_key=routing_key, data=data)

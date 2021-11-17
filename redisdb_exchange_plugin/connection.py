@@ -21,7 +21,7 @@ Redis DB exchange plugin connection service
 # Library dependencies
 import json
 import uuid
-from typing import Dict
+from typing import Dict, Optional
 from modules_metadata.routing import RoutingKey
 from modules_metadata.types import ModuleOrigin
 from redis import Redis
@@ -43,7 +43,7 @@ class RedisClient:
     """
     __redis_client: Redis
 
-    __pub_sub: PubSub or None = None
+    __pub_sub: Optional[PubSub] = None
 
     __identifier: str
     __channel_name: str
@@ -58,8 +58,8 @@ class RedisClient:
         port: int,
         channel_name: str,
         logger: Logger,
-        username: str or None = None,
-        password: str or None = None,
+        username: Optional[str] = None,
+        password: Optional[str] = None,
     ) -> None:
         self.__redis_client = Redis(
             host=host,
@@ -75,7 +75,7 @@ class RedisClient:
 
     # -----------------------------------------------------------------------------
 
-    def publish(self, origin: ModuleOrigin, routing_key: RoutingKey, data: Dict or None) -> None:
+    def publish(self, origin: ModuleOrigin, routing_key: RoutingKey, data: Optional[Dict]) -> None:
         """Publish message to default exchange channel"""
         message: dict = {
             "routing_key": routing_key.value,
@@ -128,7 +128,7 @@ class RedisClient:
 
     # -----------------------------------------------------------------------------
 
-    def receive(self) -> Dict or None:
+    def receive(self) -> Optional[Dict]:
         """Try to receive new message from exchange"""
         result = self.__pub_sub.get_message()
 
