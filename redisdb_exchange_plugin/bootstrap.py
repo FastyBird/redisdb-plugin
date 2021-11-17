@@ -21,7 +21,8 @@ Redis DB exchange plugin DI container
 # pylint: disable=no-value-for-parameter
 
 # Library dependencies
-from typing import Dict
+import logging
+from typing import Dict, Union
 from exchange_plugin.publisher import Publisher as ExchangePublisher
 from kink import di
 
@@ -32,9 +33,12 @@ from redisdb_exchange_plugin.logger import Logger
 from redisdb_exchange_plugin.publisher import Publisher
 
 
-def create_container(settings: Dict) -> None:
+def create_container(
+    settings: Dict[str, Union[str, int, None]],
+    logger: logging.Logger = logging.getLogger("dummy"),
+) -> None:
     """Create Redis DB exchange plugin services"""
-    di[Logger] = Logger()
+    di[Logger] = Logger(logger=logger)
     di["fb-redisdb-exchange-plugin_logger"] = di[Logger]
 
     di[RedisClient] = RedisClient(

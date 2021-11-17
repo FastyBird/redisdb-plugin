@@ -21,7 +21,7 @@ Redis DB exchange plugin connection service
 # Library dependencies
 import json
 import uuid
-from typing import Dict, Optional
+from typing import Dict, Optional, Union
 from modules_metadata.routing import RoutingKey
 from modules_metadata.types import ModuleOrigin
 from redis import Redis
@@ -77,7 +77,7 @@ class RedisClient:
 
     def publish(self, origin: ModuleOrigin, routing_key: RoutingKey, data: Optional[Dict]) -> None:
         """Publish message to default exchange channel"""
-        message: dict = {
+        message = {
             "routing_key": routing_key.value,
             "origin": origin.value,
             "sender_id": self.__identifier,
@@ -141,7 +141,7 @@ class RedisClient:
             message = message.decode("utf-8")
 
             try:
-                data: dict = json.loads(message)
+                data: Dict[str, Union[str, int, float, bool, None]] = json.loads(message)
 
                 # Ignore own messages
                 if (
