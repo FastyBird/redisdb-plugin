@@ -16,8 +16,10 @@
 Redis DB exchange plugin logger
 """
 
-# App dependencies
+# Python base dependencies
 import logging
+
+# Library dependencies
 from kink import inject
 
 
@@ -31,6 +33,7 @@ class Logger:
 
     @author         Adam Kadlec <adam.kadlec@fastybird.com>
     """
+
     __logger: logging.Logger
 
     # -----------------------------------------------------------------------------
@@ -46,30 +49,30 @@ class Logger:
 
     # -----------------------------------------------------------------------------
 
-    def debug(self, msg: str, *args, **kwargs) -> None:
+    def debug(self, msg: str, *args, **kwargs) -> None:  # type: ignore[no-untyped-def]
         """Log debugging message"""
         self.__logger.debug(msg, *args, **kwargs)
 
     # -----------------------------------------------------------------------------
 
-    def info(self, msg: str, *args, **kwargs) -> None:
+    def info(self, msg: str, *args, **kwargs) -> None:  # type: ignore[no-untyped-def]
         """Log information message"""
         self.__logger.info(msg, *args, **kwargs)
 
     # -----------------------------------------------------------------------------
 
-    def warning(self, msg: str, *args, **kwargs) -> None:
+    def warning(self, msg: str, *args, **kwargs) -> None:  # type: ignore[no-untyped-def]
         """Log warning message"""
         self.__logger.warning(msg, *args, **kwargs)
 
     # -----------------------------------------------------------------------------
 
-    def error(self, msg: str, *args, **kwargs) -> None:
+    def error(self, msg: str, *args, **kwargs) -> None:  # type: ignore[no-untyped-def]
         """Log error message"""
         self.__logger.error(msg, *args, **kwargs)
 
     # -----------------------------------------------------------------------------
 
-    def exception(self, msg: Exception, *args, exc_info: bool = True, **kwargs) -> None:
+    def exception(self, msg: Exception, *args, exc_info: bool = True, **kwargs) -> None:  # type: ignore[no-untyped-def]
         """Log thrown exception"""
         self.__logger.exception(msg, *args, exc_info, **kwargs)

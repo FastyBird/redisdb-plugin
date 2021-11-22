@@ -18,17 +18,19 @@
 Redis DB exchange plugin exchange service
 """
 
-# Library dependencies
+# Python base dependencies
 import json
 import logging
 import time
-from typing import Dict, Optional
 from threading import Thread
-from kink import inject
+from typing import Dict, Optional
+
+# Library dependencies
+import modules_metadata.exceptions as metadata_exceptions
 from exchange_plugin.consumer import IConsumer
 from exchange_plugin.dispatcher import EventDispatcher
 from exchange_plugin.events.messages import MessageReceivedEvent
-import modules_metadata.exceptions as metadata_exceptions
+from kink import inject
 from modules_metadata.loader import load_schema
 from modules_metadata.routing import RoutingKey
 from modules_metadata.types import ModuleOrigin
@@ -50,6 +52,7 @@ class RedisExchange(Thread):
 
     @author         Adam Kadlec <adam.kadlec@fastybird.com>
     """
+
     __redis_client: RedisClient
 
     __event_dispatcher: EventDispatcher
@@ -144,10 +147,10 @@ class RedisExchange(Thread):
             )
 
             if (
-                    routing_key is not None
-                    and origin is not None
-                    and data.get("data", None) is not None
-                    and isinstance(data.get("data", None), dict) is True
+                routing_key is not None
+                and origin is not None
+                and data.get("data", None) is not None
+                and isinstance(data.get("data", None), dict) is True
             ):
                 data = self.__validate_data(
                     origin=origin,
@@ -168,7 +171,7 @@ class RedisExchange(Thread):
                         origin=origin,
                         routing_key=routing_key,
                         data=data,
-                    )
+                    ),
                 )
 
             else:
@@ -181,11 +184,7 @@ class RedisExchange(Thread):
 
     @staticmethod
     def __validate_origin(origin: Optional[str]) -> Optional[ModuleOrigin]:
-        if (
-                origin is not None
-                and isinstance(origin, str) is True
-                and ModuleOrigin.has_value(origin)
-        ):
+        if origin is not None and isinstance(origin, str) is True and ModuleOrigin.has_value(origin):
             return ModuleOrigin(origin)
 
         return None
@@ -194,11 +193,7 @@ class RedisExchange(Thread):
 
     @staticmethod
     def __validate_routing_key(routing_key: Optional[str]) -> Optional[RoutingKey]:
-        if (
-                routing_key is not None
-                and isinstance(routing_key, str) is True
-                and RoutingKey.has_value(routing_key)
-        ):
+        if routing_key is not None and isinstance(routing_key, str) is True and RoutingKey.has_value(routing_key):
             return RoutingKey(routing_key)
 
         return None

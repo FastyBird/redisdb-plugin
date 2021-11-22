@@ -18,8 +18,10 @@
 Redis DB exchange plugin publisher
 """
 
-# Library dependencies
+# Python base dependencies
 from typing import Dict, Optional
+
+# Library dependencies
 from exchange_plugin.publisher import IPublisher
 from kink import inject
 from modules_metadata.routing import RoutingKey
@@ -39,6 +41,7 @@ class Publisher(IPublisher):  # pylint: disable=too-few-public-methods
 
     @author         Adam Kadlec <adam.kadlec@fastybird.com>
     """
+
     __redis_client: RedisClient
 
     # -----------------------------------------------------------------------------

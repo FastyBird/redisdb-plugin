@@ -57,6 +57,7 @@ setup(
     long_description_content_type="text/markdown",
     python_requires=">=3.7",
     packages=find_packages(),
+    package_data={"redisdb_exchange_plugin": ["py.typed"]},
     install_requires=[
         "fastybird-exchange-plugin",
         "fastybird-modules-metadata",

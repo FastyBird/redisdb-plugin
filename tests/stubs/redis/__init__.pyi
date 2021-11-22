@@ -1,0 +1,13 @@
+from typing import Any, Optional
+
+from redis.client import PubSub
+
+
+class Redis(object):
+    def __init__(self, host: str = "localhost", port: int = 6379, username: Optional[str] = None, password: Optional[str] = None) -> None: ...
+
+    def close(self) -> None: ...
+
+    def publish(self, channel: str, message: str) -> int: ...
+
+    def pubsub(self, **kwargs: Any) -> PubSub: ...

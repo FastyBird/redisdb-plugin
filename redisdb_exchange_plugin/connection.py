@@ -18,10 +18,12 @@
 Redis DB exchange plugin connection service
 """
 
-# Library dependencies
+# Python base dependencies
 import json
 import uuid
 from typing import Dict, Optional, Union
+
+# Library dependencies
 from modules_metadata.routing import RoutingKey
 from modules_metadata.types import ModuleOrigin
 from redis import Redis
@@ -41,6 +43,7 @@ class RedisClient:
 
     @author         Adam Kadlec <adam.kadlec@fastybird.com>
     """
+
     __redis_client: Redis
 
     __pub_sub: Optional[PubSub] = None
@@ -89,7 +92,7 @@ class RedisClient:
         self.__logger.debug(
             "Successfully published message to: %d consumers via RedisDB exchange plugin with key: %s",
             result,
-            routing_key
+            routing_key,
         )
 
     # -----------------------------------------------------------------------------
@@ -130,30 +133,28 @@ class RedisClient:
 
     def receive(self) -> Optional[Dict]:
         """Try to receive new message from exchange"""
-        result = self.__pub_sub.get_message()
+        if self.__pub_sub is not None:
+            result = self.__pub_sub.get_message()
 
-        if (
+            if (
                 result is not None
                 and result.get("type") == "message"
                 and isinstance(result.get("data", bytes("{}", "utf-8")), bytes)
-        ):
-            message = result.get("data", bytes("{}", "utf-8"))
-            message = message.decode("utf-8")
+            ):
+                message_data = result.get("data", bytes("{}", "utf-8"))
+                message = message_data.decode("utf-8") if isinstance(message_data, bytes) else ""
 
-            try:
-                data: Dict[str, Union[str, int, float, bool, None]] = json.loads(message)
+                try:
+                    data: Dict[str, Union[str, int, float, bool, None]] = json.loads(message)
 
-                # Ignore own messages
-                if (
-                        data.get("sender_id", None) is not None
-                        and data.get("sender_id", None) == self.__identifier
-                ):
-                    return None
+                    # Ignore own messages
+                    if data.get("sender_id", None) is not None and data.get("sender_id", None) == self.__identifier:
+                        return None
 
-                return data
+                    return data
 
-            except json.JSONDecodeError as ex:
-                self.__logger.exception(ex)
+                except json.JSONDecodeError as ex:
+                    self.__logger.exception(ex)
 
         return None
 

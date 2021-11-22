@@ -20,9 +20,11 @@ Redis DB exchange plugin DI container
 
 # pylint: disable=no-value-for-parameter
 
-# Library dependencies
+# Python base dependencies
 import logging
 from typing import Dict, Union
+
+# Library dependencies
 from exchange_plugin.publisher import Publisher as ExchangePublisher
 from kink import di
 
@@ -42,11 +44,13 @@ def create_container(
     di["fb-redisdb-exchange-plugin_logger"] = di[Logger]
 
     di[RedisClient] = RedisClient(
-        host=settings.get("host", "127.0.0.1"),
-        port=int(settings.get("port", 6379)),
-        channel_name=settings.get("channel_name", "fb_exchange"),
-        username=settings.get("username", None),
-        password=settings.get("password", None),
+        host=str(settings.get("host", "127.0.0.1")) if settings.get("host", None) is not None else "127.0.0.1",
+        port=int(str(settings.get("port", 6379))),
+        channel_name=str(settings.get("channel_name", "fb_exchange"))
+        if settings.get("channel_name", None) is not None
+        else "fb_exchange",
+        username=str(settings.get("username", None)) if settings.get("username", None) is not None else None,
+        password=str(settings.get("password", None)) if settings.get("password", None) is not None else None,
         logger=di[Logger],
     )
     di["fb-redisdb-exchange-plugin_redis-client"] = di[RedisClient]
@@ -54,7 +58,7 @@ def create_container(
     di[Publisher] = Publisher(redis_client=di[RedisClient])
     di["fb-redisdb-exchange-plugin_publisher"] = di[Publisher]
 
-    di[RedisExchange] = RedisExchange(redis_client=di[RedisClient], logger=di[Logger])
+    di[RedisExchange] = RedisExchange(redis_client=di[RedisClient], logger=di[Logger])  # type: ignore[call-arg]
     di["fb-redisdb-exchange-plugin_exchange"] = di[RedisExchange]
 
     di[ExchangePublisher].register_publisher(di[Publisher])
