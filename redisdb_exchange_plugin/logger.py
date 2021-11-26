@@ -73,6 +73,6 @@ class Logger:
 
     # -----------------------------------------------------------------------------
 
-    def exception(self, msg: Exception, *args, exc_info: bool = True, **kwargs) -> None:  # type: ignore[no-untyped-def]
+    def exception(self, msg: Exception) -> None:
         """Log thrown exception"""
-        self.__logger.exception(msg, *args, exc_info, **kwargs)
+        self.__logger.exception(msg)
