@@ -20,7 +20,6 @@ Redis DB exchange plugin exchange service
 
 # Python base dependencies
 import json
-import logging
 import time
 from threading import Thread
 from typing import Dict, Optional
@@ -71,7 +70,7 @@ class RedisExchange(Thread):
         event_dispatcher: EventDispatcher,
         exchange_consumer: Optional[IConsumer] = None,
     ) -> None:
-        Thread.__init__(self)
+        super().__init__(name="Redis DB exchange client thread", daemon=True)
 
         self.__redis_client = redis_client
         self.__logger = logger
@@ -79,22 +78,14 @@ class RedisExchange(Thread):
         self.__event_dispatcher = event_dispatcher
         self.__exchange_consumer = exchange_consumer
 
-        # Threading config...
-        self.setDaemon(True)
-        self.setName("Redis DB exchange thread")
-
-    # -----------------------------------------------------------------------------
-
-    def set_logger(self, logger: logging.Logger) -> None:
-        """Configure custom logger handler"""
-        self.__logger.set_logger(logger=logger)
-
     # -----------------------------------------------------------------------------
 
     def start(self) -> None:
         """Start exchange services"""
         self.__stopped = False
         self.__redis_client.subscribe()
+
+        self.__logger.info("Starting Redis DB exchange client")
 
         super().start()
 
@@ -104,7 +95,7 @@ class RedisExchange(Thread):
         """Close all opened connections & stop exchange thread"""
         self.__stopped = True
 
-        self.__logger.info("Closing Redis DB exchange")
+        self.__logger.info("Closing Redis DB exchange client")
 
     # -----------------------------------------------------------------------------
 
@@ -129,13 +120,19 @@ class RedisExchange(Thread):
         # Disconnect from server
         self.__redis_client.close()
 
-        self.__logger.info("Redis DB exchange was closed")
+        self.__logger.info("Redis DB exchange client was closed")
 
     # -----------------------------------------------------------------------------
 
     def is_healthy(self) -> bool:
         """Check if exchange is healthy"""
         return self.is_alive()
+
+    # -----------------------------------------------------------------------------
+
+    def register_consumer(self, consumer: IConsumer) -> None:
+        """Register exchange consumer"""
+        self.__exchange_consumer = consumer
 
     # -----------------------------------------------------------------------------
 
