@@ -1,4 +1,5 @@
 .idea
+.mypy_cache
 /vendor
 /composer.lock
 tests/*/output

@@ -54,7 +54,7 @@ class ApplicationSubscriber implements EventDispatcher\EventSubscriberInterface
 	}
 
 	/**
-	 * @return array<string, mixed>
+	 * {@inheritDoc}
 	 */
 	public static function getSubscribedEvents(): array
 	{
