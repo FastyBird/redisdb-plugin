@@ -36,6 +36,7 @@
   "require" : {
     "php": ">=7.4.0|>=8.0.0",
     "clue/redis-react": "^2.5",
+    "cweagans/composer-patches": "^1.7",
     "contributte/console": "^0.9",
     "fastybird/datetime-factory": "^0.2",
     "fastybird/exchange-plugin": "^0.4",
@@ -77,5 +78,16 @@
 
   "config" : {
     "sort-packages" : true
+  },
+
+  "extra": {
+    "patches": {
+      "nette/utils": {
+        "Bug: Offset check with null support": "patches/nette.array.offsetCheck.diff"
+      },
+      "ninjify/qa": {
+        "Bug: PHPCS path error": "patches/ninjify-qa-bin-codesniffer.diff"
+      }
+    }
   }
 }
