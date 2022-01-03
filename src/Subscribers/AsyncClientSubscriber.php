@@ -16,7 +16,6 @@
 namespace FastyBird\RedisDbExchangePlugin\Subscribers;
 
 use FastyBird\ExchangePlugin\Consumer as ExchangePluginConsumer;
-use FastyBird\ExchangePlugin\Events as ExchangePluginEvents;
 use FastyBird\ModulesMetadata\Exceptions as ModulesMetadataExceptions;
 use FastyBird\ModulesMetadata\Loaders as ModulesMetadataLoaders;
 use FastyBird\ModulesMetadata\Schemas as ModulesMetadataSchemas;
@@ -161,8 +160,6 @@ class AsyncClientSubscriber implements EventDispatcher\EventSubscriberInterface
 
 			return;
 		}
-
-		$this->dispatcher->dispatch(new ExchangePluginEvents\MessageReceivedEvent($origin, $routingKey, $data));
 	}
 
 }

@@ -27,8 +27,6 @@ from typing import Dict, Optional
 # Library dependencies
 import modules_metadata.exceptions as metadata_exceptions
 from exchange_plugin.consumer import IConsumer
-from exchange_plugin.dispatcher import EventDispatcher
-from exchange_plugin.events.messages import MessageReceivedEvent
 from kink import inject
 from modules_metadata.loader import load_schema
 from modules_metadata.routing import RoutingKey
@@ -54,7 +52,6 @@ class RedisExchange(Thread):
 
     __redis_client: RedisClient
 
-    __event_dispatcher: EventDispatcher
     __exchange_consumer: Optional[IConsumer] = None
 
     __logger: Logger
@@ -67,7 +64,6 @@ class RedisExchange(Thread):
         self,
         redis_client: RedisClient,
         logger: Logger,
-        event_dispatcher: EventDispatcher,
         exchange_consumer: Optional[IConsumer] = None,
     ) -> None:
         super().__init__(name="Redis DB exchange client thread", daemon=True)
@@ -75,7 +71,6 @@ class RedisExchange(Thread):
         self.__redis_client = redis_client
         self.__logger = logger
 
-        self.__event_dispatcher = event_dispatcher
         self.__exchange_consumer = exchange_consumer
 
     # -----------------------------------------------------------------------------
@@ -161,15 +156,6 @@ class RedisExchange(Thread):
                         routing_key=routing_key,
                         data=data,
                     )
-
-                self.__event_dispatcher.dispatch(
-                    MessageReceivedEvent.EVENT_NAME,
-                    MessageReceivedEvent(
-                        origin=origin,
-                        routing_key=routing_key,
-                        data=data,
-                    ),
-                )
 
             else:
                 self.__logger.warning("Received exchange message is not valid")
