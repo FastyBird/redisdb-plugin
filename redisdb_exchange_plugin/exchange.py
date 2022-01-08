@@ -28,7 +28,7 @@ from typing import Dict, Optional
 import modules_metadata.exceptions as metadata_exceptions
 from exchange_plugin.consumer import IConsumer
 from kink import inject
-from modules_metadata.loader import load_schema
+from modules_metadata.loader import load_schema_by_routing_key
 from modules_metadata.routing import RoutingKey
 from modules_metadata.types import ModuleOrigin
 from modules_metadata.validator import validate
@@ -186,7 +186,7 @@ class RedisExchange(Thread):
     def __validate_data(self, origin: ModuleOrigin, routing_key: RoutingKey, data: Dict) -> Dict:
         """Validate received exchange message against defined schema"""
         try:
-            schema: str = load_schema(origin, routing_key)
+            schema: str = load_schema_by_routing_key(routing_key)
 
         except metadata_exceptions.FileNotFoundException as ex:
             self.__logger.error(

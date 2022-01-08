@@ -132,7 +132,7 @@ class AsyncClientSubscriber implements EventDispatcher\EventSubscriberInterface
 		Utils\ArrayHash $data
 	): void {
 		try {
-			$schema = $this->schemaLoader->load($origin->getValue(), $routingKey->getValue());
+			$schema = $this->schemaLoader->loadByRoutingKey($routingKey->getValue());
 
 		} catch (ModulesMetadataExceptions\InvalidArgumentException $ex) {
 			return;
