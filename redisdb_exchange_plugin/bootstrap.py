@@ -57,5 +57,5 @@ def create_container(
     di[Publisher] = Publisher(redis_client=di[RedisClient])
     di["fb-redisdb-exchange-plugin_publisher"] = di[Publisher]
 
-    di[RedisExchange] = RedisExchange(redis_client=di[RedisClient], logger=di[Logger])  # type: ignore[call-arg]
+    di[RedisExchange] = RedisExchange(redis_client=di[RedisClient], logger=di[Logger])
     di["fb-redisdb-exchange-plugin_exchange"] = di[RedisExchange]

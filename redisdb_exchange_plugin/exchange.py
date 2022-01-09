@@ -83,7 +83,7 @@ class RedisExchange(Thread):
         self,
         redis_client: RedisClient,
         logger: Logger,
-        consumer: Optional[IConsumer],
+        consumer: Optional[IConsumer] = None,
     ) -> None:
         super().__init__(name="Redis DB exchange client thread", daemon=True)
 
