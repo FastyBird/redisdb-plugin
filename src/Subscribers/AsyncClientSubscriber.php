@@ -40,7 +40,7 @@ class AsyncClientSubscriber implements EventDispatcher\EventSubscriberInterface
 {
 
 	/** @var ExchangePluginConsumer\IConsumer */
-	private ?ExchangePluginConsumer\IConsumer $consumer;
+	private ExchangePluginConsumer\IConsumer $consumer;
 
 	/** @var ModulesMetadataLoaders\ISchemaLoader */
 	private ModulesMetadataLoaders\ISchemaLoader $schemaLoader;
@@ -58,7 +58,7 @@ class AsyncClientSubscriber implements EventDispatcher\EventSubscriberInterface
 		ModulesMetadataLoaders\ISchemaLoader $schemaLoader,
 		ModulesMetadataSchemas\IValidator $validator,
 		PsrEventDispatcher\EventDispatcherInterface $dispatcher,
-		?ExchangePluginConsumer\IConsumer $consumer,
+		ExchangePluginConsumer\IConsumer $consumer,
 		?Log\LoggerInterface $logger = null
 	) {
 		$this->schemaLoader = $schemaLoader;
