@@ -71,7 +71,7 @@ class RedisExchange(Thread):
 
     __redis_client: RedisClient
 
-    __exchange_consumer: Optional[IConsumer]
+    __consumer: Optional[IConsumer]
 
     __logger: Logger
 
@@ -83,14 +83,14 @@ class RedisExchange(Thread):
         self,
         redis_client: RedisClient,
         logger: Logger,
-        exchange_consumer: Optional[IConsumer],
+        consumer: Optional[IConsumer],
     ) -> None:
         super().__init__(name="Redis DB exchange client thread", daemon=True)
 
         self.__redis_client = redis_client
         self.__logger = logger
 
-        self.__exchange_consumer = exchange_consumer
+        self.__consumer = consumer
 
     # -----------------------------------------------------------------------------
 
@@ -149,7 +149,7 @@ class RedisExchange(Thread):
         consumer: IConsumer,
     ) -> None:
         """Register new consumer to server"""
-        self.__consumers.add(consumer)
+        self.__consumer = consumer
 
     # -----------------------------------------------------------------------------
 
@@ -172,8 +172,8 @@ class RedisExchange(Thread):
                     data=data.get("data", None),
                 )
 
-                if self.__exchange_consumer is not None:
-                    self.__exchange_consumer.consume(
+                if self.__consumer is not None:
+                    self.__consumer.consume(
                         origin=origin,
                         routing_key=routing_key,
                         data=data,

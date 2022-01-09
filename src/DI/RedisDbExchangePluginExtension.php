@@ -110,7 +110,6 @@ class RedisDbExchangePluginExtension extends DI\CompilerExtension
 						])
 						->setAutowired(false);
 				}
-
 			} else {
 				$clientService = $builder->addDefinition($this->prefix('client.' . $name), new DI\Definitions\ServiceDefinition())
 					->setType(Client\Client::class)
