@@ -22,17 +22,16 @@ Redis DB exchange plugin publisher
 from typing import Dict, Optional
 
 # Library dependencies
-from exchange_plugin.publisher import IPublisher
 from kink import inject
-from modules_metadata.routing import RoutingKey
-from modules_metadata.types import ModuleOrigin
+from metadata.routing import RoutingKey
+from metadata.types import ModuleOrigin
 
 # Library libs
 from redisdb_exchange_plugin.connection import RedisClient
 
 
 @inject
-class Publisher(IPublisher):  # pylint: disable=too-few-public-methods
+class Publisher:  # pylint: disable=too-few-public-methods
     """
     Exchange data publisher
 

@@ -16,8 +16,7 @@
 namespace FastyBird\RedisDbExchangePlugin\Publishers;
 
 use FastyBird\DateTimeFactory;
-use FastyBird\ExchangePlugin\Publisher as ExchangePluginPublisher;
-use FastyBird\ModulesMetadata\Types as ModulesMetadataTypes;
+use FastyBird\Metadata\Types as MetadataTypes;
 use FastyBird\RedisDbExchangePlugin\Client;
 use Nette;
 use Nette\Utils;
@@ -32,7 +31,7 @@ use React\Promise;
  *
  * @author         Adam Kadlec <adam.kadlec@fastybird.com>
  */
-final class AsyncPublisher implements ExchangePluginPublisher\IPublisher
+final class AsyncPublisher implements IPublisher
 {
 
 	use Nette\SmartObject;
@@ -60,8 +59,8 @@ final class AsyncPublisher implements ExchangePluginPublisher\IPublisher
 	 * {@inheritDoc}
 	 */
 	public function publish(
-		ModulesMetadataTypes\ModuleOriginType $origin,
-		ModulesMetadataTypes\RoutingKeyType $routingKey,
+		MetadataTypes\ModuleOriginType $origin,
+		MetadataTypes\RoutingKeyType $routingKey,
 		?Utils\ArrayHash $data
 	): void {
 		try {

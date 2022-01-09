@@ -11,28 +11,15 @@
 # @date			19.07.20
 
 php:
-	date.timezone: Europe/Prague
+    date.timezone: Europe/Prague
 
 extensions:
-	contributteConsole		: Contributte\Console\DI\ConsoleExtension(%consoleMode%)
-	contributeEvents		: Contributte\EventDispatcher\DI\EventDispatcherExtension
-	fbDateTimeFactory		: FastyBird\DateTimeFactory\DI\DateTimeFactoryExtension
-	fbExchangePlugin		: FastyBird\ExchangePlugin\DI\ExchangePluginExtension
-	fbModulesMetadata		: FastyBird\ModulesMetadata\DI\ModulesMetadataExtension
-	fbSocketServerFactory	: FastyBird\SocketServerFactory\DI\SocketServerFactoryExtension
-
-contributteConsole:
-	name: FastyBird:RedisDbExchangePlugin!
-	version: '1.0'
-	catchExceptions: true
-	autoExit: true
-	url: http://example.com
-	lazy: false
-	helperSet: \Symfony\Component\Console\Helper\HelperSet
-	helpers: []
+    fbDateTimeFactory       : FastyBird\DateTimeFactory\DI\DateTimeFactoryExtension
+    fbMetadata              : FastyBird\Metadata\DI\MetadataExtension
+    fbSocketServerFactory   : FastyBird\SocketServerFactory\DI\SocketServerFactoryExtension
 
 fbRedisDbExchangePlugin:
-	enableAsync: true
-	connection:
-		default:
-			host: 127.0.0.1
+    async: true
+    connection:
+        default:
+            host: 127.0.0.1

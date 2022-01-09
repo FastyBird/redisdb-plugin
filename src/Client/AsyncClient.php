@@ -75,8 +75,8 @@ class AsyncClient implements IAsyncClient
 	/** @var RedisProtocol\Serializer\SerializerInterface */
 	private RedisProtocol\Serializer\SerializerInterface $serializer;
 
-	/** @var EventDispatcher\EventDispatcherInterface */
-	private EventDispatcher\EventDispatcherInterface $eventDispatcher;
+	/** @var EventDispatcher\EventDispatcherInterface|null */
+	private ?EventDispatcher\EventDispatcherInterface $dispatcher;
 
 	/** @var EventLoop\LoopInterface */
 	private EventLoop\LoopInterface $eventLoop;
@@ -88,7 +88,7 @@ class AsyncClient implements IAsyncClient
 		string $channelName,
 		Connections\IConnection $connection,
 		EventLoop\LoopInterface $eventLoop,
-		EventDispatcher\EventDispatcherInterface $eventDispatcher,
+		?EventDispatcher\EventDispatcherInterface $dispatcher = null,
 		?Log\LoggerInterface $logger = null
 	) {
 		$this->channelName = $channelName;
@@ -102,7 +102,7 @@ class AsyncClient implements IAsyncClient
 
 		$this->eventLoop = $eventLoop;
 
-		$this->eventDispatcher = $eventDispatcher;
+		$this->dispatcher = $dispatcher;
 
 		$this->logger = $logger ?? new Log\NullLogger();
 
@@ -136,14 +136,18 @@ class AsyncClient implements IAsyncClient
 				function (Socket\ConnectionInterface $stream) use ($deferred): void {
 					$this->stream = $stream;
 
-					$this->eventDispatcher->dispatch(new Events\ConnectionOpenedEvent($this));
+					if ($this->dispatcher !== null) {
+						$this->dispatcher->dispatch(new Events\ConnectionOpenedEvent($this));
+					}
 
 					$deferred->resolve($this);
 				},
 				function (Throwable $ex) use ($deferred): void {
 					$this->isConnecting = false;
 
-					$this->eventDispatcher->dispatch(new Events\ErrorEvent($ex, $this));
+					if ($this->dispatcher !== null) {
+						$this->dispatcher->dispatch(new Events\ErrorEvent($ex, $this));
+					}
 
 					$deferred->reject($ex);
 				}
@@ -171,7 +175,9 @@ class AsyncClient implements IAsyncClient
 			$this->stream->close();
 		}
 
-		$this->eventDispatcher->dispatch(new Events\ConnectionClosedEvent($this));
+		if ($this->dispatcher !== null) {
+			$this->dispatcher->dispatch(new Events\ConnectionClosedEvent($this));
+		}
 
 		// Reject all remaining requests in the queue
 		while ($this->requests) {
@@ -316,7 +322,9 @@ class AsyncClient implements IAsyncClient
 							$models = $this->parser->pushIncoming($chunk);
 
 						} catch (RedisProtocol\Parser\ParserException $ex) {
-							$this->eventDispatcher->dispatch(new Events\ErrorEvent($ex, $this));
+							if ($this->dispatcher !== null) {
+								$this->dispatcher->dispatch(new Events\ErrorEvent($ex, $this));
+							}
 
 							$this->close();
 
@@ -328,7 +336,9 @@ class AsyncClient implements IAsyncClient
 								$this->handleMessage($data);
 
 							} catch (UnderflowException $ex) {
-								$this->eventDispatcher->dispatch(new Events\ErrorEvent($ex, $this));
+								if ($this->dispatcher !== null) {
+									$this->dispatcher->dispatch(new Events\ErrorEvent($ex, $this));
+								}
 
 								$this->close();
 
@@ -342,7 +352,9 @@ class AsyncClient implements IAsyncClient
 					});
 
 					$stream->on('error', function (Throwable $ex): void {
-						$this->eventDispatcher->dispatch(new Events\ErrorEvent($ex, $this));
+						if ($this->dispatcher !== null) {
+							$this->dispatcher->dispatch(new Events\ErrorEvent($ex, $this));
+						}
 					});
 
 					$deferred->resolve($stream);
@@ -371,7 +383,9 @@ class AsyncClient implements IAsyncClient
 			// Pub/Sub messages are to be forwarded and should not be processed as request responses
 			if ($type === 'message') {
 				if (isset($array[0]) && isset($array[1])) {
-					$this->eventDispatcher->dispatch(new Events\MessageReceivedEvent($array[0], $array[1], $this));
+					if ($this->dispatcher !== null) {
+						$this->dispatcher->dispatch(new Events\MessageReceivedEvent($array[0], $array[1], $this));
+					}
 
 					return;
 
@@ -380,9 +394,11 @@ class AsyncClient implements IAsyncClient
 				}
 			} elseif ($type === 'pmessage') {
 				if (isset($array[0]) && isset($array[1]) && isset($array[2])) {
-					$this->eventDispatcher->dispatch(
-						new Events\PatternMessageReceivedEvent($array[0], $array[1], $array[2], $this)
-					);
+					if ($this->dispatcher !== null) {
+						$this->dispatcher->dispatch(
+							new Events\PatternMessageReceivedEvent($array[0], $array[1], $array[2], $this)
+						);
+					}
 
 					return;
 				} else {

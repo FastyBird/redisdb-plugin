@@ -21,22 +21,41 @@ Redis DB exchange plugin exchange service
 # Python base dependencies
 import json
 import time
+from abc import ABC
 from threading import Thread
-from typing import Dict, Optional
+from typing import Dict, Optional, Union
 
 # Library dependencies
-import modules_metadata.exceptions as metadata_exceptions
-from exchange_plugin.consumer import Consumer
+import metadata.exceptions as metadata_exceptions
 from kink import inject
-from modules_metadata.loader import load_schema_by_routing_key
-from modules_metadata.routing import RoutingKey
-from modules_metadata.types import ModuleOrigin
-from modules_metadata.validator import validate
+from metadata.loader import load_schema_by_routing_key
+from metadata.routing import RoutingKey
+from metadata.types import ModuleOrigin
+from metadata.validator import validate
 
 # Library libs
 from redisdb_exchange_plugin.connection import RedisClient
 from redisdb_exchange_plugin.exceptions import HandleDataException
 from redisdb_exchange_plugin.logger import Logger
+
+
+class IConsumer(ABC):  # pylint: disable=too-few-public-methods
+    """
+    Redis exchange consumer interface
+
+    @package        FastyBird:RedisDbExchangePlugin!
+    @module         consumer
+
+    @author         Adam Kadlec <adam.kadlec@fastybird.com>
+    """
+
+    def consume(
+        self,
+        origin: ModuleOrigin,
+        routing_key: RoutingKey,
+        data: Optional[Dict[str, Union[str, int, float, bool, None]]],
+    ) -> None:
+        """Consume data received from exchange bus"""
 
 
 @inject
@@ -52,7 +71,7 @@ class RedisExchange(Thread):
 
     __redis_client: RedisClient
 
-    __exchange_consumer: Consumer
+    __exchange_consumer: Optional[IConsumer]
 
     __logger: Logger
 
@@ -64,7 +83,7 @@ class RedisExchange(Thread):
         self,
         redis_client: RedisClient,
         logger: Logger,
-        exchange_consumer: Consumer,
+        exchange_consumer: Optional[IConsumer],
     ) -> None:
         super().__init__(name="Redis DB exchange client thread", daemon=True)
 
@@ -125,6 +144,15 @@ class RedisExchange(Thread):
 
     # -----------------------------------------------------------------------------
 
+    def register_consumer(
+        self,
+        consumer: IConsumer,
+    ) -> None:
+        """Register new consumer to server"""
+        self.__consumers.add(consumer)
+
+    # -----------------------------------------------------------------------------
+
     def __receive(self, data: Dict) -> None:
         try:
             origin = self.__validate_origin(origin=data.get("origin", None))
@@ -144,11 +172,12 @@ class RedisExchange(Thread):
                     data=data.get("data", None),
                 )
 
-                self.__exchange_consumer.consume(
-                    origin=origin,
-                    routing_key=routing_key,
-                    data=data,
-                )
+                if self.__exchange_consumer is not None:
+                    self.__exchange_consumer.consume(
+                        origin=origin,
+                        routing_key=routing_key,
+                        data=data,
+                    )
 
             else:
                 self.__logger.warning("Received exchange message is not valid")

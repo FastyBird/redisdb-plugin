@@ -21,13 +21,19 @@
     {
       "name" : "FastyBird s.r.o.",
       "email" : "code@fastybird.com",
-      "homepage" : "https://www.fastybird.com/"
+      "homepage" : "https://www.fastybird.com"
     },
     {
       "name" : "Adam Kadlec",
       "email" : "adam.kadlec@fastybird.com"
     }
   ],
+
+  "support": {
+    "email": "code@fastybird.com",
+    "issues": "https://github.com/FastyBird/redisdb-exchange-plugin/issues",
+    "source" : "https://github.com/FastyBird/redisdb-exchange-plugin"
+  },
 
   "prefer-stable" : true,
 
@@ -37,17 +43,17 @@
     "php": ">=7.4.0|>=8.0.0",
     "clue/redis-react": "^2.5",
     "cweagans/composer-patches": "^1.7",
-    "contributte/console": "^0.9",
     "fastybird/datetime-factory": "^0.2",
-    "fastybird/exchange-plugin": "^0.5",
-    "fastybird/modules-metadata": "^0.22",
-    "fastybird/socket-server-factory": "^0.1",
+    "fastybird/metadata": "^0.24",
+    "fastybird/socket-server-factory": "^0.2",
     "nette/bootstrap": "^3.0",
     "nette/di": "^3.0",
     "nette/utils": "^3.2",
     "predis/predis": "^1.1",
+    "psr/event-dispatcher": "^1.0",
     "psr/log": "^1.1",
-    "ramsey/uuid": "^3.5 || ^4.0"
+    "ramsey/uuid": "^3.5 || ^4.0",
+    "symfony/event-dispatcher": "^5.4"
   },
 
   "require-dev" : {

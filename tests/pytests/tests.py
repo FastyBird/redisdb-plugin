@@ -18,8 +18,8 @@ import redis
 import unittest
 from exchange_plugin.bootstrap import create_container as exchange_plugin_create_container
 from kink import inject
-from modules_metadata.types import ModuleOrigin
-from modules_metadata.routing import RoutingKey
+from metadata.types import ModuleOrigin
+from metadata.routing import RoutingKey
 from unittest.mock import patch
 
 # Library libs

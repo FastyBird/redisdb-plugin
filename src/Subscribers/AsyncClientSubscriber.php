@@ -15,11 +15,11 @@
 
 namespace FastyBird\RedisDbExchangePlugin\Subscribers;
 
-use FastyBird\ExchangePlugin\Consumer as ExchangePluginConsumer;
-use FastyBird\ModulesMetadata\Exceptions as ModulesMetadataExceptions;
-use FastyBird\ModulesMetadata\Loaders as ModulesMetadataLoaders;
-use FastyBird\ModulesMetadata\Schemas as ModulesMetadataSchemas;
-use FastyBird\ModulesMetadata\Types as ModulesMetadataTypes;
+use FastyBird\Metadata\Exceptions as MetadataExceptions;
+use FastyBird\Metadata\Loaders as MetadataLoaders;
+use FastyBird\Metadata\Schemas as MetadataSchemas;
+use FastyBird\Metadata\Types as MetadataTypes;
+use FastyBird\RedisDbExchangePlugin\Consumer;
 use FastyBird\RedisDbExchangePlugin\Events;
 use FastyBird\RedisDbExchangePlugin\Exceptions;
 use Nette\Utils;
@@ -39,26 +39,26 @@ use Throwable;
 class AsyncClientSubscriber implements EventDispatcher\EventSubscriberInterface
 {
 
-	/** @var ExchangePluginConsumer\IConsumer */
-	private ExchangePluginConsumer\IConsumer $consumer;
+	/** @var Consumer\IConsumer|null */
+	private ?Consumer\IConsumer $consumer;
 
-	/** @var ModulesMetadataLoaders\ISchemaLoader */
-	private ModulesMetadataLoaders\ISchemaLoader $schemaLoader;
+	/** @var MetadataLoaders\ISchemaLoader */
+	private MetadataLoaders\ISchemaLoader $schemaLoader;
 
-	/** @var ModulesMetadataSchemas\IValidator */
-	private ModulesMetadataSchemas\IValidator $validator;
+	/** @var MetadataSchemas\IValidator */
+	private MetadataSchemas\IValidator $validator;
 
-	/** @var PsrEventDispatcher\EventDispatcherInterface */
-	private PsrEventDispatcher\EventDispatcherInterface $dispatcher;
+	/** @var PsrEventDispatcher\EventDispatcherInterface|null */
+	private ?PsrEventDispatcher\EventDispatcherInterface $dispatcher;
 
 	/** @var Log\LoggerInterface */
 	private Log\LoggerInterface $logger;
 
 	public function __construct(
-		ModulesMetadataLoaders\ISchemaLoader $schemaLoader,
-		ModulesMetadataSchemas\IValidator $validator,
-		PsrEventDispatcher\EventDispatcherInterface $dispatcher,
-		ExchangePluginConsumer\IConsumer $consumer,
+		MetadataLoaders\ISchemaLoader $schemaLoader,
+		MetadataSchemas\IValidator $validator,
+		?PsrEventDispatcher\EventDispatcherInterface $dispatcher = null,
+		?Consumer\IConsumer $consumer = null,
 		?Log\LoggerInterface $logger = null
 	) {
 		$this->schemaLoader = $schemaLoader;
@@ -83,7 +83,9 @@ class AsyncClientSubscriber implements EventDispatcher\EventSubscriberInterface
 
 	public function handleMessage(Events\MessageReceivedEvent $event): void
 	{
-		$this->dispatcher->dispatch(new Events\BeforeMessageHandledEvent($event->getPayload()));
+		if ($this->dispatcher !== null) {
+			$this->dispatcher->dispatch(new Events\BeforeMessageHandledEvent($event->getPayload()));
+		}
 
 		try {
 			$data = Utils\ArrayHash::from(Utils\Json::decode($event->getPayload(), Utils\Json::FORCE_ARRAY));
@@ -94,8 +96,8 @@ class AsyncClientSubscriber implements EventDispatcher\EventSubscriberInterface
 				&& $data->offsetExists('data')
 			) {
 				$this->handle(
-					ModulesMetadataTypes\ModuleOriginType::get($data->offsetGet('origin')),
-					ModulesMetadataTypes\RoutingKeyType::get($data->offsetGet('routing_key')),
+					MetadataTypes\ModuleOriginType::get($data->offsetGet('origin')),
+					MetadataTypes\RoutingKeyType::get($data->offsetGet('routing_key')),
 					$data->offsetGet('data')
 				);
 
@@ -116,25 +118,31 @@ class AsyncClientSubscriber implements EventDispatcher\EventSubscriberInterface
 			$event->getClient()->close();
 		}
 
-		$this->dispatcher->dispatch(new Events\AfterMessageHandledEvent($event->getPayload()));
+		if ($this->dispatcher !== null) {
+			$this->dispatcher->dispatch(new Events\AfterMessageHandledEvent($event->getPayload()));
+		}
 	}
 
 	/**
-	 * @param ModulesMetadataTypes\ModuleOriginType $origin
-	 * @param ModulesMetadataTypes\RoutingKeyType $routingKey
+	 * @param MetadataTypes\ModuleOriginType $origin
+	 * @param MetadataTypes\RoutingKeyType $routingKey
 	 * @param Utils\ArrayHash $data
 	 *
 	 * @throws Utils\JsonException
 	 */
 	private function handle(
-		ModulesMetadataTypes\ModuleOriginType $origin,
-		ModulesMetadataTypes\RoutingKeyType $routingKey,
+		MetadataTypes\ModuleOriginType $origin,
+		MetadataTypes\RoutingKeyType $routingKey,
 		Utils\ArrayHash $data
 	): void {
+		if ($this->consumer === null) {
+			return;
+		}
+
 		try {
 			$schema = $this->schemaLoader->loadByRoutingKey($routingKey->getValue());
 
-		} catch (ModulesMetadataExceptions\InvalidArgumentException $ex) {
+		} catch (MetadataExceptions\InvalidArgumentException $ex) {
 			return;
 		}
 

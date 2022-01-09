@@ -24,8 +24,8 @@ import uuid
 from typing import Dict, Optional, Union
 
 # Library dependencies
-from modules_metadata.routing import RoutingKey
-from modules_metadata.types import ModuleOrigin
+from metadata.routing import RoutingKey
+from metadata.types import ModuleOrigin
 from redis import Redis
 from redis.client import PubSub
 
