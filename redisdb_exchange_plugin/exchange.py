@@ -26,7 +26,7 @@ from typing import Dict, Optional
 
 # Library dependencies
 import modules_metadata.exceptions as metadata_exceptions
-from exchange_plugin.consumer import IConsumer
+from exchange_plugin.consumer import Consumer
 from kink import inject
 from modules_metadata.loader import load_schema_by_routing_key
 from modules_metadata.routing import RoutingKey
@@ -52,7 +52,7 @@ class RedisExchange(Thread):
 
     __redis_client: RedisClient
 
-    __exchange_consumer: Optional[IConsumer] = None
+    __exchange_consumer: Consumer
 
     __logger: Logger
 
@@ -64,7 +64,7 @@ class RedisExchange(Thread):
         self,
         redis_client: RedisClient,
         logger: Logger,
-        exchange_consumer: Optional[IConsumer] = None,
+        exchange_consumer: Consumer,
     ) -> None:
         super().__init__(name="Redis DB exchange client thread", daemon=True)
 
@@ -125,12 +125,6 @@ class RedisExchange(Thread):
 
     # -----------------------------------------------------------------------------
 
-    def register_consumer(self, consumer: IConsumer) -> None:
-        """Register exchange consumer"""
-        self.__exchange_consumer = consumer
-
-    # -----------------------------------------------------------------------------
-
     def __receive(self, data: Dict) -> None:
         try:
             origin = self.__validate_origin(origin=data.get("origin", None))
@@ -150,12 +144,11 @@ class RedisExchange(Thread):
                     data=data.get("data", None),
                 )
 
-                if self.__exchange_consumer is not None:
-                    self.__exchange_consumer.consume(
-                        origin=origin,
-                        routing_key=routing_key,
-                        data=data,
-                    )
+                self.__exchange_consumer.consume(
+                    origin=origin,
+                    routing_key=routing_key,
+                    data=data,
+                )
 
             else:
                 self.__logger.warning("Received exchange message is not valid")

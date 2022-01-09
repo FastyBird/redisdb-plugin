@@ -39,7 +39,7 @@ use Throwable;
 class AsyncClientSubscriber implements EventDispatcher\EventSubscriberInterface
 {
 
-	/** @var ExchangePluginConsumer\IConsumer|null */
+	/** @var ExchangePluginConsumer\IConsumer */
 	private ?ExchangePluginConsumer\IConsumer $consumer;
 
 	/** @var ModulesMetadataLoaders\ISchemaLoader */
@@ -58,7 +58,7 @@ class AsyncClientSubscriber implements EventDispatcher\EventSubscriberInterface
 		ModulesMetadataLoaders\ISchemaLoader $schemaLoader,
 		ModulesMetadataSchemas\IValidator $validator,
 		PsrEventDispatcher\EventDispatcherInterface $dispatcher,
-		?ExchangePluginConsumer\IConsumer $consumer = null,
+		?ExchangePluginConsumer\IConsumer $consumer,
 		?Log\LoggerInterface $logger = null
 	) {
 		$this->schemaLoader = $schemaLoader;
@@ -146,9 +146,8 @@ class AsyncClientSubscriber implements EventDispatcher\EventSubscriberInterface
 		}
 
 		try {
-			if ($this->consumer !== null) {
-				$this->consumer->consume($origin, $routingKey, $data);
-			}
+			$this->consumer->consume($origin, $routingKey, $data);
+
 		} catch (Exceptions\UnprocessableMessageException $ex) {
 			// Log error consume reason
 			$this->logger->error('[FB:PLUGIN:REDISDB_EXCHANGE] Message could not be handled', [
