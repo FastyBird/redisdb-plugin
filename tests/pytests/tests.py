@@ -16,7 +16,6 @@
 import json
 import redis
 import unittest
-from exchange_plugin.bootstrap import create_container as exchange_plugin_create_container
 from kink import inject
 from metadata.types import ModuleOrigin
 from metadata.routing import RoutingKey
@@ -31,7 +30,6 @@ from redisdb_exchange_plugin.publisher import Publisher
 class TestPublisher(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        exchange_plugin_create_container()
         create_container({})
 
     # -----------------------------------------------------------------------------
