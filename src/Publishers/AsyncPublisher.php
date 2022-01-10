@@ -31,7 +31,7 @@ use React\Promise;
  *
  * @author         Adam Kadlec <adam.kadlec@fastybird.com>
  */
-final class AsyncPublisher implements IPublisher
+final class AsyncPublisher implements IAsyncPublisher
 {
 
 	use Nette\SmartObject;
