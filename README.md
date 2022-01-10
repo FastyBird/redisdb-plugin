@@ -17,7 +17,8 @@
 
 ## What is FastyBird Redis DB exchange plugin?
 
-This is a combined plugin for [Nette framework](https://nette.org) and [Python](https://www.python.org) which is implementing [Redis](https://redis.io) PubSub exchange for [FastyBird](https://www.fastybird.com) IoT services
+This is a combined plugin for [Nette framework](https://nette.org) and [Python](https://www.python.org) which is
+implementing [Redis](https://redis.io) PubSub exchange for [FastyBird](https://www.fastybird.com) IoT services
 
 ## Installation
 
@@ -39,7 +40,9 @@ $ pip install fastybird-redisdb-exchange-plugin
 
 ## Documentation
 
-Learn how to consume & publish messages in [documentation](https://github.com/FastyBird/redisdb-exchange-plugin/blob/master/.docs/en/index.md).
+Learn how to consume & publish messages
+in [documentation](https://github.com/FastyBird/redisdb-exchange-plugin/blob/master/.docs/en/index.md).
 
 ***
-Homepage [https://www.fastybird.com](https://www.fastybird.com) and repository [https://github.com/FastyBird/redisdb-exchange-plugin](https://github.com/FastyBird/redisdb-exchange-plugin).
+Homepage [https://www.fastybird.com](https://www.fastybird.com) and
+repository [https://github.com/FastyBird/redisdb-exchange-plugin](https://github.com/FastyBird/redisdb-exchange-plugin).

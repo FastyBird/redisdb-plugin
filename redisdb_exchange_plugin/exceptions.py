@@ -19,6 +19,17 @@ Redis DB exchange plugin exceptions classes
 """
 
 
+class HandleRequestException(Exception):
+    """
+    Exception raised by invalid received data
+
+    @package        FastyBird:RedisDbExchangePlugin!
+    @module         exceptions
+
+    @author         Adam Kadlec <adam.kadlec@fastybird.com>
+    """
+
+
 class HandleDataException(Exception):
     """
     Exception raised by invalid received data

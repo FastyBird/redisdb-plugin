@@ -111,52 +111,14 @@ class AsyncClient implements IAsyncClient
 
 	/**
 	 * {@inheritDoc}
-	 *
-	 * @throws Exceptions\InvalidStateException
 	 */
-	public function connect(): Promise\ExtendedPromiseInterface
+	public function disconnect(): void
 	{
-		$this->closing = false;
+		$this->closing = true;
 
-		$deferred = new Promise\Deferred();
-
-		if ($this->isConnected || $this->isConnecting) {
-			$deferred->reject(new Exceptions\LogicException('The redis client is already connected.'));
-
-			/** @var Promise\ExtendedPromiseInterface $promise */
-			$promise = $deferred->promise();
-
-			return $promise;
+		if ($this->requests === []) {
+			$this->close();
 		}
-
-		$connector = $this->createConnector();
-
-		$this->establishConnection($connector)
-			->then(
-				function (Socket\ConnectionInterface $stream) use ($deferred): void {
-					$this->stream = $stream;
-
-					if ($this->dispatcher !== null) {
-						$this->dispatcher->dispatch(new Events\ConnectionOpenedEvent($this));
-					}
-
-					$deferred->resolve($this);
-				},
-				function (Throwable $ex) use ($deferred): void {
-					$this->isConnecting = false;
-
-					if ($this->dispatcher !== null) {
-						$this->dispatcher->dispatch(new Events\ErrorEvent($ex, $this));
-					}
-
-					$deferred->reject($ex);
-				}
-			);
-
-		/** @var Promise\ExtendedPromiseInterface $promise */
-		$promise = $deferred->promise();
-
-		return $promise;
 	}
 
 	/**
@@ -184,39 +146,6 @@ class AsyncClient implements IAsyncClient
 			$request = array_shift($this->requests);
 			$request->reject(new Exceptions\RuntimeException('Connection closing'));
 		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function disconnect(): void
-	{
-		$this->closing = true;
-
-		if ($this->requests === []) {
-			$this->close();
-		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function subscribe(string $channel): Promise\PromiseInterface
-	{
-		$request = new Promise\Deferred();
-		$promise = $request->promise();
-
-		if ($this->stream === null || $this->closing) {
-			$request->reject(new Exceptions\RuntimeException('Connection closed'));
-
-			return $promise;
-		}
-
-		$this->stream->write($this->serializer->getRequestMessage('subscribe', [$channel]));
-
-		$this->requests[] = $request;
-
-		return $promise;
 	}
 
 	/**
@@ -279,10 +208,52 @@ class AsyncClient implements IAsyncClient
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @throws Exceptions\InvalidStateException
 	 */
-	public function getIdentifier(): string
+	public function connect(): Promise\ExtendedPromiseInterface
 	{
-		return $this->identifier;
+		$this->closing = false;
+
+		$deferred = new Promise\Deferred();
+
+		if ($this->isConnected || $this->isConnecting) {
+			$deferred->reject(new Exceptions\LogicException('The redis client is already connected.'));
+
+			/** @var Promise\ExtendedPromiseInterface $promise */
+			$promise = $deferred->promise();
+
+			return $promise;
+		}
+
+		$connector = $this->createConnector();
+
+		$this->establishConnection($connector)
+			->then(
+				function (Socket\ConnectionInterface $stream) use ($deferred): void {
+					$this->stream = $stream;
+
+					if ($this->dispatcher !== null) {
+						$this->dispatcher->dispatch(new Events\ConnectionOpenedEvent($this));
+					}
+
+					$deferred->resolve($this);
+				},
+				function (Throwable $ex) use ($deferred): void {
+					$this->isConnecting = false;
+
+					if ($this->dispatcher !== null) {
+						$this->dispatcher->dispatch(new Events\ErrorEvent($ex, $this));
+					}
+
+					$deferred->reject($ex);
+				}
+			);
+
+		/** @var Promise\ExtendedPromiseInterface $promise */
+		$promise = $deferred->promise();
+
+		return $promise;
 	}
 
 	/**
@@ -423,6 +394,35 @@ class AsyncClient implements IAsyncClient
 		if ($this->closing && $this->requests === []) {
 			$this->close();
 		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function subscribe(string $channel): Promise\PromiseInterface
+	{
+		$request = new Promise\Deferred();
+		$promise = $request->promise();
+
+		if ($this->stream === null || $this->closing) {
+			$request->reject(new Exceptions\RuntimeException('Connection closed'));
+
+			return $promise;
+		}
+
+		$this->stream->write($this->serializer->getRequestMessage('subscribe', [$channel]));
+
+		$this->requests[] = $request;
+
+		return $promise;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getIdentifier(): string
+	{
+		return $this->identifier;
 	}
 
 }

@@ -22,7 +22,6 @@ Redis DB exchange plugin exchange service
 import json
 import time
 from abc import ABC
-from threading import Thread
 from typing import Dict, Optional, Union
 
 # Library dependencies
@@ -35,7 +34,7 @@ from metadata.validator import validate
 
 # Library libs
 from redisdb_exchange_plugin.connection import RedisClient
-from redisdb_exchange_plugin.exceptions import HandleDataException
+from redisdb_exchange_plugin.exceptions import HandleDataException, HandleRequestException
 from redisdb_exchange_plugin.logger import Logger
 
 
@@ -59,7 +58,7 @@ class IConsumer(ABC):  # pylint: disable=too-few-public-methods
 
 
 @inject
-class RedisExchange(Thread):
+class RedisExchange:
     """
     Redis data exchange
 
@@ -75,8 +74,6 @@ class RedisExchange(Thread):
 
     __logger: Logger
 
-    __stopped: bool = False
-
     # -----------------------------------------------------------------------------
 
     def __init__(
@@ -85,8 +82,6 @@ class RedisExchange(Thread):
         logger: Logger,
         consumer: IConsumer = None,  # type: ignore[assignment]
     ) -> None:
-        super().__init__(name="Redis DB exchange client thread", daemon=True)
-
         self.__redis_client = redis_client
         self.__logger = logger
 
@@ -96,45 +91,33 @@ class RedisExchange(Thread):
 
     def start(self) -> None:
         """Start exchange services"""
-        self.__stopped = False
         self.__redis_client.subscribe()
 
         self.__logger.info("Starting Redis DB exchange client")
-
-        super().start()
 
     # -----------------------------------------------------------------------------
 
     def stop(self) -> None:
         """Close all opened connections & stop exchange thread"""
-        self.__stopped = True
+        self.__redis_client.unsubscribe()
+        self.__redis_client.close()
 
         self.__logger.info("Closing Redis DB exchange client")
 
     # -----------------------------------------------------------------------------
 
-    def run(self) -> None:
+    def handle(self) -> None:
         """Process Redis exchange messages"""
-        self.__stopped = False
+        try:
+            data = self.__redis_client.receive()
 
-        while not self.__stopped:
-            try:
-                data = self.__redis_client.receive()
+            if data is not None:
+                self.__receive(data)
 
-                if data is not None:
-                    self.__receive(data)
+            time.sleep(0.001)
 
-                time.sleep(0.001)
-
-            except OSError:
-                self.__stopped = True
-
-        # Unsubscribe from exchange
-        self.__redis_client.unsubscribe()
-        # Disconnect from server
-        self.__redis_client.close()
-
-        self.__logger.info("Redis DB exchange client was closed")
+        except OSError as ex:
+            raise HandleRequestException("Error reading from redis database") from ex
 
     # -----------------------------------------------------------------------------
 
@@ -154,6 +137,9 @@ class RedisExchange(Thread):
     # -----------------------------------------------------------------------------
 
     def __receive(self, data: Dict) -> None:
+        if self.__consumer is None:
+            return
+
         try:
             origin = self.__validate_origin(origin=data.get("origin", None))
             routing_key = self.__validate_routing_key(
@@ -172,12 +158,11 @@ class RedisExchange(Thread):
                     data=data.get("data", None),
                 )
 
-                if self.__consumer is not None:
-                    self.__consumer.consume(
-                        origin=origin,
-                        routing_key=routing_key,
-                        data=data,
-                    )
+                self.__consumer.consume(
+                    origin=origin,
+                    routing_key=routing_key,
+                    data=data,
+                )
 
             else:
                 self.__logger.warning("Received exchange message is not valid")

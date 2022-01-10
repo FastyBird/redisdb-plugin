@@ -29,9 +29,9 @@
     }
   ],
 
-  "support": {
-    "email": "code@fastybird.com",
-    "issues": "https://github.com/FastyBird/redisdb-exchange-plugin/issues",
+  "support" : {
+    "email" : "code@fastybird.com",
+    "issues" : "https://github.com/FastyBird/redisdb-exchange-plugin/issues",
     "source" : "https://github.com/FastyBird/redisdb-exchange-plugin"
   },
 
@@ -40,33 +40,33 @@
   "minimum-stability" : "dev",
 
   "require" : {
-    "php": ">=7.4.0|>=8.0.0",
-    "clue/redis-react": "^2.5",
-    "cweagans/composer-patches": "^1.7",
-    "fastybird/datetime-factory": "^0.2",
-    "fastybird/metadata": "^0.24",
-    "fastybird/socket-server-factory": "^0.2",
-    "nette/bootstrap": "^3.0",
-    "nette/di": "^3.0",
-    "nette/utils": "^3.2",
-    "predis/predis": "^1.1",
-    "psr/event-dispatcher": "^1.0",
-    "psr/log": "^1.1",
-    "ramsey/uuid": "^3.5 || ^4.0",
-    "symfony/event-dispatcher": "^5.4"
+    "php" : ">=7.4.0|>=8.0.0",
+    "clue/redis-react" : "^2.5",
+    "cweagans/composer-patches" : "^1.7",
+    "fastybird/datetime-factory" : "^0.3",
+    "fastybird/metadata" : "^0.25",
+    "fastybird/socket-server-factory" : "^0.4",
+    "nette/bootstrap" : "^3.0",
+    "nette/di" : "^3.0",
+    "nette/utils" : "^3.2",
+    "predis/predis" : "^1.1",
+    "psr/event-dispatcher" : "^1.0",
+    "psr/log" : "^1.1|^3.0",
+    "ramsey/uuid" : "^4.0",
+    "symfony/event-dispatcher" : "^5.4"
   },
 
   "require-dev" : {
-    "mockery/mockery": "^1.4",
-    "ninjify/nunjuck": "^0.3",
-    "ninjify/qa": "^0.12",
-    "pds/skeleton": "~1.0",
-    "phpstan/extension-installer": "^1.1",
-    "phpstan/phpstan": "^0.12",
-    "phpstan/phpstan-deprecation-rules": "^0.12",
-    "phpstan/phpstan-nette": "^0.12",
-    "phpstan/phpstan-strict-rules" : "^0.12",
-    "tracy/tracy": "^2.8"
+    "mockery/mockery" : "^1.4",
+    "ninjify/nunjuck" : "^0.3",
+    "ninjify/qa" : "^0.13",
+    "pds/skeleton" : "^1.0",
+    "phpstan/extension-installer" : "^1.1",
+    "phpstan/phpstan" : "^1.3",
+    "phpstan/phpstan-deprecation-rules" : "^1.0",
+    "phpstan/phpstan-nette" : "^1.0",
+    "phpstan/phpstan-strict-rules" : "^1.1",
+    "tracy/tracy" : "^2.9"
   },
 
   "autoload" : {
@@ -86,10 +86,10 @@
     "sort-packages" : true
   },
 
-  "extra": {
-    "patches": {
-      "nette/utils": {
-        "Bug: Offset check with null support": "patches/nette.array.offsetCheck.diff"
+  "extra" : {
+    "patches" : {
+      "nette/utils" : {
+        "Bug: Offset check with null support" : "patches/nette.array.offsetCheck.diff"
       }
     }
   }
