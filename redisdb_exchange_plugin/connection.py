@@ -32,7 +32,7 @@ from redisdb_exchange_plugin.exceptions import InvalidStateException
 from redisdb_exchange_plugin.logger import Logger
 
 
-class Connection(Redis):
+class Connection(Redis):  # pylint: disable=abstract-method
     """
     Redis client
 
