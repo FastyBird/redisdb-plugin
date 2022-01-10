@@ -33,17 +33,20 @@ from metadata.types import ModuleOrigin
 from metadata.validator import validate
 
 # Library libs
-from redisdb_exchange_plugin.connection import RedisClient
-from redisdb_exchange_plugin.exceptions import HandleDataException, HandleRequestException
+from redisdb_exchange_plugin.connection import Connection
+from redisdb_exchange_plugin.exceptions import (
+    HandleDataException,
+    HandleRequestException,
+)
 from redisdb_exchange_plugin.logger import Logger
 
 
 class IConsumer(ABC):  # pylint: disable=too-few-public-methods
     """
-    Redis exchange consumer interface
+    Redis client consumer interface
 
     @package        FastyBird:RedisDbExchangePlugin!
-    @module         consumer
+    @module         client
 
     @author         Adam Kadlec <adam.kadlec@fastybird.com>
     """
@@ -58,17 +61,17 @@ class IConsumer(ABC):  # pylint: disable=too-few-public-methods
 
 
 @inject
-class RedisExchange:
+class Client:
     """
-    Redis data exchange
+    Redis exchange client
 
     @package        FastyBird:RedisDbExchangePlugin!
-    @module         redis
+    @module         client
 
     @author         Adam Kadlec <adam.kadlec@fastybird.com>
     """
 
-    __redis_client: RedisClient
+    __connection: Connection
 
     __consumer: Optional[IConsumer]
 
@@ -78,11 +81,11 @@ class RedisExchange:
 
     def __init__(
         self,
-        redis_client: RedisClient,
+        connection: Connection,
         logger: Logger,
         consumer: IConsumer = None,  # type: ignore[assignment]
     ) -> None:
-        self.__redis_client = redis_client
+        self.__connection = connection
         self.__logger = logger
 
         self.__consumer = consumer
@@ -91,7 +94,7 @@ class RedisExchange:
 
     def start(self) -> None:
         """Start exchange services"""
-        self.__redis_client.subscribe()
+        self.__connection.subscribe()
 
         self.__logger.info("Starting Redis DB exchange client")
 
@@ -99,8 +102,8 @@ class RedisExchange:
 
     def stop(self) -> None:
         """Close all opened connections & stop exchange thread"""
-        self.__redis_client.unsubscribe()
-        self.__redis_client.close()
+        self.__connection.unsubscribe()
+        self.__connection.close()
 
         self.__logger.info("Closing Redis DB exchange client")
 
@@ -109,7 +112,7 @@ class RedisExchange:
     def handle(self) -> None:
         """Process Redis exchange messages"""
         try:
-            data = self.__redis_client.receive()
+            data = self.__connection.receive()
 
             if data is not None:
                 self.__receive(data)

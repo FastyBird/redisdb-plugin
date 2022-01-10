@@ -27,9 +27,10 @@ from typing import Dict, Union
 # Library dependencies
 from kink import di
 
+from redisdb_exchange_plugin.client import Client
+
 # Library libs
-from redisdb_exchange_plugin.connection import RedisClient
-from redisdb_exchange_plugin.exchange import RedisExchange
+from redisdb_exchange_plugin.connection import Connection
 from redisdb_exchange_plugin.logger import Logger
 from redisdb_exchange_plugin.publisher import Publisher
 
@@ -42,7 +43,7 @@ def create_container(
     di[Logger] = Logger(logger=logger)
     di["fb-redisdb-exchange-plugin_logger"] = di[Logger]
 
-    di[RedisClient] = RedisClient(
+    di[Connection] = Connection(
         host=str(settings.get("host", "127.0.0.1")) if settings.get("host", None) is not None else "127.0.0.1",
         port=int(str(settings.get("port", 6379))),
         channel_name=str(settings.get("channel_name", "fb_exchange"))
@@ -52,10 +53,14 @@ def create_container(
         password=str(settings.get("password", None)) if settings.get("password", None) is not None else None,
         logger=di[Logger],
     )
-    di["fb-redisdb-exchange-plugin_redis-client"] = di[RedisClient]
+    di["fb-redisdb-exchange-plugin_redis-connection"] = di[Connection]
 
-    di[Publisher] = Publisher(redis_client=di[RedisClient])
+    di[Publisher] = Publisher(
+        channel_name=str(settings.get("channel_name", "fb_exchange")),
+        connection=di[Connection],
+        logger=di[Logger],
+    )
     di["fb-redisdb-exchange-plugin_publisher"] = di[Publisher]
 
-    di[RedisExchange] = RedisExchange(redis_client=di[RedisClient], logger=di[Logger])
-    di["fb-redisdb-exchange-plugin_exchange"] = di[RedisExchange]
+    di[Client] = Client(connection=di[Connection], logger=di[Logger])
+    di["fb-redisdb-exchange-plugin_client"] = di[Client]

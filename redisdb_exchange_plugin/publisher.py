@@ -19,6 +19,7 @@ Redis DB exchange plugin publisher
 """
 
 # Python base dependencies
+import json
 from typing import Dict, Optional
 
 # Library dependencies
@@ -26,7 +27,8 @@ from metadata.routing import RoutingKey
 from metadata.types import ModuleOrigin
 
 # Library libs
-from redisdb_exchange_plugin.connection import RedisClient
+from redisdb_exchange_plugin.connection import Connection
+from redisdb_exchange_plugin.logger import Logger
 
 
 class Publisher:  # pylint: disable=too-few-public-methods
@@ -39,18 +41,41 @@ class Publisher:  # pylint: disable=too-few-public-methods
     @author         Adam Kadlec <adam.kadlec@fastybird.com>
     """
 
-    __redis_client: RedisClient
+    __channel_name: str
+
+    __connection: Connection
+
+    __logger: Logger
 
     # -----------------------------------------------------------------------------
 
     def __init__(
         self,
-        redis_client: RedisClient,
+        channel_name: str,
+        connection: Connection,
+        logger: Logger,
     ) -> None:
-        self.__redis_client = redis_client
+        self.__channel_name = channel_name
+
+        self.__connection = connection
+
+        self.__logger = logger
 
     # -----------------------------------------------------------------------------
 
     def publish(self, origin: ModuleOrigin, routing_key: RoutingKey, data: Optional[Dict]) -> None:
         """Publish message to Redis exchange"""
-        self.__redis_client.publish(origin=origin, routing_key=routing_key, data=data)
+        message = {
+            "routing_key": routing_key.value,
+            "origin": origin.value,
+            "sender_id": self.__connection.identifier,
+            "data": data,
+        }
+
+        result: int = self.__connection.publish(channel=self.__channel_name, message=json.dumps(message))
+
+        self.__logger.debug(
+            "Successfully published message to: %d consumers via RedisDB exchange plugin with key: %s",
+            result,
+            routing_key,
+        )

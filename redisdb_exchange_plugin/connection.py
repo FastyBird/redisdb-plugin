@@ -24,8 +24,6 @@ import uuid
 from typing import Dict, Optional, Union
 
 # Library dependencies
-from metadata.routing import RoutingKey
-from metadata.types import ModuleOrigin
 from redis import Redis
 from redis.client import PubSub
 
@@ -34,7 +32,7 @@ from redisdb_exchange_plugin.exceptions import InvalidStateException
 from redisdb_exchange_plugin.logger import Logger
 
 
-class RedisClient:
+class Connection(Redis):
     """
     Redis client
 
@@ -43,8 +41,6 @@ class RedisClient:
 
     @author         Adam Kadlec <adam.kadlec@fastybird.com>
     """
-
-    __redis_client: Redis
 
     __pub_sub: Optional[PubSub] = None
 
@@ -64,7 +60,7 @@ class RedisClient:
         username: Optional[str] = None,
         password: Optional[str] = None,
     ) -> None:
-        self.__redis_client = Redis(
+        super().__init__(
             host=host,
             port=port,
             username=username,
@@ -78,32 +74,13 @@ class RedisClient:
 
     # -----------------------------------------------------------------------------
 
-    def publish(self, origin: ModuleOrigin, routing_key: RoutingKey, data: Optional[Dict]) -> None:
-        """Publish message to default exchange channel"""
-        message = {
-            "routing_key": routing_key.value,
-            "origin": origin.value,
-            "sender_id": self.__identifier,
-            "data": data,
-        }
-
-        result: int = self.__redis_client.publish(channel=self.__channel_name, message=json.dumps(message))
-
-        self.__logger.debug(
-            "Successfully published message to: %d consumers via RedisDB exchange plugin with key: %s",
-            result,
-            routing_key,
-        )
-
-    # -----------------------------------------------------------------------------
-
     def subscribe(self) -> None:
         """Subscribe to default exchange channel"""
         if self.__pub_sub is not None:
             raise InvalidStateException("Exchange is already subscribed to exchange")
 
         # Connect to pub sub exchange
-        self.__pub_sub = self.__redis_client.pubsub()
+        self.__pub_sub = super().pubsub()
         # Subscribe to channel
         self.__pub_sub.subscribe(self.__channel_name)
 
@@ -164,7 +141,7 @@ class RedisClient:
         """Close opened connection to Redis database"""
         self.unsubscribe()
 
-        self.__redis_client.close()
+        super().close()
 
     # -----------------------------------------------------------------------------
 
@@ -176,4 +153,4 @@ class RedisClient:
     # -----------------------------------------------------------------------------
 
     def __del__(self) -> None:
-        self.__redis_client.close()
+        super().close()
