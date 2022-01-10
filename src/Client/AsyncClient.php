@@ -21,7 +21,6 @@ use FastyBird\RedisDbExchangePlugin\Events;
 use FastyBird\RedisDbExchangePlugin\Exceptions;
 use Nette;
 use Psr\EventDispatcher;
-use Psr\Log;
 use Ramsey\Uuid;
 use React\EventLoop;
 use React\Promise;
@@ -81,15 +80,11 @@ class AsyncClient implements IAsyncClient
 	/** @var EventLoop\LoopInterface */
 	private EventLoop\LoopInterface $eventLoop;
 
-	/** @var Log\LoggerInterface */
-	private Log\LoggerInterface $logger;
-
 	public function __construct(
 		string $channelName,
 		Connections\IConnection $connection,
 		EventLoop\LoopInterface $eventLoop,
-		?EventDispatcher\EventDispatcherInterface $dispatcher = null,
-		?Log\LoggerInterface $logger = null
+		?EventDispatcher\EventDispatcherInterface $dispatcher = null
 	) {
 		$this->channelName = $channelName;
 
@@ -103,8 +98,6 @@ class AsyncClient implements IAsyncClient
 		$this->eventLoop = $eventLoop;
 
 		$this->dispatcher = $dispatcher;
-
-		$this->logger = $logger ?? new Log\NullLogger();
 
 		$this->identifier = Uuid\Uuid::uuid4()->toString();
 	}
@@ -349,6 +342,11 @@ class AsyncClient implements IAsyncClient
 	{
 		if ($message instanceof RedisProtocol\Model\MultiBulkReply) {
 			$array = $message->getValueNative();
+
+			if (!is_array($array)) {
+				return;
+			}
+
 			$type = array_shift($array);
 
 			// Pub/Sub messages are to be forwarded and should not be processed as request responses
@@ -367,7 +365,7 @@ class AsyncClient implements IAsyncClient
 				if (isset($array[0]) && isset($array[1]) && isset($array[2])) {
 					if ($this->dispatcher !== null) {
 						$this->dispatcher->dispatch(
-							new Events\PatternMessageReceivedEvent($array[0], $array[1], $array[2], $this)
+							new Events\PatternMessageReceivedEvent(strval($array[0]), strval($array[1]), strval($array[2]), $this)
 						);
 					}
 

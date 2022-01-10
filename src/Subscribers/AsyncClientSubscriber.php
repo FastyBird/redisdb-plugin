@@ -88,7 +88,7 @@ class AsyncClientSubscriber implements EventDispatcher\EventSubscriberInterface
 		}
 
 		try {
-			$data = Utils\ArrayHash::from(Utils\Json::decode($event->getPayload(), Utils\Json::FORCE_ARRAY));
+			$data = Utils\ArrayHash::from(Utils\Json::decode($event->getPayload(), Utils\Json::FORCE_ARRAY)); // @phpstan-ignore-line
 
 			if (
 				$data->offsetExists('origin')
@@ -98,7 +98,7 @@ class AsyncClientSubscriber implements EventDispatcher\EventSubscriberInterface
 				$this->handle(
 					MetadataTypes\ModuleOriginType::get($data->offsetGet('origin')),
 					MetadataTypes\RoutingKeyType::get($data->offsetGet('routing_key')),
-					$data->offsetGet('data')
+					$data->offsetGet('data') // @phpstan-ignore-line
 				);
 
 			} else {
@@ -140,7 +140,7 @@ class AsyncClientSubscriber implements EventDispatcher\EventSubscriberInterface
 		}
 
 		try {
-			$schema = $this->schemaLoader->loadByRoutingKey($routingKey->getValue());
+			$schema = $this->schemaLoader->loadByRoutingKey($routingKey->getValue()); // @phpstan-ignore-line
 
 		} catch (MetadataExceptions\InvalidArgumentException $ex) {
 			return;

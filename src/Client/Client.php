@@ -39,9 +39,6 @@ class Client implements IClient
 	/** @var string */
 	private string $identifier;
 
-	/** @var Connections\IConnection */
-	private Connections\IConnection $connection;
-
 	/** @var Predis\Client<mixed> */
 	private Predis\Client $redis;
 
@@ -50,8 +47,6 @@ class Client implements IClient
 		Connections\IConnection $connection
 	) {
 		$this->channelName = $channelName;
-
-		$this->connection = $connection;
 
 		$options = [
 			'scheme' => 'tcp',
