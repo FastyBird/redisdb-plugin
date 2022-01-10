@@ -23,7 +23,7 @@ from unittest.mock import patch
 
 # Library libs
 from redisdb_exchange_plugin.bootstrap import create_container
-from redisdb_exchange_plugin.connection import RedisClient
+from redisdb_exchange_plugin.connection import Connection
 from redisdb_exchange_plugin.publisher import Publisher
 
 
@@ -35,7 +35,7 @@ class TestPublisher(unittest.TestCase):
     # -----------------------------------------------------------------------------
 
     @inject
-    def test_publish(self, publisher: Publisher, redis_client: RedisClient):
+    def test_publish(self, publisher: Publisher, redis_client: Connection):
         message = {
             "routing_key": RoutingKey(RoutingKey.DEVICES_ENTITY_UPDATED).value,
             "origin": ModuleOrigin(ModuleOrigin.DEVICES_MODULE).value,
