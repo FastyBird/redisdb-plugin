@@ -21,11 +21,7 @@ Redis DB exchange plugin logger
 # Python base dependencies
 import logging
 
-# Library dependencies
-from kink import inject
 
-
-@inject
 class Logger:
     """
     Redis DB exchange plugin logger
