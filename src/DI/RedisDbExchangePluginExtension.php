@@ -60,14 +60,15 @@ class RedisDbExchangePluginExtension extends DI\CompilerExtension
 	public function getConfigSchema(): Schema\Schema
 	{
 		return Schema\Expect::structure([
-			'connection' => Schema\Expect::arrayOf(Schema\Expect::structure([
+			'connection'    => Schema\Expect::arrayOf(Schema\Expect::structure([
 				'host'     => Schema\Expect::string()->default('127.0.0.1'),
 				'port'     => Schema\Expect::int(6379),
 				'username' => Schema\Expect::string(null)->nullable(),
 				'password' => Schema\Expect::string(null)->nullable(),
 				'channel'  => Schema\Expect::string()->default('fb_exchange'),
 			])),
-			'async'      => Schema\Expect::bool(false),
+			'enableClassic' => Schema\Expect::bool(true),
+			'enableAsync'   => Schema\Expect::bool(false),
 		]);
 	}
 
@@ -93,24 +94,7 @@ class RedisDbExchangePluginExtension extends DI\CompilerExtension
 				])
 				->setAutowired(false);
 
-			if ($configuration->async) {
-				if ($name === 'default') {
-					$asyncClientService = $builder->addDefinition($this->prefix('asyncClient'), new DI\Definitions\ServiceDefinition())
-						->setType(Client\AsyncClient::class)
-						->setArguments([
-							'channelName' => $connection->channel,
-							'connection'  => $connectionService,
-						])
-						->setAutowired(true);
-
-					$builder->addDefinition($this->prefix('asyncPublisher'), new DI\Definitions\ServiceDefinition())
-						->setType(Publishers\AsyncPublisher::class)
-						->setArguments([
-							'client' => $asyncClientService,
-						])
-						->setAutowired(false);
-				}
-			} else {
+			if ($configuration->enableClassic) {
 				$clientService = $builder->addDefinition($this->prefix('client.' . $name), new DI\Definitions\ServiceDefinition())
 					->setType(Client\Client::class)
 					->setArguments([
@@ -126,9 +110,26 @@ class RedisDbExchangePluginExtension extends DI\CompilerExtension
 					])
 					->setAutowired(false);
 			}
+
+			if ($name === 'default' && $configuration->enableAsync) {
+				$asyncClientService = $builder->addDefinition($this->prefix('asyncClient'), new DI\Definitions\ServiceDefinition())
+					->setType(Client\AsyncClient::class)
+					->setArguments([
+						'channelName' => $connection->channel,
+						'connection'  => $connectionService,
+					])
+					->setAutowired(true);
+
+				$builder->addDefinition($this->prefix('asyncPublisher'), new DI\Definitions\ServiceDefinition())
+					->setType(Publishers\AsyncPublisher::class)
+					->setArguments([
+						'client' => $asyncClientService,
+					])
+					->setAutowired(false);
+			}
 		}
 
-		if ($configuration->async) {
+		if ($configuration->enableAsync) {
 			if ($asyncClientService === null) {
 				throw new Exceptions\InvalidStateException('Asynchronous client could not be created missing "default" connection configuration');
 			}
