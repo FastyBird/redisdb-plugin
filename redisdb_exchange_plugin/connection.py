@@ -87,6 +87,10 @@ class Connection(Redis):  # pylint: disable=abstract-method,too-many-ancestors
         self.__logger.debug(
             "Successfully subscribed to RedisDB exchange channel: %s",
             self.__channel_name,
+            extra={
+                "source": "redisdb-exchange-plugin-connection",
+                "type": "subscribe",
+            },
         )
 
     # -----------------------------------------------------------------------------
@@ -102,6 +106,10 @@ class Connection(Redis):  # pylint: disable=abstract-method,too-many-ancestors
             self.__logger.debug(
                 "Successfully unsubscribed from RedisDB exchange channel: %s",
                 self.__channel_name,
+                extra={
+                    "source": "redisdb-exchange-plugin-connection",
+                    "type": "unsubscribe",
+                },
             )
 
             self.__pub_sub = None

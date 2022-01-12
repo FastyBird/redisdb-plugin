@@ -103,11 +103,16 @@ class AsyncClientSubscriber implements EventDispatcher\EventSubscriberInterface
 
 			} else {
 				// Log error action reason
-				$this->logger->warning('[FB:PLUGIN:REDISDB_EXCHANGE] Received message is not in valid format');
+				$this->logger->warning('Received message is not in valid format', [
+					'source' => 'redisdb-exchange-plugin-publisher',
+					'type'   => 'subscribe',
+				]);
 			}
 		} catch (Utils\JsonException $ex) {
 			// Log error action reason
-			$this->logger->warning('[FB:PLUGIN:REDISDB_EXCHANGE] Received message is not valid json', [
+			$this->logger->warning('Received message is not valid json', [
+				'source'    => 'redisdb-exchange-plugin-publisher',
+				'type'      => 'subscribe',
 				'exception' => [
 					'message' => $ex->getMessage(),
 					'code'    => $ex->getCode(),
@@ -158,7 +163,9 @@ class AsyncClientSubscriber implements EventDispatcher\EventSubscriberInterface
 
 		} catch (Exceptions\UnprocessableMessageException $ex) {
 			// Log error consume reason
-			$this->logger->error('[FB:PLUGIN:REDISDB_EXCHANGE] Message could not be handled', [
+			$this->logger->error('Message could not be handled', [
+				'source'    => 'redisdb-exchange-plugin-publisher',
+				'type'      => 'subscribe',
 				'exception' => [
 					'message' => $ex->getMessage(),
 					'code'    => $ex->getCode(),

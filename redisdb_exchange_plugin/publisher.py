@@ -78,4 +78,8 @@ class Publisher:  # pylint: disable=too-few-public-methods
             "Successfully published message to: %d consumers via RedisDB exchange plugin with key: %s",
             result,
             routing_key,
+            extra={
+                "source": "redisdb-exchange-plugin-publisher",
+                "type": "publish",
+            },
         )

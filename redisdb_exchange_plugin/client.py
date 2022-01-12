@@ -96,7 +96,13 @@ class Client:
         """Start exchange services"""
         self.__connection.subscribe()
 
-        self.__logger.info("Starting Redis DB exchange client")
+        self.__logger.info(
+            "Starting Redis DB exchange client",
+            extra={
+                "source": "redisdb-exchange-plugin-client",
+                "type": "start",
+            }
+        )
 
     # -----------------------------------------------------------------------------
 
@@ -105,7 +111,13 @@ class Client:
         self.__connection.unsubscribe()
         self.__connection.close()
 
-        self.__logger.info("Closing Redis DB exchange client")
+        self.__logger.info(
+            "Closing Redis DB exchange client",
+            extra={
+                "source": "redisdb-exchange-plugin-client",
+                "type": "stop",
+            }
+        )
 
     # -----------------------------------------------------------------------------
 
@@ -162,7 +174,13 @@ class Client:
                 )
 
             else:
-                self.__logger.warning("Received exchange message is not valid")
+                self.__logger.warning(
+                    "Received exchange message is not valid",
+                    extra={
+                        "source": "redisdb-exchange-plugin-client",
+                        "type": "receive",
+                    },
+            )
 
         except HandleDataException as ex:
             self.__logger.exception(ex)
@@ -197,6 +215,10 @@ class Client:
                 "Schema file for origin: %s and routing key: %s could not be loaded",
                 origin.value,
                 routing_key.value,
+                extra={
+                    "source": "redisdb-exchange-plugin-client",
+                    "type": "validate-data",
+                },
             )
 
             raise HandleDataException("Provided data could not be validated") from ex
@@ -206,6 +228,10 @@ class Client:
                 "Schema file for origin: %s and routing key: %s is not configured in mapping",
                 origin.value,
                 routing_key.value,
+                extra={
+                    "source": "redisdb-exchange-plugin-client",
+                    "type": "validate-data",
+                },
             )
 
             raise HandleDataException("Provided data could not be validated") from ex
@@ -221,6 +247,10 @@ class Client:
                 "Schema file for origin: %s and routing key: %s could not be parsed & compiled",
                 origin.value,
                 routing_key.value,
+                extra={
+                    "source": "redisdb-exchange-plugin-client",
+                    "type": "validate-data",
+                },
             )
 
             raise HandleDataException("Provided data could not be validated") from ex

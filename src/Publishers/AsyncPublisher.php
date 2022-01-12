@@ -75,7 +75,9 @@ final class AsyncPublisher implements IAsyncPublisher
 			);
 
 			$result->then(function () use ($routingKey, $origin, $data): void {
-				$this->logger->info('[FB:PLUGIN:REDISDB_EXCHANGE] Received message was pushed into data exchange', [
+				$this->logger->debug('Received message was pushed into data exchange', [
+					'source'  => 'redisdb-exchange-plugin-publisher',
+					'type'    => 'publish',
 					'message' => [
 						'routingKey' => $routingKey->getValue(),
 						'origin'     => $origin->getValue(),
@@ -86,7 +88,9 @@ final class AsyncPublisher implements IAsyncPublisher
 
 			if ($result instanceof Promise\ExtendedPromiseInterface) {
 				$result->otherwise(function () use ($routingKey, $origin, $data): void {
-					$this->logger->error('[FB:PLUGIN:REDISDB_EXCHANGE] Received message could not be pushed into data exchange', [
+					$this->logger->error('Received message could not be pushed into data exchange', [
+						'source'  => 'redisdb-exchange-plugin-publisher',
+						'type'    => 'publish',
 						'message' => [
 							'routingKey' => $routingKey->getValue(),
 							'origin'     => $origin->getValue(),
@@ -96,7 +100,9 @@ final class AsyncPublisher implements IAsyncPublisher
 				});
 			}
 		} catch (Utils\JsonException $ex) {
-			$this->logger->error('[FB:PLUGIN:REDISDB_EXCHANGE] Data could not be converted to message', [
+			$this->logger->error('Data could not be converted to message', [
+				'source'    => 'redisdb-exchange-plugin-publisher',
+				'type'      => 'publish',
 				'message'   => [
 					'routingKey' => $routingKey->getValue(),
 					'origin'     => $origin->getValue(),
