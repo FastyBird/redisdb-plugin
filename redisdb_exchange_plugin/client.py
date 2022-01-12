@@ -101,7 +101,7 @@ class Client:
             extra={
                 "source": "redisdb-exchange-plugin-client",
                 "type": "start",
-            }
+            },
         )
 
     # -----------------------------------------------------------------------------
@@ -116,7 +116,7 @@ class Client:
             extra={
                 "source": "redisdb-exchange-plugin-client",
                 "type": "stop",
-            }
+            },
         )
 
     # -----------------------------------------------------------------------------
@@ -180,7 +180,7 @@ class Client:
                         "source": "redisdb-exchange-plugin-client",
                         "type": "receive",
                     },
-            )
+                )
 
         except HandleDataException as ex:
             self.__logger.exception(ex)
