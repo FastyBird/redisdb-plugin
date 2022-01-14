@@ -59,7 +59,7 @@ final class AsyncPublisher implements IAsyncPublisher
 	 * {@inheritDoc}
 	 */
 	public function publish(
-		MetadataTypes\ModuleOriginType $origin,
+		$origin,
 		MetadataTypes\RoutingKeyType $routingKey,
 		?Utils\ArrayHash $data
 	): void {

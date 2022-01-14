@@ -24,12 +24,14 @@ Redis DB exchange plugin DI container
 import logging
 from typing import Dict, Optional, Union
 
-from exchange.publisher import Publisher as ExchangePublisher
-
 # Library dependencies
+from exchange.consumer import Consumer as ExchangeConsumer
+from exchange.publisher import Publisher as ExchangePublisher
 from kink import di
 
 # Library libs
+from whistle import EventDispatcher
+
 from redisdb_exchange_plugin.client import Client
 from redisdb_exchange_plugin.connection import Connection
 from redisdb_exchange_plugin.logger import Logger
@@ -56,6 +58,16 @@ def create_container(
         },
     }
 
+    event_dispatcher: Optional[EventDispatcher] = None
+
+    if EventDispatcher in di:
+        event_dispatcher = di[EventDispatcher]
+
+    consumer: Optional[ExchangeConsumer] = None
+
+    if ExchangeConsumer in di:
+        consumer = di[ExchangeConsumer]
+
     di[Logger] = Logger(logger=logger)
     di["fb-redisdb-exchange-plugin_logger"] = di[Logger]
 
@@ -65,19 +77,24 @@ def create_container(
         channel_name=str(settings.get("channel_name")),
         username=str(settings.get("username", None)) if settings.get("username", None) is not None else None,
         password=str(settings.get("password", None)) if settings.get("password", None) is not None else None,
+        event_dispatcher=event_dispatcher,
         logger=di[Logger],
     )
     di["fb-redisdb-exchange-plugin_redis-connection"] = di[Connection]
+
+    di[Client] = Client(
+        connection=di[Connection],
+        event_dispatcher=event_dispatcher,
+        consumer=consumer,
+        logger=di[Logger],
+    )
+    di["fb-redisdb-exchange-plugin_client"] = di[Client]
 
     di[Publisher] = Publisher(
         channel_name=str(settings.get("channel_name", "fb_exchange")),
         connection=di[Connection],
         logger=di[Logger],
     )
-    di["fb-redisdb-exchange-plugin_publisher"] = di[Publisher]
-
-    di[Client] = Client(connection=di[Connection], logger=di[Logger])
-    di["fb-redisdb-exchange-plugin_client"] = di[Client]
 
     # Register publisher into exchange
     if ExchangePublisher in di:

@@ -25,8 +25,8 @@ from typing import Dict, Optional
 
 # Library dependencies
 import metadata.exceptions as metadata_exceptions
+from exchange.client import IClient
 from exchange.consumer import Consumer
-from kink import inject
 from metadata.loader import load_schema_by_routing_key
 from metadata.routing import RoutingKey
 from metadata.types import ModuleOrigin
@@ -46,8 +46,7 @@ from redisdb_exchange_plugin.exceptions import (
 from redisdb_exchange_plugin.logger import Logger
 
 
-@inject
-class Client:
+class Client(IClient):
     """
     Redis exchange client
 
@@ -70,8 +69,8 @@ class Client:
         self,
         connection: Connection,
         logger: Logger,
-        event_dispatcher: EventDispatcher = None,  # type: ignore[assignment]
-        consumer: Consumer = None,  # type: ignore[assignment]
+        event_dispatcher: Optional[EventDispatcher] = None,
+        consumer: Optional[Consumer] = None,
     ) -> None:
         self.__event_dispatcher = event_dispatcher
         self.__connection = connection

@@ -16,6 +16,8 @@
 import json
 import redis
 import unittest
+
+# Library dependencies
 from kink import inject
 from metadata.types import ModuleOrigin
 from metadata.routing import RoutingKey
@@ -30,7 +32,7 @@ from redisdb_exchange_plugin.publisher import Publisher
 class TestPublisher(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        create_container({})
+        create_container()
 
     # -----------------------------------------------------------------------------
 

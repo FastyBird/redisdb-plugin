@@ -33,7 +33,7 @@ from redisdb_exchange_plugin.connection import Connection
 from redisdb_exchange_plugin.logger import Logger
 
 
-@inject(IPublisher)
+@inject(alias=IPublisher)
 class Publisher(IPublisher):  # pylint: disable=too-few-public-methods
     """
     Exchange data publisher
