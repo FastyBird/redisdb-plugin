@@ -24,10 +24,10 @@ import time
 from typing import Dict, Optional
 
 # Library dependencies
-from kink import inject
 import metadata.exceptions as metadata_exceptions
 from exchange.client import IClient
 from exchange.consumer import Consumer
+from kink import inject
 from metadata.loader import load_schema_by_routing_key
 from metadata.routing import RoutingKey
 from metadata.types import ModuleOrigin
