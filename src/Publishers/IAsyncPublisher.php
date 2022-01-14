@@ -15,8 +15,7 @@
 
 namespace FastyBird\RedisDbExchangePlugin\Publishers;
 
-use FastyBird\Metadata\Types as MetadataTypes;
-use Nette\Utils;
+use FastyBird\Exchange\Publisher as ExchangePublisher;
 
 /**
  * Redis publisher
@@ -26,20 +25,7 @@ use Nette\Utils;
  *
  * @author         Adam Kadlec <adam.kadlec@fastybird.com>
  */
-interface IAsyncPublisher
+interface IAsyncPublisher extends ExchangePublisher\IPublisher
 {
-
-	/**
-	 * @param MetadataTypes\ModuleOriginType $origin
-	 * @param MetadataTypes\RoutingKeyType $routingKey
-	 * @param Utils\ArrayHash|null $data
-	 *
-	 * @return void
-	 */
-	public function publish(
-		MetadataTypes\ModuleOriginType $origin,
-		MetadataTypes\RoutingKeyType $routingKey,
-		?Utils\ArrayHash $data
-	): void;
 
 }

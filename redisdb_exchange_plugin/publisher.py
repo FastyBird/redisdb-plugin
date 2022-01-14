@@ -20,18 +20,21 @@ Redis DB exchange plugin publisher
 
 # Python base dependencies
 import json
-from typing import Dict, Optional
+from typing import Dict, Optional, Union
 
 # Library dependencies
+from exchange.publisher import IPublisher
+from kink import inject
 from metadata.routing import RoutingKey
-from metadata.types import ModuleOrigin
+from metadata.types import ModuleOrigin, PluginOrigin
 
 # Library libs
 from redisdb_exchange_plugin.connection import Connection
 from redisdb_exchange_plugin.logger import Logger
 
 
-class Publisher:  # pylint: disable=too-few-public-methods
+@inject(IPublisher)
+class Publisher(IPublisher):  # pylint: disable=too-few-public-methods
     """
     Exchange data publisher
 
@@ -63,7 +66,7 @@ class Publisher:  # pylint: disable=too-few-public-methods
 
     # -----------------------------------------------------------------------------
 
-    def publish(self, origin: ModuleOrigin, routing_key: RoutingKey, data: Optional[Dict]) -> None:
+    def publish(self, origin: Union[ModuleOrigin, PluginOrigin], routing_key: RoutingKey, data: Optional[Dict]) -> None:
         """Publish message to Redis exchange"""
         message = {
             "routing_key": routing_key.value,

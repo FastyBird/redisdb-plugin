@@ -22,33 +22,47 @@ Redis DB exchange plugin DI container
 
 # Python base dependencies
 import logging
-from typing import Dict, Union
+from typing import Dict, Optional, Union
+
+from exchange.publisher import Publisher as ExchangePublisher
 
 # Library dependencies
 from kink import di
 
-from redisdb_exchange_plugin.client import Client
-
 # Library libs
+from redisdb_exchange_plugin.client import Client
 from redisdb_exchange_plugin.connection import Connection
 from redisdb_exchange_plugin.logger import Logger
 from redisdb_exchange_plugin.publisher import Publisher
 
 
 def create_container(
-    settings: Dict[str, Union[str, int, None]],
+    settings: Optional[Dict[str, Union[str, int, None]]] = None,
     logger: logging.Logger = logging.getLogger("dummy"),
 ) -> None:
     """Create Redis DB exchange plugin services"""
+    if settings is None:
+        settings = {}
+
+    # Merge default settings
+    settings = {
+        **settings,
+        **{
+            "host": "127.0.0.1",
+            "port": 6379,
+            "channel_name": "fb_exchange",
+            "username": None,
+            "password": None,
+        },
+    }
+
     di[Logger] = Logger(logger=logger)
     di["fb-redisdb-exchange-plugin_logger"] = di[Logger]
 
     di[Connection] = Connection(
-        host=str(settings.get("host", "127.0.0.1")) if settings.get("host", None) is not None else "127.0.0.1",
-        port=int(str(settings.get("port", 6379))),
-        channel_name=str(settings.get("channel_name", "fb_exchange"))
-        if settings.get("channel_name", None) is not None
-        else "fb_exchange",
+        host=str(settings.get("host")),
+        port=int(str(settings.get("port"))),
+        channel_name=str(settings.get("channel_name")),
         username=str(settings.get("username", None)) if settings.get("username", None) is not None else None,
         password=str(settings.get("password", None)) if settings.get("password", None) is not None else None,
         logger=di[Logger],
@@ -64,3 +78,7 @@ def create_container(
 
     di[Client] = Client(connection=di[Connection], logger=di[Logger])
     di["fb-redisdb-exchange-plugin_client"] = di[Client]
+
+    # Register publisher into exchange
+    if ExchangePublisher in di:
+        di[ExchangePublisher].register_publisher(publisher=di[Publisher])

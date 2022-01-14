@@ -26,8 +26,10 @@ from typing import Dict, Optional, Union
 # Library dependencies
 from redis import Redis
 from redis.client import PubSub
+from whistle import EventDispatcher
 
 # Library libs
+from redisdb_exchange_plugin.events import ConnectionClosedEventEvent
 from redisdb_exchange_plugin.exceptions import InvalidStateException
 from redisdb_exchange_plugin.logger import Logger
 
@@ -47,6 +49,8 @@ class Connection(Redis):  # pylint: disable=abstract-method,too-many-ancestors
     __identifier: str
     __channel_name: str
 
+    __event_dispatcher: EventDispatcher
+
     __logger: Logger
 
     # -----------------------------------------------------------------------------
@@ -59,6 +63,7 @@ class Connection(Redis):  # pylint: disable=abstract-method,too-many-ancestors
         logger: Logger,
         username: Optional[str] = None,
         password: Optional[str] = None,
+        event_dispatcher: EventDispatcher = None,  # type: ignore[assignment]
     ) -> None:
         super().__init__(
             host=host,
@@ -69,6 +74,8 @@ class Connection(Redis):  # pylint: disable=abstract-method,too-many-ancestors
 
         self.__identifier = uuid.uuid4().__str__()
         self.__channel_name = channel_name
+
+        self.__event_dispatcher = event_dispatcher
 
         self.__logger = logger
 
@@ -150,6 +157,12 @@ class Connection(Redis):  # pylint: disable=abstract-method,too-many-ancestors
         self.unsubscribe()
 
         super().close()
+
+        if self.__event_dispatcher is not None:
+            self.__event_dispatcher.dispatch(
+                event_id=ConnectionClosedEventEvent.EVENT_NAME,
+                event=ConnectionClosedEventEvent(),
+            )
 
     # -----------------------------------------------------------------------------
 

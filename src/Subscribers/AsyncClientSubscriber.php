@@ -15,11 +15,11 @@
 
 namespace FastyBird\RedisDbExchangePlugin\Subscribers;
 
+use FastyBird\Exchange\Consumer as ExchangeConsumer;
 use FastyBird\Metadata\Exceptions as MetadataExceptions;
 use FastyBird\Metadata\Loaders as MetadataLoaders;
 use FastyBird\Metadata\Schemas as MetadataSchemas;
 use FastyBird\Metadata\Types as MetadataTypes;
-use FastyBird\RedisDbExchangePlugin\Consumer;
 use FastyBird\RedisDbExchangePlugin\Events;
 use FastyBird\RedisDbExchangePlugin\Exceptions;
 use Nette\Utils;
@@ -39,8 +39,8 @@ use Throwable;
 class AsyncClientSubscriber implements EventDispatcher\EventSubscriberInterface
 {
 
-	/** @var Consumer\IConsumer|null */
-	private ?Consumer\IConsumer $consumer;
+	/** @var ExchangeConsumer\Consumer|null */
+	private ?ExchangeConsumer\Consumer $consumer;
 
 	/** @var MetadataLoaders\ISchemaLoader */
 	private MetadataLoaders\ISchemaLoader $schemaLoader;
@@ -58,7 +58,7 @@ class AsyncClientSubscriber implements EventDispatcher\EventSubscriberInterface
 		MetadataLoaders\ISchemaLoader $schemaLoader,
 		MetadataSchemas\IValidator $validator,
 		?PsrEventDispatcher\EventDispatcherInterface $dispatcher = null,
-		?Consumer\IConsumer $consumer = null,
+		?ExchangeConsumer\Consumer $consumer = null,
 		?Log\LoggerInterface $logger = null
 	) {
 		$this->schemaLoader = $schemaLoader;

@@ -21,43 +21,29 @@ Redis DB exchange plugin exchange service
 # Python base dependencies
 import json
 import time
-from abc import ABC
-from typing import Dict, Optional, Union
+from typing import Dict, Optional
 
 # Library dependencies
 import metadata.exceptions as metadata_exceptions
+from exchange.consumer import Consumer
 from kink import inject
 from metadata.loader import load_schema_by_routing_key
 from metadata.routing import RoutingKey
 from metadata.types import ModuleOrigin
 from metadata.validator import validate
+from whistle import EventDispatcher
 
 # Library libs
 from redisdb_exchange_plugin.connection import Connection
+from redisdb_exchange_plugin.events import (
+    AfterMessageHandledEvent,
+    BeforeMessageHandledEvent,
+)
 from redisdb_exchange_plugin.exceptions import (
     HandleDataException,
     HandleRequestException,
 )
 from redisdb_exchange_plugin.logger import Logger
-
-
-class IConsumer(ABC):  # pylint: disable=too-few-public-methods
-    """
-    Redis client consumer interface
-
-    @package        FastyBird:RedisDbExchangePlugin!
-    @module         client
-
-    @author         Adam Kadlec <adam.kadlec@fastybird.com>
-    """
-
-    def consume(
-        self,
-        origin: ModuleOrigin,
-        routing_key: RoutingKey,
-        data: Optional[Dict[str, Union[str, int, float, bool, None]]],
-    ) -> None:
-        """Consume data received from exchange bus"""
 
 
 @inject
@@ -73,7 +59,8 @@ class Client:
 
     __connection: Connection
 
-    __consumer: Optional[IConsumer]
+    __event_dispatcher: Optional[EventDispatcher]
+    __consumer: Optional[Consumer]
 
     __logger: Logger
 
@@ -83,8 +70,10 @@ class Client:
         self,
         connection: Connection,
         logger: Logger,
-        consumer: IConsumer = None,  # type: ignore[assignment]
+        event_dispatcher: EventDispatcher = None,  # type: ignore[assignment]
+        consumer: Consumer = None,  # type: ignore[assignment]
     ) -> None:
+        self.__event_dispatcher = event_dispatcher
         self.__connection = connection
         self.__logger = logger
 
@@ -136,54 +125,53 @@ class Client:
 
     # -----------------------------------------------------------------------------
 
-    def register_consumer(
-        self,
-        consumer: IConsumer,
-    ) -> None:
-        """Register new consumer to server"""
-        self.__consumer = consumer
-
-    # -----------------------------------------------------------------------------
-
     def __receive(self, data: Dict) -> None:
-        if self.__consumer is None:
-            return
-
-        try:
-            origin = self.__validate_origin(origin=data.get("origin", None))
-            routing_key = self.__validate_routing_key(
-                routing_key=data.get("routing_key", None),
+        if self.__event_dispatcher is not None:
+            self.__event_dispatcher.dispatch(
+                event_id=BeforeMessageHandledEvent.EVENT_NAME, event=BeforeMessageHandledEvent(payload=json.dumps(data))
             )
 
-            if (
-                routing_key is not None
-                and origin is not None
-                and data.get("data", None) is not None
-                and isinstance(data.get("data", None), dict) is True
-            ):
-                data = self.__validate_data(
-                    origin=origin,
-                    routing_key=routing_key,
-                    data=data.get("data", None),
+        if self.__consumer is not None:
+            try:
+                origin = self.__validate_origin(origin=data.get("origin", None))
+                routing_key = self.__validate_routing_key(
+                    routing_key=data.get("routing_key", None),
                 )
 
-                self.__consumer.consume(
-                    origin=origin,
-                    routing_key=routing_key,
-                    data=data,
-                )
+                if (
+                    routing_key is not None
+                    and origin is not None
+                    and data.get("data", None) is not None
+                    and isinstance(data.get("data", None), dict) is True
+                ):
+                    data = self.__validate_data(
+                        origin=origin,
+                        routing_key=routing_key,
+                        data=data.get("data", None),
+                    )
 
-            else:
-                self.__logger.warning(
-                    "Received exchange message is not valid",
-                    extra={
-                        "source": "redisdb-exchange-plugin-client",
-                        "type": "receive",
-                    },
-                )
+                    self.__consumer.consume(
+                        origin=origin,
+                        routing_key=routing_key,
+                        data=data,
+                    )
 
-        except HandleDataException as ex:
-            self.__logger.exception(ex)
+                else:
+                    self.__logger.warning(
+                        "Received exchange message is not valid",
+                        extra={
+                            "source": "redisdb-exchange-plugin-client",
+                            "type": "receive",
+                        },
+                    )
+
+            except HandleDataException as ex:
+                self.__logger.exception(ex)
+
+        if self.__event_dispatcher is not None:
+            self.__event_dispatcher.dispatch(
+                event_id=AfterMessageHandledEvent.EVENT_NAME, event=AfterMessageHandledEvent(payload=json.dumps(data))
+            )
 
     # -----------------------------------------------------------------------------
 

@@ -59,10 +59,12 @@ setup(
     packages=find_packages(),
     package_data={"redisdb_exchange_plugin": ["py.typed"]},
     install_requires=[
+        "exchange",
         "fastybird-metadata",
         "kink",
         "redis",
         "setuptools",
+        "whistle",
     ],
     download_url="https://github.com/FastyBird/redisdb-exchange-plugin/archive/%s.tar.gz" % VERSION,
     classifiers=[

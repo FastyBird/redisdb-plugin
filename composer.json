@@ -1,6 +1,6 @@
 {
   "name" : "fastybird/redisdb-exchange-plugin",
-  "type" : "library",
+  "type" : "plugin",
   "description" : "FastyBird Redis database data exchange plugin",
   "keywords" : [
     "fastybird",
@@ -40,20 +40,21 @@
   "minimum-stability" : "dev",
 
   "require" : {
-    "php" : ">=7.4.0|>=8.0.0",
-    "clue/redis-react" : "^2.5",
-    "cweagans/composer-patches" : "^1.7",
-    "fastybird/datetime-factory" : "^0.3",
-    "fastybird/metadata" : "^0.25",
-    "fastybird/socket-server-factory" : "^0.4",
-    "nette/bootstrap" : "^3.0",
-    "nette/di" : "^3.0",
-    "nette/utils" : "^3.2",
-    "predis/predis" : "^1.1",
-    "psr/event-dispatcher" : "^1.0",
-    "psr/log" : "^1.1|^3.0",
-    "ramsey/uuid" : "^4.0",
-    "symfony/event-dispatcher" : "^5.4"
+    "php": ">=7.4.0|>=8.0.0",
+    "clue/redis-react": "^2.5",
+    "cweagans/composer-patches": "^1.7",
+    "fastybird/datetime-factory": "^0.3",
+    "fastybird/exchange": "^0.6",
+    "fastybird/metadata": "^0.25",
+    "fastybird/socket-server-factory": "^0.4",
+    "nette/bootstrap": "^3.0",
+    "nette/di": "^3.0",
+    "nette/utils": "^3.2",
+    "predis/predis": "^1.1",
+    "psr/event-dispatcher": "^1.0",
+    "psr/log": "^1.1|^3.0",
+    "ramsey/uuid": "^4.0",
+    "symfony/event-dispatcher": "^5.4"
   },
 
   "require-dev" : {
