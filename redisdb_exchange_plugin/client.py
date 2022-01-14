@@ -24,6 +24,7 @@ import time
 from typing import Dict, Optional
 
 # Library dependencies
+from kink import inject
 import metadata.exceptions as metadata_exceptions
 from exchange.client import IClient
 from exchange.consumer import Consumer
@@ -46,6 +47,7 @@ from redisdb_exchange_plugin.exceptions import (
 from redisdb_exchange_plugin.logger import Logger
 
 
+@inject(alias=IClient)
 class Client(IClient):
     """
     Redis exchange client
