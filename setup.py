@@ -60,6 +60,7 @@ setup(
     package_data={"redisdb_exchange_plugin": ["py.typed"]},
     install_requires=[
         "exchange",
+        "fastybird-exchange",
         "fastybird-metadata",
         "kink",
         "redis",
