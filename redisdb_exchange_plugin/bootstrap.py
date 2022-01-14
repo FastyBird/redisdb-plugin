@@ -28,10 +28,9 @@ from typing import Dict, Optional, Union
 from exchange.consumer import Consumer as ExchangeConsumer
 from exchange.publisher import Publisher as ExchangePublisher
 from kink import di
-
-# Library libs
 from whistle import EventDispatcher
 
+# Library libs
 from redisdb_exchange_plugin.client import Client
 from redisdb_exchange_plugin.connection import Connection
 from redisdb_exchange_plugin.logger import Logger

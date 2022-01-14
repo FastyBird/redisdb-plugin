@@ -49,7 +49,7 @@ class Connection(Redis):  # pylint: disable=abstract-method,too-many-ancestors
     __identifier: str
     __channel_name: str
 
-    __event_dispatcher: EventDispatcher
+    __event_dispatcher: Optional[EventDispatcher]
 
     __logger: Logger
 
@@ -63,7 +63,7 @@ class Connection(Redis):  # pylint: disable=abstract-method,too-many-ancestors
         logger: Logger,
         username: Optional[str] = None,
         password: Optional[str] = None,
-        event_dispatcher: EventDispatcher = None,  # type: ignore[assignment]
+        event_dispatcher: Optional[EventDispatcher] = None,
     ) -> None:
         super().__init__(
             host=host,
