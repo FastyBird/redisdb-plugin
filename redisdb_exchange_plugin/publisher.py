@@ -24,7 +24,6 @@ from typing import Dict, Optional, Union
 
 # Library dependencies
 from exchange.publisher import IPublisher
-from kink import inject
 from metadata.routing import RoutingKey
 from metadata.types import ModuleOrigin, PluginOrigin
 
@@ -33,7 +32,6 @@ from redisdb_exchange_plugin.connection import Connection
 from redisdb_exchange_plugin.logger import Logger
 
 
-@inject(alias=IPublisher)
 class Publisher(IPublisher):  # pylint: disable=too-few-public-methods
     """
     Exchange data publisher
