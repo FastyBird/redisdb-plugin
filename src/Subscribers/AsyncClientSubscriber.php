@@ -145,7 +145,7 @@ class AsyncClientSubscriber implements EventDispatcher\EventSubscriberInterface
 		}
 
 		try {
-			$schema = $this->schemaLoader->loadByRoutingKey($routingKey); // @phpstan-ignore-line
+			$schema = $this->schemaLoader->loadByRoutingKey($routingKey);
 
 		} catch (MetadataExceptions\InvalidArgumentException $ex) {
 			return;
