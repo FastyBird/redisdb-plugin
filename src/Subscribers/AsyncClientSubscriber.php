@@ -145,14 +145,14 @@ class AsyncClientSubscriber implements EventDispatcher\EventSubscriberInterface
 		}
 
 		try {
-			$schema = $this->schemaLoader->loadByRoutingKey($routingKey->getValue()); // @phpstan-ignore-line
+			$schema = $this->schemaLoader->loadByRoutingKey($routingKey); // @phpstan-ignore-line
 
 		} catch (MetadataExceptions\InvalidArgumentException $ex) {
 			return;
 		}
 
 		try {
-			$data = $this->validator->validate(Utils\Json::encode($data), $schema);
+			$data = $this->validator->validate(Utils\Json::encode($this->dataToArray($data)), $schema);
 
 		} catch (Throwable $ex) {
 			return;
@@ -174,6 +174,24 @@ class AsyncClientSubscriber implements EventDispatcher\EventSubscriberInterface
 
 			return;
 		}
+	}
+
+	/**
+	 * @param Utils\ArrayHash $data
+	 *
+	 * @return mixed[]
+	 */
+	private function dataToArray(Utils\ArrayHash $data): array
+	{
+		$transformed = (array) $data;
+
+		foreach ($transformed as $key => $value) {
+			if ($value instanceof Utils\ArrayHash) {
+				$transformed[$key] = $this->dataToArray($value);
+			}
+		}
+
+		return $transformed;
 	}
 
 }
