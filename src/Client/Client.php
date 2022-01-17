@@ -72,6 +72,7 @@ class Client implements IClient
 	 */
 	public function publish(string $content): bool
 	{
+		/** @var int|PredisResponse\ResponseInterface $response */
 		$response = $this->redis->publish($this->channelName, $content);
 
 		return !$response instanceof PredisResponse\ErrorInterface;
