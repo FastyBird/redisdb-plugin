@@ -23,6 +23,7 @@ use FastyBird\RedisDbExchangePlugin\Subscribers;
 use Nette;
 use Nette\DI;
 use Nette\Schema;
+use Ramsey\Uuid;
 use stdClass;
 
 /**
@@ -87,10 +88,11 @@ class RedisDbExchangePluginExtension extends DI\CompilerExtension
 			$connectionService = $builder->addDefinition($this->prefix('connection.' . $name), new DI\Definitions\ServiceDefinition())
 				->setType(Connections\Connection::class)
 				->setArguments([
-					'host'     => $connection->host,
-					'port'     => $connection->port,
-					'username' => $connection->username,
-					'password' => $connection->password,
+					'host'       => $connection->host,
+					'port'       => $connection->port,
+					'username'   => $connection->username,
+					'password'   => $connection->password,
+					'identifier' => Uuid\Uuid::uuid4()->toString(),
 				])
 				->setAutowired(false);
 
@@ -119,13 +121,6 @@ class RedisDbExchangePluginExtension extends DI\CompilerExtension
 						'connection'  => $connectionService,
 					])
 					->setAutowired(true);
-
-				$builder->addDefinition($this->prefix('asyncPublisher'), new DI\Definitions\ServiceDefinition())
-					->setType(Publishers\AsyncPublisher::class)
-					->setArguments([
-						'client' => $asyncClientService,
-					])
-					->setAutowired(false);
 			}
 		}
 

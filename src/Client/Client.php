@@ -18,7 +18,6 @@ namespace FastyBird\RedisDbExchangePlugin\Client;
 use FastyBird\RedisDbExchangePlugin\Connections;
 use Nette;
 use Predis;
-use Ramsey\Uuid;
 
 /**
  * Redis database client
@@ -36,8 +35,8 @@ class Client implements IClient
 	/** @var string */
 	private string $channelName;
 
-	/** @var string */
-	private string $identifier;
+	/** @var Connections\IConnection */
+	private Connections\IConnection $connection;
 
 	/** @var Predis\Client<mixed> */
 	private Predis\Client $redis;
@@ -47,6 +46,8 @@ class Client implements IClient
 		Connections\IConnection $connection
 	) {
 		$this->channelName = $channelName;
+
+		$this->connection = $connection;
 
 		$options = [
 			'scheme' => 'tcp',
@@ -63,8 +64,6 @@ class Client implements IClient
 		}
 
 		$this->redis = new Predis\Client($options);
-
-		$this->identifier = Uuid\Uuid::uuid4()->toString();
 	}
 
 	/**
@@ -82,7 +81,7 @@ class Client implements IClient
 	 */
 	public function getIdentifier(): string
 	{
-		return $this->identifier;
+		return $this->connection->getIdentifier();
 	}
 
 }

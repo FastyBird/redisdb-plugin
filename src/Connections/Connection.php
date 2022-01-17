@@ -42,7 +42,11 @@ final class Connection implements IConnection
 	/** @var string|null */
 	private ?string $password;
 
+	/** @var string */
+	private string $identifier;
+
 	public function __construct(
+		string $identifier,
 		string $host = '127.0.0.1',
 		int $port = 6379,
 		?string $username = null,
@@ -52,6 +56,8 @@ final class Connection implements IConnection
 		$this->port = $port;
 		$this->username = $username;
 		$this->password = $password;
+
+		$this->identifier = $identifier;
 	}
 
 	/**
@@ -84,6 +90,14 @@ final class Connection implements IConnection
 	public function getPassword(): ?string
 	{
 		return $this->password;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getIdentifier(): string
+	{
+		return $this->identifier;
 	}
 
 }

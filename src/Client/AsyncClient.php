@@ -21,7 +21,6 @@ use FastyBird\RedisDbExchangePlugin\Events;
 use FastyBird\RedisDbExchangePlugin\Exceptions;
 use Nette;
 use Psr\EventDispatcher;
-use Ramsey\Uuid;
 use React\EventLoop;
 use React\Promise;
 use React\Socket;
@@ -43,9 +42,6 @@ class AsyncClient implements IAsyncClient
 
 	/** @var string */
 	private string $channelName;
-
-	/** @var string */
-	private string $identifier;
 
 	/** @var bool */
 	private bool $isConnected = false;
@@ -98,8 +94,6 @@ class AsyncClient implements IAsyncClient
 		$this->eventLoop = $eventLoop;
 
 		$this->dispatcher = $dispatcher;
-
-		$this->identifier = Uuid\Uuid::uuid4()->toString();
 	}
 
 	/**
@@ -139,48 +133,6 @@ class AsyncClient implements IAsyncClient
 			$request = array_shift($this->requests);
 			$request->reject(new Exceptions\RuntimeException('Connection closing'));
 		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function unsubscribe(string $channel): Promise\PromiseInterface
-	{
-		$request = new Promise\Deferred();
-		$promise = $request->promise();
-
-		if ($this->stream === null || $this->closing) {
-			$request->reject(new Exceptions\RuntimeException('Connection closed'));
-
-			return $promise;
-		}
-
-		$this->stream->write($this->serializer->getRequestMessage('unsubscribe', [$channel]));
-
-		$this->requests[] = $request;
-
-		return $promise;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function publish(string $content): Promise\PromiseInterface
-	{
-		$request = new Promise\Deferred();
-		$promise = $request->promise();
-
-		if ($this->stream === null || $this->closing) {
-			$request->reject(new Exceptions\RuntimeException('Connection closed'));
-
-			return $promise;
-		}
-
-		$this->stream->write($this->serializer->getRequestMessage('publish', [$this->channelName, $content]));
-
-		$this->requests[] = $request;
-
-		return $promise;
 	}
 
 	/**
@@ -397,7 +349,7 @@ class AsyncClient implements IAsyncClient
 	/**
 	 * {@inheritDoc}
 	 */
-	public function subscribe(string $channel): Promise\PromiseInterface
+	private function subscribe(string $channel): Promise\PromiseInterface
 	{
 		$request = new Promise\Deferred();
 		$promise = $request->promise();
@@ -420,7 +372,7 @@ class AsyncClient implements IAsyncClient
 	 */
 	public function getIdentifier(): string
 	{
-		return $this->identifier;
+		return $this->connection->getIdentifier();
 	}
 
 }
