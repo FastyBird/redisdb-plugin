@@ -16,8 +16,9 @@ final class ConnectionTest extends BaseMockeryTestCase
 
 	public function testDefaultValues(): void
 	{
-		$config = new Connections\Connection('127.0.0.1', 1234, null, null);
+		$config = new Connections\Connection('identifier', '127.0.0.1', 1234, null, null);
 
+		Assert::same('identifier', $config->getIdentifier());
 		Assert::same('127.0.0.1', $config->getHost());
 		Assert::same(1234, $config->getPort());
 		Assert::null($config->getUsername());
