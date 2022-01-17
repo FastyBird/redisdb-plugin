@@ -18,6 +18,7 @@ namespace FastyBird\RedisDbExchangePlugin\Client;
 use FastyBird\RedisDbExchangePlugin\Connections;
 use Nette;
 use Predis;
+use Predis\Response as PredisResponse;
 
 /**
  * Redis database client
@@ -73,7 +74,7 @@ class Client implements IClient
 	{
 		$response = $this->redis->publish($this->channelName, $content);
 
-		return $response === 1;
+		return !$response instanceof PredisResponse\ErrorInterface;
 	}
 
 	/**
