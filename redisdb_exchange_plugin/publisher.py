@@ -26,9 +26,9 @@ from typing import Dict, Optional, Union
 from exchange.publisher import IPublisher
 from metadata.routing import RoutingKey
 from metadata.types import ModuleOrigin, PluginOrigin
+from redis import Redis
 
 # Library libs
-from redisdb_exchange_plugin.connection import Connection
 from redisdb_exchange_plugin.logger import Logger
 
 
@@ -42,9 +42,10 @@ class Publisher(IPublisher):  # pylint: disable=too-few-public-methods
     @author         Adam Kadlec <adam.kadlec@fastybird.com>
     """
 
+    __identifier: str
     __channel_name: str
 
-    __connection: Connection
+    __connection: Redis
 
     __logger: Logger
 
@@ -52,10 +53,12 @@ class Publisher(IPublisher):  # pylint: disable=too-few-public-methods
 
     def __init__(
         self,
+        identifier: str,
         channel_name: str,
-        connection: Connection,
+        connection: Redis,
         logger: Logger,
     ) -> None:
+        self.__identifier = identifier
         self.__channel_name = channel_name
 
         self.__connection = connection
@@ -69,7 +72,7 @@ class Publisher(IPublisher):  # pylint: disable=too-few-public-methods
         message = {
             "routing_key": routing_key.value,
             "origin": origin.value,
-            "sender_id": self.__connection.identifier,
+            "sender_id": self.__identifier,
             "data": data,
         }
 

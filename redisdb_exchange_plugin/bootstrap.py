@@ -22,12 +22,14 @@ Redis DB exchange plugin DI container
 
 # Python base dependencies
 import logging
+import uuid
 from typing import Dict, Optional, Union
 
 # Library dependencies
 from exchange.consumer import Consumer as ExchangeConsumer
 from exchange.publisher import Publisher as ExchangePublisher
 from kink import di
+from redis import Redis
 from whistle import EventDispatcher
 
 # Library libs
@@ -70,7 +72,10 @@ def register_services(
     di[Logger] = Logger(logger=logger)
     di["fb-redisdb-exchange-plugin_logger"] = di[Logger]
 
+    identifier = uuid.uuid4().__str__()
+
     di[Connection] = Connection(
+        identifier=identifier,
         host=str(settings.get("host")),
         port=int(str(settings.get("port"))),
         channel_name=str(settings.get("channel_name")),
@@ -90,8 +95,14 @@ def register_services(
     di["fb-redisdb-exchange-plugin_client"] = di[Client]
 
     di[Publisher] = Publisher(
+        identifier=identifier,
         channel_name=str(settings.get("channel_name", "fb_exchange")),
-        connection=di[Connection],
+        connection=Redis(
+            host=str(settings.get("host")),
+            port=int(str(settings.get("port"))),
+            username=str(settings.get("username", None)) if settings.get("username", None) is not None else None,
+            password=str(settings.get("password", None)) if settings.get("password", None) is not None else None,
+        ),
         logger=di[Logger],
     )
 

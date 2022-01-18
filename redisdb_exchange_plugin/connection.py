@@ -20,7 +20,6 @@ Redis DB exchange plugin connection service
 
 # Python base dependencies
 import json
-import uuid
 from typing import Dict, Optional, Union
 
 # Library dependencies
@@ -57,6 +56,7 @@ class Connection(Redis):  # pylint: disable=abstract-method,too-many-ancestors
 
     def __init__(  # pylint: disable=too-many-arguments
         self,
+        identifier: str,
         host: str,
         port: int,
         channel_name: str,
@@ -72,7 +72,7 @@ class Connection(Redis):  # pylint: disable=abstract-method,too-many-ancestors
             password=password,
         )
 
-        self.__identifier = uuid.uuid4().__str__()
+        self.__identifier = identifier
         self.__channel_name = channel_name
 
         self.__event_dispatcher = event_dispatcher
