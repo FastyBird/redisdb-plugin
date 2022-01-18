@@ -24,7 +24,7 @@ from metadata.routing import RoutingKey
 from unittest.mock import patch
 
 # Library libs
-from redisdb_exchange_plugin.bootstrap import create_container
+from redisdb_exchange_plugin.bootstrap import register_services
 from redisdb_exchange_plugin.connection import Connection
 from redisdb_exchange_plugin.publisher import Publisher
 
@@ -32,7 +32,7 @@ from redisdb_exchange_plugin.publisher import Publisher
 class TestPublisher(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        create_container()
+        register_services()
 
     # -----------------------------------------------------------------------------
 
