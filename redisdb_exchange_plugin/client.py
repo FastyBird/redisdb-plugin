@@ -126,6 +126,12 @@ class Client(IClient):
 
     # -----------------------------------------------------------------------------
 
+    def register_consumer(self, consumer: Consumer) -> None:
+        """Register client consumer"""
+        self.__consumer = consumer
+
+    # -----------------------------------------------------------------------------
+
     def __receive(self, data: Dict) -> None:
         if self.__event_dispatcher is not None:
             self.__event_dispatcher.dispatch(

@@ -37,7 +37,7 @@ from redisdb_exchange_plugin.logger import Logger
 from redisdb_exchange_plugin.publisher import Publisher
 
 
-def create_container(
+def register_services(
     settings: Optional[Dict[str, Union[str, int, None]]] = None,
     logger: logging.Logger = logging.getLogger("dummy"),
 ) -> None:
