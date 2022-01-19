@@ -56,4 +56,4 @@ python_tests:
 	python -m unittest
 
 python_coverage:
-	coverage run --source=redisdb_exchange_plugin -m unittest
+	coverage run --source=fb_redisdb_exchange_plugin -m unittest

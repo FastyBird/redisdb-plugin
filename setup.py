@@ -43,7 +43,7 @@ def find_version(*file_paths):
     raise RuntimeError("Unable to find version string.")
 
 
-VERSION: str = find_version("redisdb_exchange_plugin", "__init__.py")
+VERSION: str = find_version("fb_redisdb_exchange_plugin", "__init__.py")
 
 setup(
     version=VERSION,
@@ -57,7 +57,7 @@ setup(
     long_description_content_type="text/markdown",
     python_requires=">=3.7",
     packages=find_packages(),
-    package_data={"redisdb_exchange_plugin": ["py.typed"]},
+    package_data={"fb_redisdb_exchange_plugin": ["py.typed"]},
     install_requires=[
         "exchange",
         "fastybird-exchange",

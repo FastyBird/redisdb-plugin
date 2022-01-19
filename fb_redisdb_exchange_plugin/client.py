@@ -24,27 +24,27 @@ import time
 from typing import Dict, Optional
 
 # Library dependencies
-import metadata.exceptions as metadata_exceptions
-from exchange.client import IClient
-from exchange.consumer import Consumer
+import fb_metadata.exceptions as metadata_exceptions
+from fb_exchange.client import IClient
+from fb_exchange.consumer import Consumer
+from fb_metadata.loader import load_schema_by_routing_key
+from fb_metadata.routing import RoutingKey
+from fb_metadata.types import ModuleOrigin
+from fb_metadata.validator import validate
 from kink import inject
-from metadata.loader import load_schema_by_routing_key
-from metadata.routing import RoutingKey
-from metadata.types import ModuleOrigin
-from metadata.validator import validate
 from whistle import EventDispatcher
 
 # Library libs
-from redisdb_exchange_plugin.connection import Connection
-from redisdb_exchange_plugin.events import (
+from fb_redisdb_exchange_plugin.connection import Connection
+from fb_redisdb_exchange_plugin.events import (
     AfterMessageHandledEvent,
     BeforeMessageHandledEvent,
 )
-from redisdb_exchange_plugin.exceptions import (
+from fb_redisdb_exchange_plugin.exceptions import (
     HandleDataException,
     HandleRequestException,
 )
-from redisdb_exchange_plugin.logger import Logger
+from fb_redisdb_exchange_plugin.logger import Logger
 
 
 @inject(alias=IClient)

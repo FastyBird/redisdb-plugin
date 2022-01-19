@@ -28,9 +28,9 @@ from redis.client import PubSub
 from whistle import EventDispatcher
 
 # Library libs
-from redisdb_exchange_plugin.events import ConnectionClosedEventEvent
-from redisdb_exchange_plugin.exceptions import InvalidStateException
-from redisdb_exchange_plugin.logger import Logger
+from fb_redisdb_exchange_plugin.events import ConnectionClosedEventEvent
+from fb_redisdb_exchange_plugin.exceptions import InvalidStateException
+from fb_redisdb_exchange_plugin.logger import Logger
 
 
 class Connection(Redis):  # pylint: disable=abstract-method,too-many-ancestors

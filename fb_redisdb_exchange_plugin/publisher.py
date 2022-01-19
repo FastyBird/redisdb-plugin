@@ -23,13 +23,13 @@ import json
 from typing import Dict, Optional, Union
 
 # Library dependencies
-from exchange.publisher import IPublisher
-from metadata.routing import RoutingKey
-from metadata.types import ModuleOrigin, PluginOrigin
+from fb_exchange.publisher import IPublisher
+from fb_metadata.routing import RoutingKey
+from fb_metadata.types import ModuleOrigin, PluginOrigin
 from redis import Redis
 
 # Library libs
-from redisdb_exchange_plugin.logger import Logger
+from fb_redisdb_exchange_plugin.logger import Logger
 
 
 class Publisher(IPublisher):  # pylint: disable=too-few-public-methods
