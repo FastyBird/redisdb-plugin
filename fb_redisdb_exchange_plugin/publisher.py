@@ -25,7 +25,7 @@ from typing import Dict, Optional, Union
 # Library dependencies
 from fb_exchange.publisher import IPublisher
 from fb_metadata.routing import RoutingKey
-from fb_metadata.types import ModuleOrigin, PluginOrigin
+from fb_metadata.types import ConnectorOrigin, ModuleOrigin, PluginOrigin
 from redis import Redis
 
 # Library libs
@@ -67,7 +67,11 @@ class Publisher(IPublisher):  # pylint: disable=too-few-public-methods
 
     # -----------------------------------------------------------------------------
 
-    def publish(self, origin: Union[ModuleOrigin, PluginOrigin], routing_key: RoutingKey, data: Optional[Dict]) -> None:
+    def publish(
+        self,
+        origin: Union[ModuleOrigin, PluginOrigin, ConnectorOrigin],
+        routing_key: RoutingKey, data: Optional[Dict],
+    ) -> None:
         """Publish message to Redis exchange"""
         message = {
             "routing_key": routing_key.value,
