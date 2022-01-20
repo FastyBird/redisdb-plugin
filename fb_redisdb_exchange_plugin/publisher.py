@@ -70,7 +70,8 @@ class Publisher(IPublisher):  # pylint: disable=too-few-public-methods
     def publish(
         self,
         origin: Union[ModuleOrigin, PluginOrigin, ConnectorOrigin],
-        routing_key: RoutingKey, data: Optional[Dict],
+        routing_key: RoutingKey,
+        data: Optional[Dict],
     ) -> None:
         """Publish message to Redis exchange"""
         message = {
