@@ -19,14 +19,14 @@ import unittest
 
 # Library dependencies
 from kink import inject
-from fb_metadata.types import ModuleOrigin
-from fb_metadata.routing import RoutingKey
+from fastybird_metadata.types import ModuleOrigin
+from fastybird_metadata.routing import RoutingKey
 from unittest.mock import patch
 
 # Library libs
-from fb_redisdb_exchange_plugin.bootstrap import register_services
-from fb_redisdb_exchange_plugin.connection import Connection
-from fb_redisdb_exchange_plugin.publisher import Publisher
+from fastybird_redisdb_exchange_plugin.bootstrap import register_services
+from fastybird_redisdb_exchange_plugin.connection import Connection
+from fastybird_redisdb_exchange_plugin.publisher import Publisher
 
 
 class TestPublisher(unittest.TestCase):

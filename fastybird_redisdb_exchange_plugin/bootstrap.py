@@ -26,17 +26,17 @@ import uuid
 from typing import Dict, Optional, Union
 
 # Library dependencies
-from fb_exchange.consumer import Consumer as ExchangeConsumer
-from fb_exchange.publisher import Publisher as ExchangePublisher
+from fastybird_exchange.consumer import Consumer as ExchangeConsumer
+from fastybird_exchange.publisher import Publisher as ExchangePublisher
 from kink import di
 from redis import Redis
 from whistle import EventDispatcher
 
 # Library libs
-from fb_redisdb_exchange_plugin.client import Client
-from fb_redisdb_exchange_plugin.connection import Connection
-from fb_redisdb_exchange_plugin.logger import Logger
-from fb_redisdb_exchange_plugin.publisher import Publisher
+from fastybird_redisdb_exchange_plugin.client import Client
+from fastybird_redisdb_exchange_plugin.connection import Connection
+from fastybird_redisdb_exchange_plugin.logger import Logger
+from fastybird_redisdb_exchange_plugin.publisher import Publisher
 
 
 def register_services(

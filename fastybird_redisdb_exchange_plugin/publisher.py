@@ -23,13 +23,13 @@ import json
 from typing import Dict, Optional, Union
 
 # Library dependencies
-from fb_exchange.publisher import IPublisher
-from fb_metadata.routing import RoutingKey
-from fb_metadata.types import ConnectorOrigin, ModuleOrigin, PluginOrigin
+from fastybird_exchange.publisher import IPublisher
+from fastybird_metadata.routing import RoutingKey
+from fastybird_metadata.types import ConnectorOrigin, ModuleOrigin, PluginOrigin
 from redis import Redis
 
 # Library libs
-from fb_redisdb_exchange_plugin.logger import Logger
+from fastybird_redisdb_exchange_plugin.logger import Logger
 
 
 class Publisher(IPublisher):  # pylint: disable=too-few-public-methods

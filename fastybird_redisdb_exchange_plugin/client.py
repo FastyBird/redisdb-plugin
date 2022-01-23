@@ -24,27 +24,27 @@ import time
 from typing import Dict, Optional
 
 # Library dependencies
-import fb_metadata.exceptions as metadata_exceptions
-from fb_exchange.client import IClient
-from fb_exchange.consumer import Consumer
-from fb_metadata.loader import load_schema_by_routing_key
-from fb_metadata.routing import RoutingKey
-from fb_metadata.types import ModuleOrigin
-from fb_metadata.validator import validate
+import fastybird_metadata.exceptions as metadata_exceptions
+from fastybird_exchange.client import IClient
+from fastybird_exchange.consumer import Consumer
+from fastybird_metadata.loader import load_schema_by_routing_key
+from fastybird_metadata.routing import RoutingKey
+from fastybird_metadata.types import ModuleOrigin
+from fastybird_metadata.validator import validate
 from kink import inject
 from whistle import EventDispatcher
 
 # Library libs
-from fb_redisdb_exchange_plugin.connection import Connection
-from fb_redisdb_exchange_plugin.events import (
+from fastybird_redisdb_exchange_plugin.connection import Connection
+from fastybird_redisdb_exchange_plugin.events import (
     AfterMessageHandledEvent,
     BeforeMessageHandledEvent,
 )
-from fb_redisdb_exchange_plugin.exceptions import (
+from fastybird_redisdb_exchange_plugin.exceptions import (
     HandleDataException,
     HandleRequestException,
 )
-from fb_redisdb_exchange_plugin.logger import Logger
+from fastybird_redisdb_exchange_plugin.logger import Logger
 
 
 @inject(alias=IClient)
