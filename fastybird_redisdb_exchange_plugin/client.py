@@ -29,7 +29,7 @@ from fastybird_exchange.client import IClient
 from fastybird_exchange.consumer import Consumer
 from fastybird_metadata.loader import load_schema_by_routing_key
 from fastybird_metadata.routing import RoutingKey
-from fastybird_metadata.types import ModuleOrigin, PluginOrigin, ConnectorOrigin
+from fastybird_metadata.types import ConnectorOrigin, ModuleOrigin, PluginOrigin
 from fastybird_metadata.validator import validate
 from kink import inject
 from whistle import EventDispatcher
