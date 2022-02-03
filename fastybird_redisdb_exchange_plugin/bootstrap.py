@@ -49,7 +49,6 @@ def register_services(
 
     # Merge default settings
     settings = {
-        **settings,
         **{
             "host": "127.0.0.1",
             "port": 6379,
@@ -57,6 +56,7 @@ def register_services(
             "username": None,
             "password": None,
         },
+        **settings,
     }
 
     event_dispatcher: Optional[EventDispatcher] = None

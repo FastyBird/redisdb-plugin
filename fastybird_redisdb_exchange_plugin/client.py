@@ -21,7 +21,7 @@ Redis DB exchange plugin exchange service
 # Python base dependencies
 import json
 import time
-from typing import Dict, Optional
+from typing import Dict, Optional, Union
 
 # Library dependencies
 import fastybird_metadata.exceptions as metadata_exceptions
@@ -29,7 +29,7 @@ from fastybird_exchange.client import IClient
 from fastybird_exchange.consumer import Consumer
 from fastybird_metadata.loader import load_schema_by_routing_key
 from fastybird_metadata.routing import RoutingKey
-from fastybird_metadata.types import ModuleOrigin
+from fastybird_metadata.types import ModuleOrigin, PluginOrigin, ConnectorOrigin
 from fastybird_metadata.validator import validate
 from kink import inject
 from whistle import EventDispatcher
@@ -183,9 +183,15 @@ class Client(IClient):
     # -----------------------------------------------------------------------------
 
     @staticmethod
-    def __validate_origin(origin: Optional[str]) -> Optional[ModuleOrigin]:
+    def __validate_origin(origin: Optional[str]) -> Union[ModuleOrigin, PluginOrigin, ConnectorOrigin, None]:
         if origin is not None and isinstance(origin, str) is True and ModuleOrigin.has_value(origin):
             return ModuleOrigin(origin)
+
+        if origin is not None and isinstance(origin, str) is True and PluginOrigin.has_value(origin):
+            return PluginOrigin(origin)
+
+        if origin is not None and isinstance(origin, str) is True and ConnectorOrigin.has_value(origin):
+            return ConnectorOrigin(origin)
 
         return None
 
@@ -200,7 +206,12 @@ class Client(IClient):
 
     # -----------------------------------------------------------------------------
 
-    def __validate_data(self, origin: ModuleOrigin, routing_key: RoutingKey, data: Dict) -> Dict:
+    def __validate_data(
+        self,
+        origin: Union[ModuleOrigin, PluginOrigin, ConnectorOrigin],
+        routing_key: RoutingKey,
+        data: Dict,
+    ) -> Dict:
         """Validate received exchange message against defined schema"""
         try:
             schema: str = load_schema_by_routing_key(routing_key)

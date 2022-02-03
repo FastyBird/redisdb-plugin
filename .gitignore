@@ -1,5 +1,7 @@
 .idea
 .mypy_cache
 /vendor
-/composer.lock
+/venv
+composer.lock
 tests/*/output
+__pycache__
