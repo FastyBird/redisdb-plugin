@@ -17,7 +17,7 @@
 
 ## What is FastyBird Redis DB exchange plugin?
 
-This is a combined plugin for [FastyBird](https://www.fastybird.com) ecosystem which is
+This is a combined plugin for [FastyBird IoT](https://www.fastybird.com) ecosystem which is
 implementing [Redis](https://redis.io) PubSub exchange
 
 ## Installation
