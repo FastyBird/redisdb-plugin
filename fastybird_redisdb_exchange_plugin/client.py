@@ -47,7 +47,13 @@ from fastybird_redisdb_exchange_plugin.exceptions import (
 from fastybird_redisdb_exchange_plugin.logger import Logger
 
 
-@inject(alias=IClient)
+@inject(
+    alias=IClient,
+    bind={
+        "event_dispatcher": EventDispatcher,
+        "consumer": Consumer,
+    },
+)
 class Client(IClient):
     """
     Redis exchange client
