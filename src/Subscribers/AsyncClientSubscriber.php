@@ -96,7 +96,7 @@ class AsyncClientSubscriber implements EventDispatcher\EventSubscriberInterface
 				&& $data->offsetExists('data')
 			) {
 				$this->handle(
-					$data->offsetGet('source'),
+					strval($data->offsetGet('source')),
 					MetadataTypes\RoutingKeyType::get($data->offsetGet('routing_key')),
 					$data->offsetGet('data') // @phpstan-ignore-line
 				);
