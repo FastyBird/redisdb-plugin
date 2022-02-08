@@ -29,7 +29,7 @@ from fastybird_exchange.client import IClient
 from fastybird_exchange.consumer import Consumer
 from fastybird_metadata.loader import load_schema_by_routing_key
 from fastybird_metadata.routing import RoutingKey
-from fastybird_metadata.types import ConnectorOrigin, ModuleOrigin, PluginOrigin
+from fastybird_metadata.types import ConnectorSource, ModuleSource, PluginSource
 from fastybird_metadata.validator import validate
 from kink import inject
 from whistle import EventDispatcher
@@ -146,25 +146,25 @@ class Client(IClient):
 
         if self.__consumer is not None:
             try:
-                origin = self.__validate_origin(origin=data.get("origin", None))
+                source = self.__validate_source(source=data.get("source", None))
                 routing_key = self.__validate_routing_key(
                     routing_key=data.get("routing_key", None),
                 )
 
                 if (
                     routing_key is not None
-                    and origin is not None
+                    and source is not None
                     and data.get("data", None) is not None
                     and isinstance(data.get("data", None), dict) is True
                 ):
                     data = self.__validate_data(
-                        origin=origin,
+                        source=source,
                         routing_key=routing_key,
                         data=data.get("data", None),
                     )
 
                     self.__consumer.consume(
-                        origin=origin,
+                        source=source,
                         routing_key=routing_key,
                         data=data,
                     )
@@ -189,15 +189,15 @@ class Client(IClient):
     # -----------------------------------------------------------------------------
 
     @staticmethod
-    def __validate_origin(origin: Optional[str]) -> Union[ModuleOrigin, PluginOrigin, ConnectorOrigin, None]:
-        if origin is not None and isinstance(origin, str) is True and ModuleOrigin.has_value(origin):
-            return ModuleOrigin(origin)
+    def __validate_source(source: Optional[str]) -> Union[ModuleSource, PluginSource, ConnectorSource, None]:
+        if source is not None and isinstance(source, str) is True and ModuleSource.has_value(source):
+            return ModuleSource(source)
 
-        if origin is not None and isinstance(origin, str) is True and PluginOrigin.has_value(origin):
-            return PluginOrigin(origin)
+        if source is not None and isinstance(source, str) is True and PluginSource.has_value(source):
+            return PluginSource(source)
 
-        if origin is not None and isinstance(origin, str) is True and ConnectorOrigin.has_value(origin):
-            return ConnectorOrigin(origin)
+        if source is not None and isinstance(source, str) is True and ConnectorSource.has_value(source):
+            return ConnectorSource(source)
 
         return None
 
@@ -214,7 +214,7 @@ class Client(IClient):
 
     def __validate_data(
         self,
-        origin: Union[ModuleOrigin, PluginOrigin, ConnectorOrigin],
+        source: Union[ModuleSource, PluginSource, ConnectorSource],
         routing_key: RoutingKey,
         data: Dict,
     ) -> Dict:
@@ -224,8 +224,8 @@ class Client(IClient):
 
         except metadata_exceptions.FileNotFoundException as ex:
             self.__logger.error(
-                "Schema file for origin: %s and routing key: %s could not be loaded",
-                origin.value,
+                "Schema file for source: %s and routing key: %s could not be loaded",
+                source.value,
                 routing_key.value,
                 extra={
                     "source": "redisdb-exchange-plugin-client",
@@ -237,8 +237,8 @@ class Client(IClient):
 
         except metadata_exceptions.InvalidArgumentException as ex:
             self.__logger.error(
-                "Schema file for origin: %s and routing key: %s is not configured in mapping",
-                origin.value,
+                "Schema file for source: %s and routing key: %s is not configured in mapping",
+                source.value,
                 routing_key.value,
                 extra={
                     "source": "redisdb-exchange-plugin-client",
@@ -256,8 +256,8 @@ class Client(IClient):
 
         except metadata_exceptions.LogicException as ex:
             self.__logger.error(
-                "Schema file for origin: %s and routing key: %s could not be parsed & compiled",
-                origin.value,
+                "Schema file for source: %s and routing key: %s could not be parsed & compiled",
+                source.value,
                 routing_key.value,
                 extra={
                     "source": "redisdb-exchange-plugin-client",

@@ -58,7 +58,7 @@ final class Publisher implements IPublisher
 	 * {@inheritDoc}
 	 */
 	public function publish(
-		$origin,
+		$source,
 		MetadataTypes\RoutingKeyType $routingKey,
 		?Utils\ArrayHash $data
 	): void {
@@ -66,7 +66,7 @@ final class Publisher implements IPublisher
 			$result = $this->client->publish(
 				Utils\Json::encode([
 					'sender_id'   => $this->client->getIdentifier(),
-					'origin'      => $origin->getValue(),
+					'source'      => $source->getValue(),
 					'routing_key' => $routingKey->getValue(),
 					'created'     => $this->dateTimeFactory->getNow()->format(DATE_ATOM),
 					'data'        => $data !== null ? $this->dataToArray($data) : null,
@@ -79,7 +79,7 @@ final class Publisher implements IPublisher
 				'type'      => 'publish',
 				'message'   => [
 					'routingKey' => $routingKey->getValue(),
-					'origin'     => $origin->getValue(),
+					'source'     => $source->getValue(),
 					'data'       => $data !== null ? $this->dataToArray($data) : null,
 				],
 				'exception' => [
@@ -97,7 +97,7 @@ final class Publisher implements IPublisher
 				'type'    => 'publish',
 				'message' => [
 					'routingKey' => $routingKey->getValue(),
-					'origin'     => $origin->getValue(),
+					'source'     => $source->getValue(),
 					'data'       => $data !== null ? $this->dataToArray($data) : null,
 				],
 			]);
@@ -107,7 +107,7 @@ final class Publisher implements IPublisher
 				'type'    => 'publish',
 				'message' => [
 					'routingKey' => $routingKey->getValue(),
-					'origin'     => $origin->getValue(),
+					'source'     => $source->getValue(),
 					'data'       => $data !== null ? $this->dataToArray($data) : null,
 				],
 			]);

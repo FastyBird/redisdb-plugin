@@ -91,12 +91,12 @@ class AsyncClientSubscriber implements EventDispatcher\EventSubscriberInterface
 			$data = Utils\ArrayHash::from(Utils\Json::decode($event->getPayload(), Utils\Json::FORCE_ARRAY)); // @phpstan-ignore-line
 
 			if (
-				$data->offsetExists('origin')
+				$data->offsetExists('source')
 				&& $data->offsetExists('routing_key')
 				&& $data->offsetExists('data')
 			) {
 				$this->handle(
-					MetadataTypes\ModuleOriginType::get($data->offsetGet('origin')),
+					MetadataTypes\ModuleSourceType::get($data->offsetGet('source')),
 					MetadataTypes\RoutingKeyType::get($data->offsetGet('routing_key')),
 					$data->offsetGet('data') // @phpstan-ignore-line
 				);
@@ -129,14 +129,14 @@ class AsyncClientSubscriber implements EventDispatcher\EventSubscriberInterface
 	}
 
 	/**
-	 * @param MetadataTypes\ModuleOriginType $origin
+	 * @param MetadataTypes\ModuleSourceType $source
 	 * @param MetadataTypes\RoutingKeyType $routingKey
 	 * @param Utils\ArrayHash $data
 	 *
 	 * @throws Utils\JsonException
 	 */
 	private function handle(
-		MetadataTypes\ModuleOriginType $origin,
+		MetadataTypes\ModuleSourceType $source,
 		MetadataTypes\RoutingKeyType $routingKey,
 		Utils\ArrayHash $data
 	): void {
@@ -159,7 +159,7 @@ class AsyncClientSubscriber implements EventDispatcher\EventSubscriberInterface
 		}
 
 		try {
-			$this->consumer->consume($origin, $routingKey, $data);
+			$this->consumer->consume($source, $routingKey, $data);
 
 		} catch (Exceptions\UnprocessableMessageException $ex) {
 			// Log error consume reason

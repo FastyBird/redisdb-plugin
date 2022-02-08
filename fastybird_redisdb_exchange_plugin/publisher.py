@@ -25,7 +25,7 @@ from typing import Dict, Optional, Union
 # Library dependencies
 from fastybird_exchange.publisher import IPublisher
 from fastybird_metadata.routing import RoutingKey
-from fastybird_metadata.types import ConnectorOrigin, ModuleOrigin, PluginOrigin
+from fastybird_metadata.types import ConnectorSource, ModuleSource, PluginSource
 from redis import Redis
 
 # Library libs
@@ -69,14 +69,14 @@ class Publisher(IPublisher):  # pylint: disable=too-few-public-methods
 
     def publish(
         self,
-        origin: Union[ModuleOrigin, PluginOrigin, ConnectorOrigin],
+        source: Union[ModuleSource, PluginSource, ConnectorSource],
         routing_key: RoutingKey,
         data: Optional[Dict],
     ) -> None:
         """Publish message to Redis exchange"""
         message = {
             "routing_key": routing_key.value,
-            "origin": origin.value,
+            "source": source.value,
             "sender_id": self.__identifier,
             "data": data,
         }

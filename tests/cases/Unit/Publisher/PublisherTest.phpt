@@ -30,7 +30,7 @@ final class PublisherTest extends BaseMockeryTestCase
 			->withArgs(function ($data) use ($now): bool {
 				Assert::same(Utils\Json::encode([
 					'sender_id'   => 'redis_client_identifier',
-					'origin'      => MetadataTypes\ModuleOriginType::ORIGIN_MODULE_DEVICES,
+					'source'      => MetadataTypes\ModuleSourceType::SOURCE_MODULE_DEVICES,
 					'routing_key' => MetadataTypes\RoutingKeyType::ROUTE_DEVICES_ENTITY_UPDATED,
 					'created'     => $now->format(DATE_ATOM),
 					'data'        => [
@@ -59,7 +59,7 @@ final class PublisherTest extends BaseMockeryTestCase
 		$publisher = new Publishers\Publisher($client, $dateTimeFactory);
 
 		$publisher->publish(
-			MetadataTypes\ModuleOriginType::get(MetadataTypes\ModuleOriginType::ORIGIN_MODULE_DEVICES),
+			MetadataTypes\ModuleSourceType::get(MetadataTypes\ModuleSourceType::SOURCE_MODULE_DEVICES),
 			MetadataTypes\RoutingKeyType::get(MetadataTypes\RoutingKeyType::ROUTE_DEVICES_ENTITY_UPDATED),
 			Utils\ArrayHash::from([
 				'key_one' => 'value_one',

@@ -19,7 +19,7 @@ import unittest
 
 # Library dependencies
 from kink import inject
-from fastybird_metadata.types import ModuleOrigin
+from fastybird_metadata.types import ModuleSource
 from fastybird_metadata.routing import RoutingKey
 from unittest.mock import patch
 
@@ -40,7 +40,7 @@ class TestPublisher(unittest.TestCase):
     def test_publish(self, publisher: Publisher, redis_client: Connection):
         message = {
             "routing_key": RoutingKey(RoutingKey.DEVICES_ENTITY_UPDATED).value,
-            "origin": ModuleOrigin(ModuleOrigin.DEVICES_MODULE).value,
+            "source": ModuleSource(ModuleSource.DEVICES_MODULE).value,
             "sender_id": redis_client.identifier,
             "data": {
                 "key_one": "value_one",
@@ -52,7 +52,7 @@ class TestPublisher(unittest.TestCase):
             mock_redis_publish.return_value = True
 
             publisher.publish(
-                origin=ModuleOrigin(ModuleOrigin.DEVICES_MODULE),
+                source=ModuleSource(ModuleSource.DEVICES_MODULE),
                 routing_key=RoutingKey(RoutingKey.DEVICES_ENTITY_UPDATED),
                 data={
                     "key_one": "value_one",
