@@ -96,7 +96,7 @@ class AsyncClientSubscriber implements EventDispatcher\EventSubscriberInterface
 				&& $data->offsetExists('data')
 			) {
 				$this->handle(
-					MetadataTypes\ModuleSourceType::get($data->offsetGet('source')),
+					$data->offsetGet('source'),
 					MetadataTypes\RoutingKeyType::get($data->offsetGet('routing_key')),
 					$data->offsetGet('data') // @phpstan-ignore-line
 				);
@@ -129,18 +129,24 @@ class AsyncClientSubscriber implements EventDispatcher\EventSubscriberInterface
 	}
 
 	/**
-	 * @param MetadataTypes\ModuleSourceType $source
+	 * @param string $source
 	 * @param MetadataTypes\RoutingKeyType $routingKey
 	 * @param Utils\ArrayHash $data
 	 *
 	 * @throws Utils\JsonException
 	 */
 	private function handle(
-		MetadataTypes\ModuleSourceType $source,
+		string $source,
 		MetadataTypes\RoutingKeyType $routingKey,
 		Utils\ArrayHash $data
 	): void {
 		if ($this->consumer === null) {
+			return;
+		}
+
+		$source = $this->validateSource($source);
+
+		if ($source === null) {
 			return;
 		}
 
@@ -174,6 +180,28 @@ class AsyncClientSubscriber implements EventDispatcher\EventSubscriberInterface
 
 			return;
 		}
+	}
+
+	/**
+	 * @param string $source
+	 *
+	 * @return MetadataTypes\ModuleSourceType|MetadataTypes\ConnectorSourceType|MetadataTypes\PluginSourceType|null
+	 */
+	private function validateSource(string $source)
+	{
+		if (MetadataTypes\ModuleSourceType::isValidValue($source)) {
+			return MetadataTypes\ModuleSourceType::get($source);
+		}
+
+		if (MetadataTypes\ConnectorSourceType::isValidValue($source)) {
+			return MetadataTypes\ConnectorSourceType::get($source);
+		}
+
+		if (MetadataTypes\PluginSourceType::isValidValue($source)) {
+			return MetadataTypes\PluginSourceType::get($source);
+		}
+
+		return null;
 	}
 
 	/**
