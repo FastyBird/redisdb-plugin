@@ -39,7 +39,7 @@ class TestPublisher(unittest.TestCase):
     @inject
     def test_publish(self, publisher: Publisher, redis_client: Connection):
         message = {
-            "routing_key": RoutingKey(RoutingKey.DEVICES_ENTITY_UPDATED).value,
+            "routing_key": RoutingKey(RoutingKey.DEVICE_ENTITY_UPDATED).value,
             "source": ModuleSource(ModuleSource.DEVICES_MODULE).value,
             "sender_id": redis_client.identifier,
             "data": {
@@ -53,7 +53,7 @@ class TestPublisher(unittest.TestCase):
 
             publisher.publish(
                 source=ModuleSource(ModuleSource.DEVICES_MODULE),
-                routing_key=RoutingKey(RoutingKey.DEVICES_ENTITY_UPDATED),
+                routing_key=RoutingKey(RoutingKey.DEVICE_ENTITY_UPDATED),
                 data={
                     "key_one": "value_one",
                     "key_two": "value_two",
