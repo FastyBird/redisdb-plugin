@@ -43,8 +43,8 @@
     "php": ">=7.4.0|>=8.0.0",
     "clue/redis-protocol": "^0.3",
     "cweagans/composer-patches": "^1.7",
-    "fastybird/datetime-factory": "^0.3",
-    "fastybird/exchange": "^0.27",
+    "fastybird/datetime-factory": "^0.4",
+    "fastybird/exchange": "^0.28",
     "fastybird/metadata": "^0.49",
     "fastybird/socket-server-factory": "^0.4",
     "nette/bootstrap": "^3.0",
@@ -90,7 +90,7 @@
   "extra" : {
     "patches" : {
       "nette/utils" : {
-        "Bug: Offset check with null support" : "patches/nette.array.offsetCheck.diff"
+        "Bug: Offset check with null support" : "https://raw.githubusercontent.com/FastyBird/libraries-patches/master/nette.array.offsetCheck.diff"
       }
     }
   }
