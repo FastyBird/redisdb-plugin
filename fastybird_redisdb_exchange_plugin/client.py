@@ -186,10 +186,7 @@ class Client(IClient):
                     data: Dict[str, Union[str, int, float, bool, None]] = json.loads(str(message.get("data")))
 
                     # Ignore own messages
-                    if (
-                        data.get("sender_id", None) is not None
-                        and data.get("sender_id", None) == self.__identifier
-                    ):
+                    if data.get("sender_id", None) is not None and data.get("sender_id", None) == self.__identifier:
                         continue
 
                     self.__receive(data)
