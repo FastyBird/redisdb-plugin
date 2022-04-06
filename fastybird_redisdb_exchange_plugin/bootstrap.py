@@ -34,7 +34,6 @@ from whistle import EventDispatcher
 
 # Library libs
 from fastybird_redisdb_exchange_plugin.client import Client
-from fastybird_redisdb_exchange_plugin.connection import Connection
 from fastybird_redisdb_exchange_plugin.logger import Logger
 from fastybird_redisdb_exchange_plugin.publisher import Publisher
 
@@ -74,20 +73,15 @@ def register_services(
 
     identifier = uuid.uuid4().__str__()
 
-    di[Connection] = Connection(
-        identifier=identifier,
-        host=str(settings.get("host")),
-        port=int(str(settings.get("port"))),
-        channel_name=str(settings.get("channel_name")),
-        username=str(settings.get("username", None)) if settings.get("username", None) is not None else None,
-        password=str(settings.get("password", None)) if settings.get("password", None) is not None else None,
-        event_dispatcher=event_dispatcher,
-        logger=di[Logger],
-    )
-    di["fb-redisdb-exchange-plugin_redis-connection"] = di[Connection]
-
     di[Client] = Client(
-        connection=di[Connection],
+        identifier=identifier,
+        channel_name=str(settings.get("channel_name")),
+        connection=Redis(
+            host=str(settings.get("host")),
+            port=int(str(settings.get("port"))),
+            username=str(settings.get("username", None)) if settings.get("username", None) is not None else None,
+            password=str(settings.get("password", None)) if settings.get("password", None) is not None else None,
+        ),
         event_dispatcher=event_dispatcher,
         consumer=consumer,
         logger=di[Logger],

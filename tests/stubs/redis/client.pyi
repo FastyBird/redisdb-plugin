@@ -1,4 +1,4 @@
-from typing import Dict, Union
+from typing import Dict, Union, Iterable
 
 
 class PubSub:
@@ -9,3 +9,5 @@ class PubSub:
     def close(self) -> None: ...
 
     def get_message(self, ignore_subscribe_messages: bool = False, timeout: int = 0) -> Dict[str, Union[bytes, str, int, None]]: ...
+
+    def listen(self) -> Iterable: ...

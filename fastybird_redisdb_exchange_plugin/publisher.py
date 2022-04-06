@@ -67,6 +67,13 @@ class Publisher(IPublisher):  # pylint: disable=too-few-public-methods
 
     # -----------------------------------------------------------------------------
 
+    @property
+    def identifier(self) -> str:
+        """Publisher message identifier"""
+        return self.__identifier
+
+    # -----------------------------------------------------------------------------
+
     def publish(
         self,
         source: Union[ModuleSource, PluginSource, ConnectorSource],

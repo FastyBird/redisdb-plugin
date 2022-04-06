@@ -20,7 +20,6 @@ Redis DB exchange plugin exchange service
 
 # Python base dependencies
 import json
-import time
 from typing import Dict, Optional, Union
 
 # Library dependencies
@@ -32,13 +31,15 @@ from fastybird_metadata.routing import RoutingKey
 from fastybird_metadata.types import ConnectorSource, ModuleSource, PluginSource
 from fastybird_metadata.validator import validate
 from kink import inject
+from redis import Redis
+from redis.client import PubSub
 from whistle import EventDispatcher
 
 # Library libs
-from fastybird_redisdb_exchange_plugin.connection import Connection
 from fastybird_redisdb_exchange_plugin.events import (
     AfterMessageHandledEvent,
     BeforeMessageHandledEvent,
+    ClientClosedEventEvent,
 )
 from fastybird_redisdb_exchange_plugin.exceptions import (
     HandleDataException,
@@ -64,7 +65,12 @@ class Client(IClient):
     @author         Adam Kadlec <adam.kadlec@fastybird.com>
     """
 
-    __connection: Connection
+    __connection: Redis
+
+    __pub_sub: Optional[PubSub] = None
+
+    __identifier: str
+    __channel_name: str
 
     __event_dispatcher: Optional[EventDispatcher]
     __consumer: Optional[Consumer]
@@ -73,13 +79,18 @@ class Client(IClient):
 
     # -----------------------------------------------------------------------------
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-arguments
         self,
-        connection: Connection,
+        identifier: str,
+        channel_name: str,
+        connection: Redis,
         logger: Logger,
         event_dispatcher: Optional[EventDispatcher] = None,
         consumer: Optional[Consumer] = None,
     ) -> None:
+        self.__identifier = identifier
+        self.__channel_name = channel_name
+
         self.__event_dispatcher = event_dispatcher
         self.__connection = connection
         self.__logger = logger
@@ -88,10 +99,15 @@ class Client(IClient):
 
     # -----------------------------------------------------------------------------
 
+    @property
+    def identifier(self) -> str:
+        """Client message identifier"""
+        return self.__identifier
+
+    # -----------------------------------------------------------------------------
+
     def start(self) -> None:
         """Start exchange services"""
-        self.__connection.subscribe()
-
         self.__logger.info(
             "Starting Redis DB exchange client",
             extra={
@@ -100,11 +116,41 @@ class Client(IClient):
             },
         )
 
+        # Connect to pub sub exchange
+        self.__pub_sub = self.__connection.pubsub()
+        # Subscribe to channel
+        self.__pub_sub.subscribe(self.__channel_name)
+
+        self.__logger.debug(
+            "Successfully subscribed to RedisDB exchange channel: %s",
+            self.__channel_name,
+            extra={
+                "source": "redisdb-exchange-plugin-connection",
+                "type": "subscribe",
+            },
+        )
+
     # -----------------------------------------------------------------------------
 
     def stop(self) -> None:
         """Close all opened connections & stop exchange thread"""
-        self.__connection.unsubscribe()
+        if self.__pub_sub is not None:
+            # Unsubscribe from channel
+            self.__pub_sub.unsubscribe(self.__channel_name)
+            # Disconnect from pub sub exchange
+            self.__pub_sub.close()
+
+            self.__logger.debug(
+                "Successfully unsubscribed from RedisDB exchange channel: %s",
+                self.__channel_name,
+                extra={
+                    "source": "redisdb-exchange-plugin-connection",
+                    "type": "unsubscribe",
+                },
+            )
+
+            self.__pub_sub = None
+
         self.__connection.close()
 
         self.__logger.info(
@@ -115,20 +161,52 @@ class Client(IClient):
             },
         )
 
+        if self.__event_dispatcher is not None:
+            self.__event_dispatcher.dispatch(
+                event_id=ClientClosedEventEvent.EVENT_NAME,
+                event=ClientClosedEventEvent(),
+            )
+
     # -----------------------------------------------------------------------------
 
     def handle(self) -> None:
         """Process Redis exchange messages"""
         try:
-            data = self.__connection.receive()
+            if self.__pub_sub is None:
+                return
 
-            if data is not None:
-                self.__receive(data)
+            for message in self.__pub_sub.listen():
+                if message is None or not isinstance(message, dict):
+                    continue
 
-            time.sleep(0.001)
+                if message.get("type") != "message":
+                    return
+
+                try:
+                    data: Dict[str, Union[str, int, float, bool, None]] = json.loads(str(message.get("data")))
+
+                    # Ignore own messages
+                    if (
+                        data.get("sender_id", None) is not None
+                        and data.get("sender_id", None) == self.__identifier
+                    ):
+                        continue
+
+                    self.__receive(data)
+
+                except json.JSONDecodeError as ex:
+                    self.__logger.exception(ex)
 
         except OSError as ex:
+            self.__logger.error("Error reading from redis database")
+
             raise HandleRequestException("Error reading from redis database") from ex
+
+    # -----------------------------------------------------------------------------
+
+    def is_thread(self) -> bool:
+        """Is client single thread?"""
+        return True
 
     # -----------------------------------------------------------------------------
 
@@ -139,6 +217,8 @@ class Client(IClient):
     # -----------------------------------------------------------------------------
 
     def __receive(self, data: Dict) -> None:
+        self.__logger.debug("Received message from exchange")
+
         if self.__event_dispatcher is not None:
             self.__event_dispatcher.dispatch(
                 event_id=BeforeMessageHandledEvent.EVENT_NAME, event=BeforeMessageHandledEvent(payload=json.dumps(data))
@@ -180,6 +260,9 @@ class Client(IClient):
 
             except HandleDataException as ex:
                 self.__logger.exception(ex)
+
+        else:
+            self.__logger.warning("No consumer is registered")
 
         if self.__event_dispatcher is not None:
             self.__event_dispatcher.dispatch(

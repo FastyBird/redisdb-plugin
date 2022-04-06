@@ -25,7 +25,6 @@ from unittest.mock import patch
 
 # Library libs
 from fastybird_redisdb_exchange_plugin.bootstrap import register_services
-from fastybird_redisdb_exchange_plugin.connection import Connection
 from fastybird_redisdb_exchange_plugin.publisher import Publisher
 
 
@@ -37,11 +36,11 @@ class TestPublisher(unittest.TestCase):
     # -----------------------------------------------------------------------------
 
     @inject
-    def test_publish(self, publisher: Publisher, redis_client: Connection):
+    def test_publish(self, publisher: Publisher):
         message = {
             "routing_key": RoutingKey(RoutingKey.DEVICE_ENTITY_UPDATED).value,
             "source": ModuleSource(ModuleSource.DEVICES_MODULE).value,
-            "sender_id": redis_client.identifier,
+            "sender_id": publisher.identifier,
             "data": {
                 "key_one": "value_one",
                 "key_two": "value_two",

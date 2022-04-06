@@ -74,9 +74,9 @@ class AfterMessageHandledEvent(Event):
         return self.__payload
 
 
-class ConnectionClosedEventEvent(Event):  # pylint: disable=too-few-public-methods
+class ClientClosedEventEvent(Event):  # pylint: disable=too-few-public-methods
     """
-    Event fired when connection to Redis is closed
+    Event fired when client connection to Redis is closed
 
     @package        FastyBird:RedisDbExchangePlugin!
     @module         events
