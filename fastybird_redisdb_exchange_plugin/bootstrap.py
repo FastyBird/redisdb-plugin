@@ -81,6 +81,7 @@ def register_services(
             port=int(str(settings.get("port"))),
             username=str(settings.get("username", None)) if settings.get("username", None) is not None else None,
             password=str(settings.get("password", None)) if settings.get("password", None) is not None else None,
+            decode_responses=True,
         ),
         event_dispatcher=event_dispatcher,
         consumer=consumer,
