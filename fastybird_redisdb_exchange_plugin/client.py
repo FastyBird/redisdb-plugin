@@ -201,12 +201,6 @@ class Client(IClient):
 
     # -----------------------------------------------------------------------------
 
-    def is_thread(self) -> bool:
-        """Is client single thread?"""
-        return True
-
-    # -----------------------------------------------------------------------------
-
     def register_consumer(self, consumer: Consumer) -> None:
         """Register client consumer"""
         self.__consumer = consumer
