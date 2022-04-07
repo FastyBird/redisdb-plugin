@@ -20,6 +20,7 @@ Redis DB exchange plugin exchange service
 
 # Python base dependencies
 import json
+import time
 from typing import Dict, Optional, Union
 
 # Library dependencies
@@ -75,6 +76,8 @@ class Client(IClient):
     __event_dispatcher: Optional[EventDispatcher]
     __consumer: Optional[Consumer]
 
+    __stopped: bool = True
+
     __logger: Logger
 
     # -----------------------------------------------------------------------------
@@ -108,6 +111,8 @@ class Client(IClient):
 
     def start(self) -> None:
         """Start exchange services"""
+        self.__stopped = False
+
         self.__logger.info(
             "Starting Redis DB exchange client",
             extra={
@@ -134,6 +139,10 @@ class Client(IClient):
 
     def stop(self) -> None:
         """Close all opened connections & stop exchange thread"""
+        self.__stopped = True
+
+        time.sleep(0.01)
+
         if self.__pub_sub is not None:
             # Unsubscribe from channel
             self.__pub_sub.unsubscribe(self.__channel_name)
@@ -175,24 +184,28 @@ class Client(IClient):
             if self.__pub_sub is None:
                 return
 
-            for message in self.__pub_sub.listen():
-                if message is None or not isinstance(message, dict):
-                    continue
+            if self.__stopped:
+                return
 
-                if message.get("type") != "message":
+            message = self.__pub_sub.get_message()
+
+            if message is None or not isinstance(message, dict):
+                return
+
+            if message.get("type") != "message":
+                return
+
+            try:
+                data: Dict[str, Union[str, int, float, bool, None]] = json.loads(str(message.get("data")))
+
+                # Ignore own messages
+                if data.get("sender_id", None) is not None and data.get("sender_id", None) == self.__identifier:
                     return
 
-                try:
-                    data: Dict[str, Union[str, int, float, bool, None]] = json.loads(str(message.get("data")))
+                self.__receive(data)
 
-                    # Ignore own messages
-                    if data.get("sender_id", None) is not None and data.get("sender_id", None) == self.__identifier:
-                        continue
-
-                    self.__receive(data)
-
-                except json.JSONDecodeError as ex:
-                    self.__logger.exception(ex)
+            except json.JSONDecodeError as ex:
+                self.__logger.exception(ex)
 
         except OSError as ex:
             self.__logger.error("Error reading from redis database")
