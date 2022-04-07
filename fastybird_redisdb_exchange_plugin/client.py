@@ -56,7 +56,7 @@ from fastybird_redisdb_exchange_plugin.logger import Logger
         "consumer": Consumer,
     },
 )
-class Client(IClient):
+class Client(IClient):  # pylint: disable=too-many-instance-attributes
     """
     Redis exchange client
 
