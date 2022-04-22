@@ -1,6 +1,6 @@
 redis>=3.5
-fastybird-exchange>=0.38
-fastybird-metadata>=0.55
+fastybird-exchange>=0.39
+fastybird-metadata>=0.56
 kink>=0.6
 setuptools>=57.4
 whistle>=1.0
