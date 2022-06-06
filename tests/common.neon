@@ -17,6 +17,7 @@ extensions:
     fbDateTimeFactory       : FastyBird\DateTimeFactory\DI\DateTimeFactoryExtension
     fbMetadata              : FastyBird\Metadata\DI\MetadataExtension
     fbSocketServerFactory   : FastyBird\SocketServerFactory\DI\SocketServerFactoryExtension
+    ipubPhone               : IPub\Phone\DI\PhoneExtension
 
 fbRedisDbExchangePlugin:
     enableAsync: true

@@ -4,6 +4,7 @@ namespace Tests\Cases;
 
 use DateTime;
 use FastyBird\DateTimeFactory;
+use FastyBird\Metadata\Entities as MetadataEntities;
 use FastyBird\Metadata\Types as MetadataTypes;
 use FastyBird\RedisDbExchangePlugin\Client;
 use FastyBird\RedisDbExchangePlugin\Publishers;
@@ -34,8 +35,11 @@ final class PublisherTest extends BaseMockeryTestCase
 					'routing_key' => MetadataTypes\RoutingKeyType::ROUTE_DEVICE_ENTITY_UPDATED,
 					'created'     => $now->format(DATE_ATOM),
 					'data'        => [
-						'key_one' => 'value_one',
-						'key_two' => 'value_two',
+						'action'         => MetadataTypes\PropertyActionType::ACTION_SET,
+						'property'       => '60d754c2-4590-4eff-af1e-5c45f4234c7b',
+						'expected_value' => 10,
+						'device'         => '593397b2-fd40-4da2-a66a-3687ca50761b',
+						'channel'        => '06a64596-ca03-478b-ad1e-4f53731e66a5',
 					],
 				]), $data);
 
@@ -61,10 +65,15 @@ final class PublisherTest extends BaseMockeryTestCase
 		$publisher->publish(
 			MetadataTypes\ModuleSourceType::get(MetadataTypes\ModuleSourceType::SOURCE_MODULE_DEVICES),
 			MetadataTypes\RoutingKeyType::get(MetadataTypes\RoutingKeyType::ROUTE_DEVICE_ENTITY_UPDATED),
-			Utils\ArrayHash::from([
-				'key_one' => 'value_one',
-				'key_two' => 'value_two',
-			])
+			new MetadataEntities\Actions\ActionChannelPropertyEntity(
+				MetadataTypes\PropertyActionType::ACTION_SET,
+				'593397b2-fd40-4da2-a66a-3687ca50761b',
+				'06a64596-ca03-478b-ad1e-4f53731e66a5',
+				'60d754c2-4590-4eff-af1e-5c45f4234c7b',
+				10,
+				20,
+				true
+			),
 		);
 	}
 

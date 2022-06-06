@@ -16,9 +16,7 @@
 namespace FastyBird\RedisDbExchangePlugin\Subscribers;
 
 use FastyBird\Exchange\Consumer as ExchangeConsumer;
-use FastyBird\Metadata\Exceptions as MetadataExceptions;
-use FastyBird\Metadata\Loaders as MetadataLoaders;
-use FastyBird\Metadata\Schemas as MetadataSchemas;
+use FastyBird\Metadata\Entities as MetadataEntities;
 use FastyBird\Metadata\Types as MetadataTypes;
 use FastyBird\RedisDbExchangePlugin\Events;
 use FastyBird\RedisDbExchangePlugin\Exceptions;
@@ -42,11 +40,8 @@ class AsyncClientSubscriber implements EventDispatcher\EventSubscriberInterface
 	/** @var ExchangeConsumer\Consumer|null */
 	private ?ExchangeConsumer\Consumer $consumer;
 
-	/** @var MetadataLoaders\ISchemaLoader */
-	private MetadataLoaders\ISchemaLoader $schemaLoader;
-
-	/** @var MetadataSchemas\IValidator */
-	private MetadataSchemas\IValidator $validator;
+	/** @var MetadataEntities\GlobalEntityFactory */
+	private MetadataEntities\GlobalEntityFactory $entityFactory;
 
 	/** @var PsrEventDispatcher\EventDispatcherInterface|null */
 	private ?PsrEventDispatcher\EventDispatcherInterface $dispatcher;
@@ -55,14 +50,12 @@ class AsyncClientSubscriber implements EventDispatcher\EventSubscriberInterface
 	private Log\LoggerInterface $logger;
 
 	public function __construct(
-		MetadataLoaders\ISchemaLoader $schemaLoader,
-		MetadataSchemas\IValidator $validator,
+		MetadataEntities\GlobalEntityFactory $entityFactory,
 		?PsrEventDispatcher\EventDispatcherInterface $dispatcher = null,
 		?ExchangeConsumer\Consumer $consumer = null,
 		?Log\LoggerInterface $logger = null
 	) {
-		$this->schemaLoader = $schemaLoader;
-		$this->validator = $validator;
+		$this->entityFactory = $entityFactory;
 
 		$this->dispatcher = $dispatcher;
 
@@ -88,30 +81,31 @@ class AsyncClientSubscriber implements EventDispatcher\EventSubscriberInterface
 		}
 
 		try {
-			$data = Utils\ArrayHash::from(Utils\Json::decode($event->getPayload(), Utils\Json::FORCE_ARRAY)); // @phpstan-ignore-line
+			$data = Utils\Json::decode($event->getPayload(), Utils\Json::FORCE_ARRAY);
 
 			if (
-				$data->offsetExists('source')
-				&& $data->offsetExists('routing_key')
-				&& $data->offsetExists('data')
+				is_array($data)
+				&& array_key_exists('source', $data)
+				&& array_key_exists('routing_key', $data)
+				&& array_key_exists('data', $data)
 			) {
 				$this->handle(
-					strval($data->offsetGet('source')),
-					MetadataTypes\RoutingKeyType::get($data->offsetGet('routing_key')),
-					$data->offsetGet('data') // @phpstan-ignore-line
+					strval($data['source']),
+					MetadataTypes\RoutingKeyType::get($data['routing_key']),
+					$data['data']
 				);
 
 			} else {
 				// Log error action reason
 				$this->logger->warning('Received message is not in valid format', [
-					'source' => 'redisdb-exchange-plugin-publisher',
+					'source' => 'redisdb-exchange-plugin',
 					'type'   => 'subscribe',
 				]);
 			}
 		} catch (Utils\JsonException $ex) {
 			// Log error action reason
 			$this->logger->warning('Received message is not valid json', [
-				'source'    => 'redisdb-exchange-plugin-publisher',
+				'source'    => 'redisdb-exchange-plugin',
 				'type'      => 'subscribe',
 				'exception' => [
 					'message' => $ex->getMessage(),
@@ -131,14 +125,14 @@ class AsyncClientSubscriber implements EventDispatcher\EventSubscriberInterface
 	/**
 	 * @param string $source
 	 * @param MetadataTypes\RoutingKeyType $routingKey
-	 * @param Utils\ArrayHash $data
+	 * @param string $data
 	 *
-	 * @throws Utils\JsonException
+	 * @return void
 	 */
 	private function handle(
 		string $source,
 		MetadataTypes\RoutingKeyType $routingKey,
-		Utils\ArrayHash $data
+		string $data
 	): void {
 		if ($this->consumer === null) {
 			return;
@@ -151,26 +145,28 @@ class AsyncClientSubscriber implements EventDispatcher\EventSubscriberInterface
 		}
 
 		try {
-			$schema = $this->schemaLoader->loadByRoutingKey($routingKey);
-
-		} catch (MetadataExceptions\InvalidArgumentException $ex) {
-			return;
-		}
-
-		try {
-			$data = $this->validator->validate(Utils\Json::encode($this->dataToArray($data)), $schema);
+			$entity = $this->entityFactory->create($data, $routingKey);
 
 		} catch (Throwable $ex) {
+			$this->logger->error('Message could not be transformed into entity', [
+				'source'    => 'redisdb-exchange-plugin',
+				'type'      => 'subscribe',
+				'exception' => [
+					'message' => $ex->getMessage(),
+					'code'    => $ex->getCode(),
+				],
+			]);
+
 			return;
 		}
 
 		try {
-			$this->consumer->consume($source, $routingKey, $data);
+			$this->consumer->consume($source, $routingKey, $entity);
 
 		} catch (Exceptions\UnprocessableMessageException $ex) {
 			// Log error consume reason
 			$this->logger->error('Message could not be handled', [
-				'source'    => 'redisdb-exchange-plugin-publisher',
+				'source'    => 'redisdb-exchange-plugin',
 				'type'      => 'subscribe',
 				'exception' => [
 					'message' => $ex->getMessage(),
@@ -202,24 +198,6 @@ class AsyncClientSubscriber implements EventDispatcher\EventSubscriberInterface
 		}
 
 		return null;
-	}
-
-	/**
-	 * @param Utils\ArrayHash $data
-	 *
-	 * @return mixed[]
-	 */
-	private function dataToArray(Utils\ArrayHash $data): array
-	{
-		$transformed = (array) $data;
-
-		foreach ($transformed as $key => $value) {
-			if ($value instanceof Utils\ArrayHash) {
-				$transformed[$key] = $this->dataToArray($value);
-			}
-		}
-
-		return $transformed;
 	}
 
 }

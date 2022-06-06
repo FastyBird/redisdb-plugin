@@ -16,6 +16,7 @@
 namespace FastyBird\RedisDbExchangePlugin\Publishers;
 
 use FastyBird\DateTimeFactory;
+use FastyBird\Metadata\Entities as MetadataEntities;
 use FastyBird\Metadata\Types as MetadataTypes;
 use FastyBird\RedisDbExchangePlugin\Client;
 use Nette;
@@ -60,7 +61,7 @@ final class Publisher implements IPublisher
 	public function publish(
 		$source,
 		MetadataTypes\RoutingKeyType $routingKey,
-		?Utils\ArrayHash $data
+		?MetadataEntities\IEntity $data
 	): void {
 		try {
 			$result = $this->client->publish(
@@ -69,18 +70,18 @@ final class Publisher implements IPublisher
 					'source'      => $source->getValue(),
 					'routing_key' => $routingKey->getValue(),
 					'created'     => $this->dateTimeFactory->getNow()->format(DATE_ATOM),
-					'data'        => $data !== null ? $this->dataToArray($data) : null,
+					'data'        => $data !== null ? $data->toArray() : null,
 				]),
 			);
 
 		} catch (Utils\JsonException $ex) {
 			$this->logger->error('Data could not be converted to message', [
-				'source'    => 'redisdb-exchange-plugin-publisher',
+				'source'    => 'redisdb-exchange-plugin',
 				'type'      => 'publish',
 				'message'   => [
 					'routingKey' => $routingKey->getValue(),
 					'source'     => $source->getValue(),
-					'data'       => $data !== null ? $this->dataToArray($data) : null,
+					'data'       => $data !== null ? $data->toArray() : null,
 				],
 				'exception' => [
 					'message' => $ex->getMessage(),
@@ -93,43 +94,25 @@ final class Publisher implements IPublisher
 
 		if ($result) {
 			$this->logger->debug('Received message was pushed into data exchange', [
-				'source'  => 'redisdb-exchange-plugin-publisher',
+				'source'  => 'redisdb-exchange-plugin',
 				'type'    => 'publish',
 				'message' => [
 					'routingKey' => $routingKey->getValue(),
 					'source'     => $source->getValue(),
-					'data'       => $data !== null ? $this->dataToArray($data) : null,
+					'data'       => $data !== null ? $data->toArray() : null,
 				],
 			]);
 		} else {
 			$this->logger->error('Received message could not be pushed into data exchange', [
-				'source'  => 'redisdb-exchange-plugin-publisher',
+				'source'  => 'redisdb-exchange-plugin',
 				'type'    => 'publish',
 				'message' => [
 					'routingKey' => $routingKey->getValue(),
 					'source'     => $source->getValue(),
-					'data'       => $data !== null ? $this->dataToArray($data) : null,
+					'data'       => $data !== null ? $data->toArray() : null,
 				],
 			]);
 		}
-	}
-
-	/**
-	 * @param Utils\ArrayHash $data
-	 *
-	 * @return mixed[]
-	 */
-	private function dataToArray(Utils\ArrayHash $data): array
-	{
-		$transformed = (array) $data;
-
-		foreach ($transformed as $key => $value) {
-			if ($value instanceof Utils\ArrayHash) {
-				$transformed[$key] = $this->dataToArray($value);
-			}
-		}
-
-		return $transformed;
 	}
 
 }
