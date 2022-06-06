@@ -71,7 +71,7 @@ def register_services(
     di[Logger] = Logger(logger=logger)
     di["fb-redisdb-exchange-plugin_logger"] = di[Logger]
 
-    identifier = uuid.uuid4().__str__()
+    identifier = str(uuid.uuid4())
 
     di[Client] = Client(
         identifier=identifier,
