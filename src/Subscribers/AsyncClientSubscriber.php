@@ -92,7 +92,7 @@ class AsyncClientSubscriber implements EventDispatcher\EventSubscriberInterface
 				$this->handle(
 					strval($data['source']),
 					MetadataTypes\RoutingKeyType::get($data['routing_key']),
-					$data['data']
+					Utils\Json::encode($data['data'])
 				);
 
 			} else {
