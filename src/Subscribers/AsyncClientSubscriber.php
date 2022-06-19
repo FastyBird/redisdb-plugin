@@ -16,7 +16,7 @@
 namespace FastyBird\RedisDbExchangePlugin\Subscribers;
 
 use FastyBird\Exchange\Consumer as ExchangeConsumer;
-use FastyBird\Metadata\Entities as MetadataEntities;
+use FastyBird\Exchange\Entities as ExchangeEntities;
 use FastyBird\Metadata\Types as MetadataTypes;
 use FastyBird\RedisDbExchangePlugin\Events;
 use FastyBird\RedisDbExchangePlugin\Exceptions;
@@ -40,8 +40,8 @@ class AsyncClientSubscriber implements EventDispatcher\EventSubscriberInterface
 	/** @var ExchangeConsumer\Consumer|null */
 	private ?ExchangeConsumer\Consumer $consumer;
 
-	/** @var MetadataEntities\GlobalEntityFactory */
-	private MetadataEntities\GlobalEntityFactory $entityFactory;
+	/** @var ExchangeEntities\EntityFactory */
+	private ExchangeEntities\EntityFactory $entityFactory;
 
 	/** @var PsrEventDispatcher\EventDispatcherInterface|null */
 	private ?PsrEventDispatcher\EventDispatcherInterface $dispatcher;
@@ -50,7 +50,7 @@ class AsyncClientSubscriber implements EventDispatcher\EventSubscriberInterface
 	private Log\LoggerInterface $logger;
 
 	public function __construct(
-		MetadataEntities\GlobalEntityFactory $entityFactory,
+		ExchangeEntities\EntityFactory $entityFactory,
 		?PsrEventDispatcher\EventDispatcherInterface $dispatcher = null,
 		?ExchangeConsumer\Consumer $consumer = null,
 		?Log\LoggerInterface $logger = null
