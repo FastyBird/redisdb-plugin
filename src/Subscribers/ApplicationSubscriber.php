@@ -76,7 +76,7 @@ class ApplicationSubscriber implements EventDispatcher\EventSubscriberInterface
 			// Log error action reason
 			$this->logger->error('Stopping Redis exchange', [
 				'source'    => 'redisdb-exchange-plugin',
-				'type'      => 'subscribe',
+				'type'      => 'subscriber',
 				'exception' => [
 					'message' => $ex->getMessage(),
 					'code'    => $ex->getCode(),

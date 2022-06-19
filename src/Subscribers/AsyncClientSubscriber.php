@@ -99,14 +99,14 @@ class AsyncClientSubscriber implements EventDispatcher\EventSubscriberInterface
 				// Log error action reason
 				$this->logger->warning('Received message is not in valid format', [
 					'source' => 'redisdb-exchange-plugin',
-					'type'   => 'subscribe',
+					'type'   => 'subscriber',
 				]);
 			}
 		} catch (Utils\JsonException $ex) {
 			// Log error action reason
 			$this->logger->warning('Received message is not valid json', [
 				'source'    => 'redisdb-exchange-plugin',
-				'type'      => 'subscribe',
+				'type'      => 'subscriber',
 				'exception' => [
 					'message' => $ex->getMessage(),
 					'code'    => $ex->getCode(),
@@ -150,7 +150,7 @@ class AsyncClientSubscriber implements EventDispatcher\EventSubscriberInterface
 		} catch (Throwable $ex) {
 			$this->logger->error('Message could not be transformed into entity', [
 				'source'    => 'redisdb-exchange-plugin',
-				'type'      => 'subscribe',
+				'type'      => 'subscriber',
 				'exception' => [
 					'message' => $ex->getMessage(),
 					'code'    => $ex->getCode(),
@@ -167,7 +167,7 @@ class AsyncClientSubscriber implements EventDispatcher\EventSubscriberInterface
 			// Log error consume reason
 			$this->logger->error('Message could not be handled', [
 				'source'    => 'redisdb-exchange-plugin',
-				'type'      => 'subscribe',
+				'type'      => 'subscriber',
 				'exception' => [
 					'message' => $ex->getMessage(),
 					'code'    => $ex->getCode(),
