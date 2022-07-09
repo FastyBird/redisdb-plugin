@@ -1,7 +1,7 @@
 <?php declare(strict_types = 1);
 
 /**
- * ApplicationSubscriber.php
+ * ServerSubscriber.php
  *
  * @license        More in license.md
  * @copyright      https://www.fastybird.com
@@ -30,7 +30,7 @@ use Throwable;
  *
  * @author          Adam Kadlec <adam.kadlec@fastybird.com>
  */
-class ApplicationSubscriber implements EventDispatcher\EventSubscriberInterface
+class ServerSubscriber implements EventDispatcher\EventSubscriberInterface
 {
 
 	/** @var Client\IAsyncClient */

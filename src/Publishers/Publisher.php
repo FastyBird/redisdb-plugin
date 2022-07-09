@@ -61,7 +61,7 @@ final class Publisher implements IPublisher
 	public function publish(
 		$source,
 		MetadataTypes\RoutingKeyType $routingKey,
-		?MetadataEntities\IEntity $data
+		?MetadataEntities\IEntity $entity
 	): void {
 		try {
 			$result = $this->client->publish(
@@ -70,7 +70,7 @@ final class Publisher implements IPublisher
 					'source'      => $source->getValue(),
 					'routing_key' => $routingKey->getValue(),
 					'created'     => $this->dateTimeFactory->getNow()->format(DATE_ATOM),
-					'data'        => $data !== null ? $data->toArray() : null,
+					'data'        => $entity?->toArray(),
 				]),
 			);
 
@@ -81,7 +81,7 @@ final class Publisher implements IPublisher
 				'message'   => [
 					'routingKey' => $routingKey->getValue(),
 					'source'     => $source->getValue(),
-					'data'       => $data !== null ? $data->toArray() : null,
+					'data'       => $entity?->toArray(),
 				],
 				'exception' => [
 					'message' => $ex->getMessage(),
@@ -99,7 +99,7 @@ final class Publisher implements IPublisher
 				'message' => [
 					'routingKey' => $routingKey->getValue(),
 					'source'     => $source->getValue(),
-					'data'       => $data !== null ? $data->toArray() : null,
+					'data'       => $entity?->toArray(),
 				],
 			]);
 		} else {
@@ -109,7 +109,7 @@ final class Publisher implements IPublisher
 				'message' => [
 					'routingKey' => $routingKey->getValue(),
 					'source'     => $source->getValue(),
-					'data'       => $data !== null ? $data->toArray() : null,
+					'data'       => $entity?->toArray(),
 				],
 			]);
 		}

@@ -22,7 +22,7 @@ final class ExtensionTest extends BaseTestCase
 		Assert::notNull($container->getByType(Client\IClient::class, false));
 		Assert::notNull($container->getByType(Client\IAsyncClient::class));
 
-		Assert::notNull($container->getByType(Subscribers\ApplicationSubscriber::class));
+		Assert::notNull($container->getByType(Subscribers\ServerSubscriber::class));
 		Assert::notNull($container->getByType(Subscribers\AsyncClientSubscriber::class));
 	}
 

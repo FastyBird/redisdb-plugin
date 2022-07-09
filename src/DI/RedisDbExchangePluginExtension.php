@@ -129,8 +129,8 @@ class RedisDbExchangePluginExtension extends DI\CompilerExtension
 				throw new Exceptions\InvalidStateException('Asynchronous client could not be created missing "default" connection configuration');
 			}
 
-			$builder->addDefinition($this->prefix('subscribers.application'), new DI\Definitions\ServiceDefinition())
-				->setType(Subscribers\ApplicationSubscriber::class);
+			$builder->addDefinition($this->prefix('subscribers.server'), new DI\Definitions\ServiceDefinition())
+				->setType(Subscribers\ServerSubscriber::class);
 
 			$builder->addDefinition($this->prefix('subscribers.asyncClient'), new DI\Definitions\ServiceDefinition())
 				->setType(Subscribers\AsyncClientSubscriber::class);

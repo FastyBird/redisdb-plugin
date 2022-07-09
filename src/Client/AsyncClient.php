@@ -120,13 +120,9 @@ class AsyncClient implements IAsyncClient
 		$this->closing = true;
 		$this->isConnected = false;
 
-		if ($this->stream !== null) {
-			$this->stream->close();
-		}
+		$this->stream?->close();
 
-		if ($this->dispatcher !== null) {
-			$this->dispatcher->dispatch(new Events\ConnectionClosedEvent($this));
-		}
+		$this->dispatcher?->dispatch(new Events\ConnectionClosedEvent($this));
 
 		// Reject all remaining requests in the queue
 		while ($this->requests) {
@@ -178,18 +174,14 @@ class AsyncClient implements IAsyncClient
 				function (Socket\ConnectionInterface $stream) use ($deferred): void {
 					$this->stream = $stream;
 
-					if ($this->dispatcher !== null) {
-						$this->dispatcher->dispatch(new Events\ConnectionOpenedEvent($this));
-					}
+					$this->dispatcher?->dispatch(new Events\ConnectionOpenedEvent($this));
 
 					$deferred->resolve($this);
 				},
 				function (Throwable $ex) use ($deferred): void {
 					$this->isConnecting = false;
 
-					if ($this->dispatcher !== null) {
-						$this->dispatcher->dispatch(new Events\ErrorEvent($ex, $this));
-					}
+					$this->dispatcher?->dispatch(new Events\ErrorEvent($ex, $this));
 
 					$deferred->reject($ex);
 				}
@@ -238,9 +230,7 @@ class AsyncClient implements IAsyncClient
 							$models = $this->parser->pushIncoming($chunk);
 
 						} catch (RedisProtocol\Parser\ParserException $ex) {
-							if ($this->dispatcher !== null) {
-								$this->dispatcher->dispatch(new Events\ErrorEvent($ex, $this));
-							}
+							$this->dispatcher?->dispatch(new Events\ErrorEvent($ex, $this));
 
 							$this->close();
 
@@ -252,9 +242,7 @@ class AsyncClient implements IAsyncClient
 								$this->handleMessage($data);
 
 							} catch (UnderflowException $ex) {
-								if ($this->dispatcher !== null) {
-									$this->dispatcher->dispatch(new Events\ErrorEvent($ex, $this));
-								}
+								$this->dispatcher?->dispatch(new Events\ErrorEvent($ex, $this));
 
 								$this->close();
 
@@ -268,9 +256,7 @@ class AsyncClient implements IAsyncClient
 					});
 
 					$stream->on('error', function (Throwable $ex): void {
-						if ($this->dispatcher !== null) {
-							$this->dispatcher->dispatch(new Events\ErrorEvent($ex, $this));
-						}
+						$this->dispatcher?->dispatch(new Events\ErrorEvent($ex, $this));
 					});
 
 					$deferred->resolve($stream);
@@ -304,9 +290,7 @@ class AsyncClient implements IAsyncClient
 			// Pub/Sub messages are to be forwarded and should not be processed as request responses
 			if ($type === 'message') {
 				if (isset($array[0]) && isset($array[1])) {
-					if ($this->dispatcher !== null) {
-						$this->dispatcher->dispatch(new Events\MessageReceivedEvent($array[0], $array[1], $this));
-					}
+					$this->dispatcher?->dispatch(new Events\MessageReceivedEvent($array[0], $array[1], $this));
 
 					return;
 
@@ -315,11 +299,9 @@ class AsyncClient implements IAsyncClient
 				}
 			} elseif ($type === 'pmessage') {
 				if (isset($array[0]) && isset($array[1]) && isset($array[2])) {
-					if ($this->dispatcher !== null) {
-						$this->dispatcher->dispatch(
-							new Events\PatternMessageReceivedEvent(strval($array[0]), strval($array[1]), strval($array[2]), $this)
-						);
-					}
+					$this->dispatcher?->dispatch(
+						new Events\PatternMessageReceivedEvent(strval($array[0]), strval($array[1]), strval($array[2]), $this)
+					);
 
 					return;
 				} else {
@@ -349,6 +331,16 @@ class AsyncClient implements IAsyncClient
 	/**
 	 * {@inheritDoc}
 	 */
+	public function getIdentifier(): string
+	{
+		return $this->connection->getIdentifier();
+	}
+
+	/**
+	 * @param string $channel
+	 *
+	 * @return Promise\PromiseInterface
+	 */
 	private function subscribe(string $channel): Promise\PromiseInterface
 	{
 		$request = new Promise\Deferred();
@@ -365,14 +357,6 @@ class AsyncClient implements IAsyncClient
 		$this->requests[] = $request;
 
 		return $promise;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function getIdentifier(): string
-	{
-		return $this->connection->getIdentifier();
 	}
 
 }

@@ -183,8 +183,9 @@ class AsyncClientSubscriber implements EventDispatcher\EventSubscriberInterface
 	 *
 	 * @return MetadataTypes\ModuleSourceType|MetadataTypes\ConnectorSourceType|MetadataTypes\PluginSourceType|null
 	 */
-	private function validateSource(string $source)
-	{
+	private function validateSource(
+		string $source
+	): MetadataTypes\ModuleSourceType|MetadataTypes\ConnectorSourceType|MetadataTypes\PluginSourceType|null {
 		if (MetadataTypes\ModuleSourceType::isValidValue($source)) {
 			return MetadataTypes\ModuleSourceType::get($source);
 		}

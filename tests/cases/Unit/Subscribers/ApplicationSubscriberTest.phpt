@@ -24,7 +24,7 @@ final class ApplicationSubscriberTest extends BaseMockeryTestCase
 
 		$eventLoop = Mockery::mock(EventLoop\LoopInterface::class);
 
-		$subscriber = new Subscribers\ApplicationSubscriber(
+		$subscriber = new Subscribers\ServerSubscriber(
 			$asyncClient,
 			$eventLoop,
 		);
@@ -42,7 +42,7 @@ final class ApplicationSubscriberTest extends BaseMockeryTestCase
 
 		$eventLoop = Mockery::mock(EventLoop\LoopInterface::class);
 
-		$subscriber = new Subscribers\ApplicationSubscriber(
+		$subscriber = new Subscribers\ServerSubscriber(
 			$asyncClient,
 			$eventLoop,
 		);
