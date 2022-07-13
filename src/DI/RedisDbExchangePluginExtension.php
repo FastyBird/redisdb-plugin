@@ -109,8 +109,7 @@ class RedisDbExchangePluginExtension extends DI\CompilerExtension
 					->setType(Publishers\Publisher::class)
 					->setArguments([
 						'client' => $clientService,
-					])
-					->setAutowired(false);
+					]);
 			}
 
 			if ($name === 'default' && $configuration->enableAsync) {
@@ -119,8 +118,7 @@ class RedisDbExchangePluginExtension extends DI\CompilerExtension
 					->setArguments([
 						'channelName' => $connection->channel,
 						'connection'  => $connectionService,
-					])
-					->setAutowired(true);
+					]);
 			}
 		}
 
