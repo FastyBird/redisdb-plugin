@@ -1,7 +1,7 @@
 # FastyBird Redis DB exchange plugin
 
-[![Build Status](https://badgen.net/github/checks/FastyBird/redisdb-exchange-plugin/master?cache=300&style=flat-square)](https://github.com/FastyBird/redisdb-exchange-plugin/actions)
-[![Licence](https://badgen.net/github/license/FastyBird/redisdb-exchange-plugin?cache=300&style=flat-square)](https://github.com/FastyBird/redisdb-exchange-plugin/blob/master/LICENSE.md)
+[![Build Status](https://badgen.net/github/checks/FastyBird/redisdb-exchange-plugin/main?cache=300&style=flat-square)](https://github.com/FastyBird/redisdb-exchange-plugin/actions)
+[![Licence](https://badgen.net/github/license/FastyBird/redisdb-exchange-plugin?cache=300&style=flat-square)](https://github.com/FastyBird/redisdb-exchange-plugin/blob/main/LICENSE.md)
 [![Code coverage](https://badgen.net/coveralls/c/github/FastyBird/redisdb-exchange-plugin?cache=300&style=flat-square)](https://coveralls.io/r/FastyBird/redisdb-exchange-plugin)
 
 ![PHP](https://badgen.net/packagist/php/FastyBird/redisdb-exchange-plugin?cache=300&style=flat-square)
@@ -41,7 +41,7 @@ $ pip install fastybird-redisdb-exchange-plugin
 ## Documentation
 
 Learn how to consume & publish messages
-in [documentation](https://github.com/FastyBird/redisdb-exchange-plugin/blob/master/.docs/en/index.md).
+in [documentation](https://github.com/FastyBird/redisdb-exchange-plugin/blob/main/.docs/en/index.md).
 
 ***
 Homepage [https://www.fastybird.com](https://www.fastybird.com) and
