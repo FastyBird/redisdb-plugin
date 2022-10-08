@@ -16,12 +16,14 @@
 namespace FastyBird\RedisDbExchangePlugin\Publishers;
 
 use FastyBird\DateTimeFactory;
+use FastyBird\Exchange\Publisher as ExchangePublisher;
 use FastyBird\Metadata\Entities as MetadataEntities;
 use FastyBird\Metadata\Types as MetadataTypes;
 use FastyBird\RedisDbExchangePlugin\Client;
 use Nette;
 use Nette\Utils;
 use Psr\Log;
+use const DATE_ATOM;
 
 /**
  * Redis DB exchange publisher
@@ -31,61 +33,51 @@ use Psr\Log;
  *
  * @author         Adam Kadlec <adam.kadlec@fastybird.com>
  */
-final class Publisher implements IPublisher
+final class Publisher implements ExchangePublisher\Publisher
 {
 
 	use Nette\SmartObject;
 
-	/** @var Client\IClient */
-	private Client\IClient $client;
-
-	/** @var DateTimeFactory\DateTimeFactory */
-	private DateTimeFactory\DateTimeFactory $dateTimeFactory;
-
-	/** @var Log\LoggerInterface */
 	private Log\LoggerInterface $logger;
 
 	public function __construct(
-		Client\IClient $client,
-		DateTimeFactory\DateTimeFactory $dateTimeFactory,
-		?Log\LoggerInterface $logger = null
-	) {
-		$this->client = $client;
-		$this->dateTimeFactory = $dateTimeFactory;
+		private readonly Client\Client $client,
+		private readonly DateTimeFactory\Factory $dateTimeFactory,
+		Log\LoggerInterface|null $logger = null,
+	)
+	{
 		$this->logger = $logger ?? new Log\NullLogger();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public function publish(
-		$source,
-		MetadataTypes\RoutingKeyType $routingKey,
-		?MetadataEntities\IEntity $entity
-	): void {
+		MetadataTypes\ModuleSource|MetadataTypes\PluginSource|MetadataTypes\ConnectorSource $source,
+		MetadataTypes\RoutingKey $routingKey,
+		MetadataEntities\Entity|null $entity,
+	): void
+	{
 		try {
 			$result = $this->client->publish(
 				Utils\Json::encode([
-					'sender_id'   => $this->client->getIdentifier(),
-					'source'      => $source->getValue(),
+					'sender_id' => $this->client->getIdentifier(),
+					'source' => $source->getValue(),
 					'routing_key' => $routingKey->getValue(),
-					'created'     => $this->dateTimeFactory->getNow()->format(DATE_ATOM),
-					'data'        => $entity?->toArray(),
+					'created' => $this->dateTimeFactory->getNow()->format(DATE_ATOM),
+					'data' => $entity?->toArray(),
 				]),
 			);
 
 		} catch (Utils\JsonException $ex) {
 			$this->logger->error('Data could not be converted to message', [
-				'source'    => 'redisdb-exchange-plugin',
-				'type'      => 'publish',
-				'message'   => [
+				'source' => MetadataTypes\PluginSource::SOURCE_PLUGIN_EXCHANGE_REDISDB,
+				'type' => 'publish',
+				'message' => [
 					'routingKey' => $routingKey->getValue(),
-					'source'     => $source->getValue(),
-					'data'       => $entity?->toArray(),
+					'source' => $source->getValue(),
+					'data' => $entity?->toArray(),
 				],
 				'exception' => [
 					'message' => $ex->getMessage(),
-					'code'    => $ex->getCode(),
+					'code' => $ex->getCode(),
 				],
 			]);
 
@@ -94,22 +86,22 @@ final class Publisher implements IPublisher
 
 		if ($result) {
 			$this->logger->debug('Received message was pushed into data exchange', [
-				'source'  => 'redisdb-exchange-plugin',
-				'type'    => 'publish',
+				'source' => MetadataTypes\PluginSource::SOURCE_PLUGIN_EXCHANGE_REDISDB,
+				'type' => 'publish',
 				'message' => [
 					'routingKey' => $routingKey->getValue(),
-					'source'     => $source->getValue(),
-					'data'       => $entity?->toArray(),
+					'source' => $source->getValue(),
+					'data' => $entity?->toArray(),
 				],
 			]);
 		} else {
 			$this->logger->error('Received message could not be pushed into data exchange', [
-				'source'  => 'redisdb-exchange-plugin',
-				'type'    => 'publish',
+				'source' => MetadataTypes\PluginSource::SOURCE_PLUGIN_EXCHANGE_REDISDB,
+				'type' => 'publish',
 				'message' => [
 					'routingKey' => $routingKey->getValue(),
-					'source'     => $source->getValue(),
-					'data'       => $entity?->toArray(),
+					'source' => $source->getValue(),
+					'data' => $entity?->toArray(),
 				],
 			]);
 		}

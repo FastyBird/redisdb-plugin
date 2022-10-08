@@ -17,7 +17,6 @@ extensions:
     fbDateTimeFactory       : FastyBird\DateTimeFactory\DI\DateTimeFactoryExtension
     fbMetadata              : FastyBird\Metadata\DI\MetadataExtension
     fbExchange              : FastyBird\Exchange\DI\ExchangeExtension
-    fbSocketServerFactory   : FastyBird\SocketServerFactory\DI\SocketServerFactoryExtension
     ipubPhone               : IPub\Phone\DI\PhoneExtension
 
 fbRedisDbExchangePlugin:

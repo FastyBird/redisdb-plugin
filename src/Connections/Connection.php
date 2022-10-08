@@ -25,76 +25,41 @@ use Nette;
  *
  * @author         Adam Kadlec <adam.kadlec@fastybird.com>
  */
-final class Connection implements IConnection
+final class Connection
 {
 
 	use Nette\SmartObject;
 
-	/** @var string */
-	private string $host;
-
-	/** @var int */
-	private int $port;
-
-	/** @var string|null */
-	private ?string $username;
-
-	/** @var string|null */
-	private ?string $password;
-
-	/** @var string */
-	private string $identifier;
-
 	public function __construct(
-		string $identifier,
-		string $host = '127.0.0.1',
-		int $port = 6379,
-		?string $username = null,
-		?string $password = null
-	) {
-		$this->host = $host;
-		$this->port = $port;
-		$this->username = $username;
-		$this->password = $password;
-
-		$this->identifier = $identifier;
+		private readonly string $identifier,
+		private readonly string $host = '127.0.0.1',
+		private readonly int $port = 6_379,
+		private readonly string|null $username = null,
+		private readonly string|null $password = null,
+	)
+	{
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public function getHost(): string
 	{
 		return $this->host;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public function getPort(): int
 	{
 		return $this->port;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function getUsername(): ?string
+	public function getUsername(): string|null
 	{
 		return $this->username;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function getPassword(): ?string
+	public function getPassword(): string|null
 	{
 		return $this->password;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public function getIdentifier(): string
 	{
 		return $this->identifier;

@@ -1,8 +1,6 @@
 .idea
-.mypy_cache
 /vendor
-/venv
-composer.lock
-tests/*/output
-__pycache__
+/composer.lock
+/tests/*/output
+/tests/tmp
 .DS_Store

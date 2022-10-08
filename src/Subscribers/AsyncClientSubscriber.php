@@ -25,6 +25,9 @@ use Psr\EventDispatcher as PsrEventDispatcher;
 use Psr\Log;
 use Symfony\Component\EventDispatcher;
 use Throwable;
+use function array_key_exists;
+use function is_array;
+use function strval;
 
 /**
  * Redis async clients subscriber
@@ -37,48 +40,28 @@ use Throwable;
 class AsyncClientSubscriber implements EventDispatcher\EventSubscriberInterface
 {
 
-	/** @var ExchangeConsumer\Consumer|null */
-	private ?ExchangeConsumer\Consumer $consumer;
-
-	/** @var ExchangeEntities\EntityFactory */
-	private ExchangeEntities\EntityFactory $entityFactory;
-
-	/** @var PsrEventDispatcher\EventDispatcherInterface|null */
-	private ?PsrEventDispatcher\EventDispatcherInterface $dispatcher;
-
-	/** @var Log\LoggerInterface */
 	private Log\LoggerInterface $logger;
 
 	public function __construct(
-		ExchangeEntities\EntityFactory $entityFactory,
-		?PsrEventDispatcher\EventDispatcherInterface $dispatcher = null,
-		?ExchangeConsumer\Consumer $consumer = null,
-		?Log\LoggerInterface $logger = null
-	) {
-		$this->entityFactory = $entityFactory;
-
-		$this->dispatcher = $dispatcher;
-
-		$this->consumer = $consumer;
-
+		private readonly ExchangeEntities\EntityFactory $entityFactory,
+		private readonly PsrEventDispatcher\EventDispatcherInterface|null $dispatcher = null,
+		private readonly ExchangeConsumer\Consumer|null $consumer = null,
+		Log\LoggerInterface|null $logger = null,
+	)
+	{
 		$this->logger = $logger ?? new Log\NullLogger();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public static function getSubscribedEvents(): array
 	{
 		return [
-			Events\MessageReceivedEvent::class => 'handleMessage',
+			Events\MessageReceived::class => 'handleMessage',
 		];
 	}
 
-	public function handleMessage(Events\MessageReceivedEvent $event): void
+	public function handleMessage(Events\MessageReceived $event): void
 	{
-		if ($this->dispatcher !== null) {
-			$this->dispatcher->dispatch(new Events\BeforeMessageHandledEvent($event->getPayload()));
-		}
+		$this->dispatcher?->dispatch(new Events\BeforeMessageHandled($event->getPayload()));
 
 		try {
 			$data = Utils\Json::decode($event->getPayload(), Utils\Json::FORCE_ARRAY);
@@ -91,49 +74,41 @@ class AsyncClientSubscriber implements EventDispatcher\EventSubscriberInterface
 			) {
 				$this->handle(
 					strval($data['source']),
-					MetadataTypes\RoutingKeyType::get($data['routing_key']),
-					Utils\Json::encode($data['data'])
+					MetadataTypes\RoutingKey::get($data['routing_key']),
+					Utils\Json::encode($data['data']),
 				);
 
 			} else {
 				// Log error action reason
 				$this->logger->warning('Received message is not in valid format', [
-					'source' => 'redisdb-exchange-plugin',
-					'type'   => 'subscriber',
+					'source' => MetadataTypes\PluginSource::SOURCE_PLUGIN_EXCHANGE_REDISDB,
+					'type' => 'subscriber',
 				]);
 			}
 		} catch (Utils\JsonException $ex) {
 			// Log error action reason
 			$this->logger->warning('Received message is not valid json', [
-				'source'    => 'redisdb-exchange-plugin',
-				'type'      => 'subscriber',
+				'source' => MetadataTypes\PluginSource::SOURCE_PLUGIN_EXCHANGE_REDISDB,
+				'type' => 'subscriber',
 				'exception' => [
 					'message' => $ex->getMessage(),
-					'code'    => $ex->getCode(),
+					'code' => $ex->getCode(),
 				],
 			]);
 
-		} catch (Exceptions\TerminateException $ex) {
+		} catch (Exceptions\Terminate) {
 			$event->getClient()->close();
 		}
 
-		if ($this->dispatcher !== null) {
-			$this->dispatcher->dispatch(new Events\AfterMessageHandledEvent($event->getPayload()));
-		}
+		$this->dispatcher?->dispatch(new Events\AfterMessageHandled($event->getPayload()));
 	}
 
-	/**
-	 * @param string $source
-	 * @param MetadataTypes\RoutingKeyType $routingKey
-	 * @param string $data
-	 *
-	 * @return void
-	 */
 	private function handle(
 		string $source,
-		MetadataTypes\RoutingKeyType $routingKey,
-		string $data
-	): void {
+		MetadataTypes\RoutingKey $routingKey,
+		string $data,
+	): void
+	{
 		if ($this->consumer === null) {
 			return;
 		}
@@ -149,11 +124,11 @@ class AsyncClientSubscriber implements EventDispatcher\EventSubscriberInterface
 
 		} catch (Throwable $ex) {
 			$this->logger->error('Message could not be transformed into entity', [
-				'source'    => 'redisdb-exchange-plugin',
-				'type'      => 'subscriber',
+				'source' => MetadataTypes\PluginSource::SOURCE_PLUGIN_EXCHANGE_REDISDB,
+				'type' => 'subscriber',
 				'exception' => [
 					'message' => $ex->getMessage(),
-					'code'    => $ex->getCode(),
+					'code' => $ex->getCode(),
 				],
 			]);
 
@@ -163,14 +138,14 @@ class AsyncClientSubscriber implements EventDispatcher\EventSubscriberInterface
 		try {
 			$this->consumer->consume($source, $routingKey, $entity);
 
-		} catch (Exceptions\UnprocessableMessageException $ex) {
+		} catch (Exceptions\UnprocessableMessage $ex) {
 			// Log error consume reason
 			$this->logger->error('Message could not be handled', [
-				'source'    => 'redisdb-exchange-plugin',
-				'type'      => 'subscriber',
+				'source' => MetadataTypes\PluginSource::SOURCE_PLUGIN_EXCHANGE_REDISDB,
+				'type' => 'subscriber',
 				'exception' => [
 					'message' => $ex->getMessage(),
-					'code'    => $ex->getCode(),
+					'code' => $ex->getCode(),
 				],
 			]);
 
@@ -178,24 +153,20 @@ class AsyncClientSubscriber implements EventDispatcher\EventSubscriberInterface
 		}
 	}
 
-	/**
-	 * @param string $source
-	 *
-	 * @return MetadataTypes\ModuleSourceType|MetadataTypes\ConnectorSourceType|MetadataTypes\PluginSourceType|null
-	 */
 	private function validateSource(
-		string $source
-	): MetadataTypes\ModuleSourceType|MetadataTypes\ConnectorSourceType|MetadataTypes\PluginSourceType|null {
-		if (MetadataTypes\ModuleSourceType::isValidValue($source)) {
-			return MetadataTypes\ModuleSourceType::get($source);
+		string $source,
+	): MetadataTypes\ModuleSource|MetadataTypes\ConnectorSource|MetadataTypes\PluginSource|null
+	{
+		if (MetadataTypes\ModuleSource::isValidValue($source)) {
+			return MetadataTypes\ModuleSource::get($source);
 		}
 
-		if (MetadataTypes\ConnectorSourceType::isValidValue($source)) {
-			return MetadataTypes\ConnectorSourceType::get($source);
+		if (MetadataTypes\ConnectorSource::isValidValue($source)) {
+			return MetadataTypes\ConnectorSource::get($source);
 		}
 
-		if (MetadataTypes\PluginSourceType::isValidValue($source)) {
-			return MetadataTypes\PluginSourceType::get($source);
+		if (MetadataTypes\PluginSource::isValidValue($source)) {
+			return MetadataTypes\PluginSource::get($source);
 		}
 
 		return null;

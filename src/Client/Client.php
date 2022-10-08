@@ -19,6 +19,8 @@ use FastyBird\RedisDbExchangePlugin\Connections;
 use Nette;
 use Predis;
 use Predis\Response as PredisResponse;
+use function assert;
+use function is_int;
 
 /**
  * Redis database client
@@ -28,32 +30,23 @@ use Predis\Response as PredisResponse;
  *
  * @author         Adam Kadlec <adam.kadlec@fastybird.com>
  */
-class Client implements IClient
+class Client
 {
 
 	use Nette\SmartObject;
-
-	/** @var string */
-	private string $channelName;
-
-	/** @var Connections\IConnection */
-	private Connections\IConnection $connection;
 
 	/** @var Predis\Client<mixed> */
 	private Predis\Client $redis;
 
 	public function __construct(
-		string $channelName,
-		Connections\IConnection $connection
-	) {
-		$this->channelName = $channelName;
-
-		$this->connection = $connection;
-
+		private readonly string $channelName,
+		private readonly Connections\Connection $connection,
+	)
+	{
 		$options = [
 			'scheme' => 'tcp',
-			'host'   => $connection->getHost(),
-			'port'   => $connection->getPort(),
+			'host' => $connection->getHost(),
+			'port' => $connection->getPort(),
 		];
 
 		if ($connection->getUsername() !== null) {
@@ -67,20 +60,15 @@ class Client implements IClient
 		$this->redis = new Predis\Client($options);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public function publish(string $content): bool
 	{
-		/** @var int|PredisResponse\ResponseInterface $response */
+		/** @var mixed $response */
 		$response = $this->redis->publish($this->channelName, $content);
+		assert(is_int($response) || $response instanceof PredisResponse\ResponseInterface);
 
 		return !$response instanceof PredisResponse\ErrorInterface;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public function getIdentifier(): string
 	{
 		return $this->connection->getIdentifier();
