@@ -38,10 +38,7 @@ class Client
 	/** @var Predis\Client<mixed> */
 	private Predis\Client $redis;
 
-	public function __construct(
-		private readonly string $channelName,
-		private readonly Connections\Connection $connection,
-	)
+	public function __construct(Connections\Connection $connection)
 	{
 		$options = [
 			'scheme' => 'tcp',
@@ -60,18 +57,13 @@ class Client
 		$this->redis = new Predis\Client($options);
 	}
 
-	public function publish(string $content): bool
+	public function publish(string $channel, string $content): bool
 	{
 		/** @var mixed $response */
-		$response = $this->redis->publish($this->channelName, $content);
+		$response = $this->redis->publish($channel, $content);
 		assert(is_int($response) || $response instanceof PredisResponse\ResponseInterface);
 
 		return !$response instanceof PredisResponse\ErrorInterface;
-	}
-
-	public function getIdentifier(): string
-	{
-		return $this->connection->getIdentifier();
 	}
 
 }

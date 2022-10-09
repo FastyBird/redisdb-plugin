@@ -8,8 +8,9 @@ use FastyBird\Metadata\Entities as MetadataEntities;
 use FastyBird\Metadata\Types as MetadataTypes;
 use FastyBird\RedisDbExchangePlugin\Client;
 use FastyBird\RedisDbExchangePlugin\Publishers;
+use FastyBird\RedisDbExchangePlugin\Utils;
 use Mockery;
-use Nette\Utils;
+use Nette;
 use Ninjify\Nunjuck\TestCase\BaseMockeryTestCase;
 use Tester\Assert;
 
@@ -28,8 +29,10 @@ final class PublisherTest extends BaseMockeryTestCase
 		$client = Mockery::mock(Client\Client::class);
 		$client
 			->shouldReceive('publish')
-			->withArgs(function ($data) use ($now): bool {
-				Assert::same(Utils\Json::encode([
+			->withArgs(function ($channel, $data) use ($now): bool {
+				Assert::same('exchange_channel', $channel);
+
+				Assert::same(Nette\Utils\Json::encode([
 					'sender_id'   => 'redis_client_identifier',
 					'source'      => MetadataTypes\ModuleSource::SOURCE_MODULE_DEVICES,
 					'routing_key' => MetadataTypes\RoutingKey::ROUTE_DEVICE_ENTITY_UPDATED,
@@ -46,11 +49,6 @@ final class PublisherTest extends BaseMockeryTestCase
 				return true;
 			})
 			->andReturn(true)
-			->times(1)
-			->getMock()
-			->shouldReceive('getIdentifier')
-			->withNoArgs()
-			->andReturn('redis_client_identifier')
 			->times(1);
 
 		$dateTimeFactory = Mockery::mock(DateTimeFactory\Factory::class);
@@ -60,7 +58,14 @@ final class PublisherTest extends BaseMockeryTestCase
 			->andReturn($now)
 			->times(1);
 
-		$publisher = new Publishers\Publisher($client, $dateTimeFactory);
+		$identifierGenerator = Mockery::mock(Utils\IdentifierGenerator::class);
+		$identifierGenerator
+			->shouldReceive('getIdentifier')
+			->withNoArgs()
+			->andReturn('redis_client_identifier')
+			->times(1);
+
+		$publisher = new Publishers\Publisher($identifierGenerator, 'exchange_channel', $client, $dateTimeFactory);
 
 		$publisher->publish(
 			MetadataTypes\ModuleSource::get(MetadataTypes\ModuleSource::SOURCE_MODULE_DEVICES),

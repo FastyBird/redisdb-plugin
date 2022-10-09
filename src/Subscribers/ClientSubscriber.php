@@ -1,7 +1,7 @@
 <?php declare(strict_types = 1);
 
 /**
- * AsyncClientSubscriber.php
+ * ClientSubscriber.php
  *
  * @license        More in license.md
  * @copyright      https://www.fastybird.com
@@ -20,7 +20,8 @@ use FastyBird\Exchange\Entities as ExchangeEntities;
 use FastyBird\Metadata\Types as MetadataTypes;
 use FastyBird\RedisDbExchangePlugin\Events;
 use FastyBird\RedisDbExchangePlugin\Exceptions;
-use Nette\Utils;
+use FastyBird\RedisDbExchangePlugin\Utils;
+use Nette;
 use Psr\EventDispatcher as PsrEventDispatcher;
 use Psr\Log;
 use Symfony\Component\EventDispatcher;
@@ -37,12 +38,13 @@ use function strval;
  *
  * @author          Adam Kadlec <adam.kadlec@fastybird.com>
  */
-class AsyncClientSubscriber implements EventDispatcher\EventSubscriberInterface
+class ClientSubscriber implements EventDispatcher\EventSubscriberInterface
 {
 
 	private Log\LoggerInterface $logger;
 
 	public function __construct(
+		private readonly Utils\IdentifierGenerator $identifier,
 		private readonly ExchangeEntities\EntityFactory $entityFactory,
 		private readonly PsrEventDispatcher\EventDispatcherInterface|null $dispatcher = null,
 		private readonly ExchangeConsumer\Consumer|null $consumer = null,
@@ -64,7 +66,7 @@ class AsyncClientSubscriber implements EventDispatcher\EventSubscriberInterface
 		$this->dispatcher?->dispatch(new Events\BeforeMessageHandled($event->getPayload()));
 
 		try {
-			$data = Utils\Json::decode($event->getPayload(), Utils\Json::FORCE_ARRAY);
+			$data = Nette\Utils\Json::decode($event->getPayload(), Nette\Utils\Json::FORCE_ARRAY);
 
 			if (
 				is_array($data)
@@ -75,7 +77,8 @@ class AsyncClientSubscriber implements EventDispatcher\EventSubscriberInterface
 				$this->handle(
 					strval($data['source']),
 					MetadataTypes\RoutingKey::get($data['routing_key']),
-					Utils\Json::encode($data['data']),
+					Nette\Utils\Json::encode($data['data']),
+					array_key_exists('sender_id', $data) ? $data['sender_id'] : null,
 				);
 
 			} else {
@@ -85,7 +88,7 @@ class AsyncClientSubscriber implements EventDispatcher\EventSubscriberInterface
 					'type' => 'subscriber',
 				]);
 			}
-		} catch (Utils\JsonException $ex) {
+		} catch (Nette\Utils\JsonException $ex) {
 			// Log error action reason
 			$this->logger->warning('Received message is not valid json', [
 				'source' => MetadataTypes\PluginSource::SOURCE_PLUGIN_EXCHANGE_REDISDB,
@@ -107,9 +110,19 @@ class AsyncClientSubscriber implements EventDispatcher\EventSubscriberInterface
 		string $source,
 		MetadataTypes\RoutingKey $routingKey,
 		string $data,
+		string|null $senderId = null,
 	): void
 	{
 		if ($this->consumer === null) {
+			return;
+		}
+
+		if ($senderId === $this->identifier->getIdentifier()) {
+			$this->logger->debug('Received message published by itself', [
+				'source' => MetadataTypes\PluginSource::SOURCE_PLUGIN_EXCHANGE_REDISDB,
+				'type' => 'subscriber',
+			]);
+
 			return;
 		}
 

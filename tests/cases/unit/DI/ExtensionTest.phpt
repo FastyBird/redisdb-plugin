@@ -20,9 +20,9 @@ final class ExtensionTest extends BaseTestCase
 		$container = $this->createContainer();
 
 		Assert::notNull($container->getByType(Client\Client::class, false));
-		Assert::notNull($container->getByType(Client\AsyncClientFactory::class));
+		Assert::notNull($container->getByType(Client\Factory::class));
 
-		Assert::notNull($container->getByType(Subscribers\AsyncClientSubscriber::class));
+		Assert::notNull($container->getByType(Subscribers\ClientSubscriber::class));
 	}
 
 }

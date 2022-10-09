@@ -16,14 +16,14 @@
 namespace FastyBird\RedisDbExchangePlugin\DI;
 
 use FastyBird\RedisDbExchangePlugin\Client;
+use FastyBird\RedisDbExchangePlugin\Commands;
 use FastyBird\RedisDbExchangePlugin\Connections;
-use FastyBird\RedisDbExchangePlugin\Exceptions;
 use FastyBird\RedisDbExchangePlugin\Publishers;
 use FastyBird\RedisDbExchangePlugin\Subscribers;
+use FastyBird\RedisDbExchangePlugin\Utils;
 use Nette;
 use Nette\DI;
 use Nette\Schema;
-use Ramsey\Uuid;
 use stdClass;
 use function assert;
 
@@ -38,9 +38,11 @@ use function assert;
 class RedisDbExchangePluginExtension extends DI\CompilerExtension
 {
 
+	public const NAME = 'fbRedisDbExchangePlugin';
+
 	public static function register(
 		Nette\Configurator $config,
-		string $extensionName = 'fbRedisDbExchangePlugin',
+		string $extensionName = self::NAME,
 	): void
 	{
 		$config->onCompile[] = static function (
@@ -54,15 +56,15 @@ class RedisDbExchangePluginExtension extends DI\CompilerExtension
 	public function getConfigSchema(): Schema\Schema
 	{
 		return Schema\Expect::structure([
-			'connection' => Schema\Expect::arrayOf(Schema\Expect::structure([
+			'client' => Schema\Expect::structure([
 				'host' => Schema\Expect::string()->default('127.0.0.1'),
 				'port' => Schema\Expect::int(6_379),
 				'username' => Schema\Expect::string()->nullable(),
 				'password' => Schema\Expect::string()->nullable(),
+			]),
+			'exchange' => Schema\Expect::structure([
 				'channel' => Schema\Expect::string()->default('fb_exchange'),
-			])),
-			'enableClassic' => Schema\Expect::bool(true),
-			'enableAsync' => Schema\Expect::bool(false),
+			]),
 		]);
 	}
 
@@ -72,65 +74,54 @@ class RedisDbExchangePluginExtension extends DI\CompilerExtension
 		$configuration = $this->getConfig();
 		assert($configuration instanceof stdClass);
 
-		$asyncClientService = null;
+		$connectionService = $builder->addDefinition(
+			$this->prefix('connection'),
+			new DI\Definitions\ServiceDefinition(),
+		)
+			->setType(Connections\Connection::class)
+			->setArguments([
+				'host' => $configuration->client->host,
+				'port' => $configuration->client->port,
+				'username' => $configuration->client->username,
+				'password' => $configuration->client->password,
+			])
+			->setAutowired(false);
 
-		foreach ($configuration->connection as $name => $connection) {
-			$connectionService = $builder->addDefinition(
-				$this->prefix('connection.' . $name),
-				new DI\Definitions\ServiceDefinition(),
-			)
-				->setType(Connections\Connection::class)
-				->setArguments([
-					'host' => $connection->host,
-					'port' => $connection->port,
-					'username' => $connection->username,
-					'password' => $connection->password,
-					'identifier' => Uuid\Uuid::uuid4()->toString(),
-				])
-				->setAutowired(false);
+		$clientService = $builder->addDefinition(
+			$this->prefix('client'),
+			new DI\Definitions\ServiceDefinition(),
+		)
+			->setType(Client\Client::class)
+			->setArguments([
+				'connection' => $connectionService,
+			]);
 
-			if ($configuration->enableClassic) {
-				$clientService = $builder->addDefinition(
-					$this->prefix('client.' . $name),
-					new DI\Definitions\ServiceDefinition(),
-				)
-					->setType(Client\Client::class)
-					->setArguments([
-						'channelName' => $connection->channel,
-						'connection' => $connectionService,
-					])
-					->setAutowired($name === 'default');
+		$publisher = $builder->addDefinition($this->prefix('publisher'), new DI\Definitions\ServiceDefinition())
+			->setType(Publishers\Publisher::class)
+			->setArguments([
+				'channel' => $configuration->exchange->channel,
+				'client' => $clientService,
+			]);
 
-				$builder->addDefinition($this->prefix('publisher.' . $name), new DI\Definitions\ServiceDefinition())
-					->setType(Publishers\Publisher::class)
-					->setArguments([
-						'client' => $clientService,
-					]);
-			}
+		$builder->addDefinition(
+			$this->prefix('asyncClientFactory'),
+			new DI\Definitions\ServiceDefinition(),
+		)
+			->setType(Client\Factory::class)
+			->setArguments([
+				'channel' => $configuration->exchange->channel,
+				'connection' => $connectionService,
+				'publisher' => $publisher,
+			]);
 
-			if ($name === 'default' && $configuration->enableAsync) {
-				$asyncClientService = $builder->addDefinition(
-					$this->prefix('asyncClientFactory'),
-					new DI\Definitions\ServiceDefinition(),
-				)
-					->setType(Client\AsyncClientFactory::class)
-					->setArguments([
-						'channelName' => $connection->channel,
-						'connection' => $connectionService,
-					]);
-			}
-		}
+		$builder->addDefinition($this->prefix('subscribers.asyncClient'), new DI\Definitions\ServiceDefinition())
+			->setType(Subscribers\ClientSubscriber::class);
 
-		if ($configuration->enableAsync) {
-			if ($asyncClientService === null) {
-				throw new Exceptions\InvalidState(
-					'Asynchronous client could not be created missing "default" connection configuration',
-				);
-			}
+		$builder->addDefinition($this->prefix('command.client'), new DI\Definitions\ServiceDefinition())
+			->setType(Commands\RedisClient::class);
 
-			$builder->addDefinition($this->prefix('subscribers.asyncClient'), new DI\Definitions\ServiceDefinition())
-				->setType(Subscribers\AsyncClientSubscriber::class);
-		}
+		$builder->addDefinition($this->prefix('utils.identifier'), new DI\Definitions\ServiceDefinition())
+			->setType(Utils\IdentifierGenerator::class);
 	}
 
 }

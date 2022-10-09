@@ -19,8 +19,12 @@ extensions:
     fbExchange              : FastyBird\Exchange\DI\ExchangeExtension
     ipubPhone               : IPub\Phone\DI\PhoneExtension
 
+services:
+    - {
+      create: React\EventLoop\Factory::create()
+      type: React\EventLoop\LoopInterface
+    }
+
 fbRedisDbExchangePlugin:
-    enableAsync: true
-    connection:
-        default:
-            host: 127.0.0.1
+    client:
+        host: 127.0.0.1

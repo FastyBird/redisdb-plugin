@@ -31,7 +31,6 @@ final class Connection
 	use Nette\SmartObject;
 
 	public function __construct(
-		private readonly string $identifier,
 		private readonly string $host = '127.0.0.1',
 		private readonly int $port = 6_379,
 		private readonly string|null $username = null,
@@ -58,11 +57,6 @@ final class Connection
 	public function getPassword(): string|null
 	{
 		return $this->password;
-	}
-
-	public function getIdentifier(): string
-	{
-		return $this->identifier;
 	}
 
 }
