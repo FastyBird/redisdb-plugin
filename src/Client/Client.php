@@ -57,6 +57,30 @@ class Client
 		$this->redis = new Predis\Client($options);
 	}
 
+	public function set(string $key, string $content): bool
+	{
+		$response = $this->redis->set($key, $content);
+		assert($response instanceof PredisResponse\Status);
+
+		return $response->getPayload() === 'OK';
+	}
+
+	public function get(string $key): string|null
+	{
+		return $this->redis->get($key);
+	}
+
+	public function del(string $key): bool
+	{
+		if ($this->redis->get($key) !== null) {
+			$response = $this->redis->del($key);
+
+			return $response === 1;
+		}
+
+		return true;
+	}
+
 	public function publish(string $channel, string $content): bool
 	{
 		/** @var mixed $response */
@@ -64,6 +88,11 @@ class Client
 		assert(is_int($response) || $response instanceof PredisResponse\ResponseInterface);
 
 		return !$response instanceof PredisResponse\ErrorInterface;
+	}
+
+	public function select(int $database): void
+	{
+		$this->redis->select($database);
 	}
 
 }

@@ -18,6 +18,7 @@ namespace FastyBird\RedisDbExchangePlugin\DI;
 use FastyBird\RedisDbExchangePlugin\Client;
 use FastyBird\RedisDbExchangePlugin\Commands;
 use FastyBird\RedisDbExchangePlugin\Connections;
+use FastyBird\RedisDbExchangePlugin\Models;
 use FastyBird\RedisDbExchangePlugin\Publishers;
 use FastyBird\RedisDbExchangePlugin\Subscribers;
 use FastyBird\RedisDbExchangePlugin\Utils;
@@ -74,8 +75,14 @@ class RedisDbExchangePluginExtension extends DI\CompilerExtension
 		$configuration = $this->getConfig();
 		assert($configuration instanceof stdClass);
 
-		$connectionService = $builder->addDefinition(
-			$this->prefix('connection'),
+		$publisher = $builder->addDefinition($this->prefix('publisher'), new DI\Definitions\ServiceDefinition())
+			->setType(Publishers\Publisher::class)
+			->setArguments([
+				'channel' => $configuration->exchange->channel,
+			]);
+
+		$builder->addDefinition(
+			$this->prefix('redis.connection'),
 			new DI\Definitions\ServiceDefinition(),
 		)
 			->setType(Connections\Connection::class)
@@ -84,41 +91,49 @@ class RedisDbExchangePluginExtension extends DI\CompilerExtension
 				'port' => $configuration->client->port,
 				'username' => $configuration->client->username,
 				'password' => $configuration->client->password,
-			])
-			->setAutowired(false);
-
-		$clientService = $builder->addDefinition(
-			$this->prefix('client'),
-			new DI\Definitions\ServiceDefinition(),
-		)
-			->setType(Client\Client::class)
-			->setArguments([
-				'connection' => $connectionService,
-			]);
-
-		$publisher = $builder->addDefinition($this->prefix('publisher'), new DI\Definitions\ServiceDefinition())
-			->setType(Publishers\Publisher::class)
-			->setArguments([
-				'channel' => $configuration->exchange->channel,
-				'client' => $clientService,
 			]);
 
 		$builder->addDefinition(
-			$this->prefix('asyncClientFactory'),
+			$this->prefix('client.sync'),
+			new DI\Definitions\ServiceDefinition(),
+		)
+			->setType(Client\Client::class);
+
+		$builder->addDefinition(
+			$this->prefix('client.async.factory'),
 			new DI\Definitions\ServiceDefinition(),
 		)
 			->setType(Client\Factory::class)
 			->setArguments([
 				'channel' => $configuration->exchange->channel,
-				'connection' => $connectionService,
 				'publisher' => $publisher,
 			]);
 
-		$builder->addDefinition($this->prefix('subscribers.asyncClient'), new DI\Definitions\ServiceDefinition())
+		// Models
+
+		$builder->addDefinition(
+			$this->prefix('model.statesManagerFactory'),
+			new DI\Definitions\ServiceDefinition(),
+		)
+			->setType(Models\StatesManagerFactory::class);
+
+		$builder->addDefinition(
+			$this->prefix('model.statesRepositoryFactory'),
+			new DI\Definitions\ServiceDefinition(),
+		)
+			->setType(Models\StatesRepositoryFactory::class);
+
+		// Subscribers
+
+		$builder->addDefinition($this->prefix('subscribers.client'), new DI\Definitions\ServiceDefinition())
 			->setType(Subscribers\ClientSubscriber::class);
+
+		// Commands
 
 		$builder->addDefinition($this->prefix('command.client'), new DI\Definitions\ServiceDefinition())
 			->setType(Commands\RedisClient::class);
+
+		// Utilities
 
 		$builder->addDefinition($this->prefix('utils.identifier'), new DI\Definitions\ServiceDefinition())
 			->setType(Utils\IdentifierGenerator::class);

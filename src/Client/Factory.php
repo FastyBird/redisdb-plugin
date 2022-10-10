@@ -18,6 +18,7 @@ namespace FastyBird\RedisDbExchangePlugin\Client;
 use Clue\React\Redis;
 use FastyBird\RedisDbExchangePlugin\Connections;
 use FastyBird\RedisDbExchangePlugin\Events;
+use FastyBird\RedisDbExchangePlugin\Models;
 use FastyBird\RedisDbExchangePlugin\Publishers;
 use Psr\EventDispatcher;
 use React\EventLoop;
@@ -32,6 +33,8 @@ final class Factory
 		private readonly string $channel,
 		private readonly Connections\Connection $connection,
 		private readonly Publishers\Publisher $publisher,
+		private readonly Models\StatesRepositoryFactory $statesRepositoryFactory,
+		private readonly Models\StatesManagerFactory $statesManagerFactory,
 		private readonly EventDispatcher\EventDispatcherInterface|null $dispatcher = null,
 	)
 	{
@@ -50,6 +53,8 @@ final class Factory
 			->then(
 				function (Redis\Client $redis) use ($deferred): void {
 					$this->publisher->setAsyncClient($redis);
+					$this->statesRepositoryFactory->setAsyncClient($redis);
+					$this->statesManagerFactory->setAsyncClient($redis);
 
 					$redis->subscribe($this->channel);
 
