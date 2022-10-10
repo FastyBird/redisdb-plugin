@@ -18,6 +18,8 @@ namespace FastyBird\RedisDbPlugin\Client;
 use Clue\React\Redis;
 use FastyBird\RedisDbPlugin\Connections;
 use FastyBird\RedisDbPlugin\Events;
+use FastyBird\RedisDbPlugin\Exceptions;
+use FastyBird\RedisDbPlugin\Handlers;
 use FastyBird\RedisDbPlugin\Models;
 use FastyBird\RedisDbPlugin\Publishers;
 use Psr\EventDispatcher;
@@ -32,6 +34,7 @@ final class Factory
 	public function __construct(
 		private readonly string $channel,
 		private readonly Connections\Connection $connection,
+		private readonly Handlers\Message $messagesHandler,
 		private readonly Publishers\Publisher $publisher,
 		private readonly Models\StatesRepositoryFactory $statesRepositoryFactory,
 		private readonly Models\StatesManagerFactory $statesManagerFactory,
@@ -59,24 +62,12 @@ final class Factory
 					$redis->subscribe($this->channel);
 
 					$redis->on('message', function (string $channel, string $payload) use ($redis): void {
-						$this->dispatcher?->dispatch(
-							new Events\MessageReceived($channel, $payload, $redis),
-						);
+						try {
+							$this->messagesHandler->handle($payload);
+						} catch (Exceptions\Terminate) {
+							$redis->close();
+						}
 					});
-
-					$redis->on(
-						'pmessage',
-						function (string $pattern, string $channel, string $payload) use ($redis): void {
-							$this->dispatcher?->dispatch(
-								new Events\PatternMessageReceived(
-									$pattern,
-									$channel,
-									$payload,
-									$redis,
-								),
-							);
-						},
-					);
 
 					$redis->on('close', function () use ($redis): void {
 						$this->dispatcher?->dispatch(new Events\ConnectionClosed($redis));

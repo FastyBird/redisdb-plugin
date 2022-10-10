@@ -6,7 +6,7 @@ use FastyBird\RedisDbPlugin\Client;
 use FastyBird\RedisDbPlugin\Commands;
 use FastyBird\RedisDbPlugin\Connections;
 use FastyBird\RedisDbPlugin\Models;
-use FastyBird\RedisDbPlugin\Subscribers;
+use FastyBird\RedisDbPlugin\Handlers;
 use FastyBird\RedisDbPlugin\Utils;
 use Tester\Assert;
 
@@ -31,7 +31,7 @@ final class ExtensionTest extends BaseTestCase
 		Assert::notNull($container->getByType(Models\StatesManagerFactory::class));
 		Assert::notNull($container->getByType(Models\StatesRepositoryFactory::class));
 
-		Assert::notNull($container->getByType(Subscribers\ClientSubscriber::class));
+		Assert::notNull($container->getByType(Handlers\Message::class));
 
 		Assert::notNull($container->getByType(Commands\RedisClient::class));
 

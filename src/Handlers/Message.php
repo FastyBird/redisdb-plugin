@@ -1,19 +1,19 @@
 <?php declare(strict_types = 1);
 
 /**
- * ClientSubscriber.php
+ * Message.php
  *
  * @license        More in license.md
  * @copyright      https://www.fastybird.com
  * @author         Adam Kadlec <adam.kadlec@fastybird.com>
  * @package        FastyBird:RedisDbPlugin!
- * @subpackage     Subscribers
+ * @subpackage     Handlers
  * @since          0.2.0
  *
  * @date           09.10.21
  */
 
-namespace FastyBird\RedisDbPlugin\Subscribers;
+namespace FastyBird\RedisDbPlugin\Handlers;
 
 use FastyBird\Exchange\Consumer as ExchangeConsumer;
 use FastyBird\Exchange\Entities as ExchangeEntities;
@@ -24,21 +24,20 @@ use FastyBird\RedisDbPlugin\Utils;
 use Nette;
 use Psr\EventDispatcher as PsrEventDispatcher;
 use Psr\Log;
-use Symfony\Component\EventDispatcher;
 use Throwable;
 use function array_key_exists;
 use function is_array;
 use function strval;
 
 /**
- * Redis async clients subscriber
+ * Redis client message handler
  *
  * @package         FastyBird:RedisDbPlugin!
- * @subpackage      Subscribers
+ * @subpackage      Handlers
  *
  * @author          Adam Kadlec <adam.kadlec@fastybird.com>
  */
-class ClientSubscriber implements EventDispatcher\EventSubscriberInterface
+class Message
 {
 
 	private Log\LoggerInterface $logger;
@@ -54,19 +53,12 @@ class ClientSubscriber implements EventDispatcher\EventSubscriberInterface
 		$this->logger = $logger ?? new Log\NullLogger();
 	}
 
-	public static function getSubscribedEvents(): array
+	public function handle(string $payload): void
 	{
-		return [
-			Events\MessageReceived::class => 'handleMessage',
-		];
-	}
-
-	public function handleMessage(Events\MessageReceived $event): void
-	{
-		$this->dispatcher?->dispatch(new Events\BeforeMessageHandled($event->getPayload()));
+		$this->dispatcher?->dispatch(new Events\BeforeMessageHandled($payload));
 
 		try {
-			$data = Nette\Utils\Json::decode($event->getPayload(), Nette\Utils\Json::FORCE_ARRAY);
+			$data = Nette\Utils\Json::decode($payload, Nette\Utils\Json::FORCE_ARRAY);
 
 			if (
 				is_array($data)
@@ -74,7 +66,7 @@ class ClientSubscriber implements EventDispatcher\EventSubscriberInterface
 				&& array_key_exists('routing_key', $data)
 				&& array_key_exists('data', $data)
 			) {
-				$this->handle(
+				$this->consume(
 					strval($data['source']),
 					MetadataTypes\RoutingKey::get($data['routing_key']),
 					Nette\Utils\Json::encode($data['data']),
@@ -98,15 +90,12 @@ class ClientSubscriber implements EventDispatcher\EventSubscriberInterface
 					'code' => $ex->getCode(),
 				],
 			]);
-
-		} catch (Exceptions\Terminate) {
-			$event->getClient()->close();
 		}
 
-		$this->dispatcher?->dispatch(new Events\AfterMessageHandled($event->getPayload()));
+		$this->dispatcher?->dispatch(new Events\AfterMessageHandled($payload));
 	}
 
-	private function handle(
+	private function consume(
 		string $source,
 		MetadataTypes\RoutingKey $routingKey,
 		string $data,

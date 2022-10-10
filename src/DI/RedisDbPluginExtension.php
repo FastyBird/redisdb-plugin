@@ -18,9 +18,9 @@ namespace FastyBird\RedisDbPlugin\DI;
 use FastyBird\RedisDbPlugin\Client;
 use FastyBird\RedisDbPlugin\Commands;
 use FastyBird\RedisDbPlugin\Connections;
+use FastyBird\RedisDbPlugin\Handlers;
 use FastyBird\RedisDbPlugin\Models;
 use FastyBird\RedisDbPlugin\Publishers;
-use FastyBird\RedisDbPlugin\Subscribers;
 use FastyBird\RedisDbPlugin\Utils;
 use Nette;
 use Nette\DI;
@@ -126,7 +126,7 @@ class RedisDbPluginExtension extends DI\CompilerExtension
 		// Subscribers
 
 		$builder->addDefinition($this->prefix('subscribers.client'), new DI\Definitions\ServiceDefinition())
-			->setType(Subscribers\ClientSubscriber::class);
+			->setType(Handlers\Message::class);
 
 		// Commands
 
