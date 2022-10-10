@@ -65,7 +65,7 @@ final class Publisher implements ExchangePublisher\Publisher
 	}
 
 	public function publish(
-		MetadataTypes\ModuleSource|MetadataTypes\PluginSource|MetadataTypes\ConnectorSource $source,
+		MetadataTypes\ModuleSource|MetadataTypes\PluginSource|MetadataTypes\ConnectorSource|MetadataTypes\TriggerSource $source,
 		MetadataTypes\RoutingKey $routingKey,
 		MetadataEntities\Entity|null $entity,
 	): void
@@ -84,7 +84,7 @@ final class Publisher implements ExchangePublisher\Publisher
 
 		} catch (Nette\Utils\JsonException $ex) {
 			$this->logger->error('Data could not be converted to message', [
-				'source' => MetadataTypes\PluginSource::SOURCE_PLUGIN_EXCHANGE_REDISDB,
+				'source' => MetadataTypes\PluginSource::SOURCE_PLUGIN_REDISDB,
 				'type' => 'publish',
 				'message' => [
 					'routingKey' => $routingKey->getValue(),
@@ -104,7 +104,7 @@ final class Publisher implements ExchangePublisher\Publisher
 			$result->then(
 				function () use ($routingKey, $source, $entity): void {
 					$this->logger->debug('Received message was pushed into data exchange', [
-						'source' => MetadataTypes\PluginSource::SOURCE_PLUGIN_EXCHANGE_REDISDB,
+						'source' => MetadataTypes\PluginSource::SOURCE_PLUGIN_REDISDB,
 						'type' => 'publish',
 						'message' => [
 							'routingKey' => $routingKey->getValue(),
@@ -115,7 +115,7 @@ final class Publisher implements ExchangePublisher\Publisher
 				},
 				function (Throwable $ex) use ($routingKey, $source, $entity): void {
 					$this->logger->error('Received message could not be pushed into data exchange', [
-						'source' => MetadataTypes\PluginSource::SOURCE_PLUGIN_EXCHANGE_REDISDB,
+						'source' => MetadataTypes\PluginSource::SOURCE_PLUGIN_REDISDB,
 						'type' => 'publish',
 						'message' => [
 							'routingKey' => $routingKey->getValue(),
@@ -132,7 +132,7 @@ final class Publisher implements ExchangePublisher\Publisher
 		} else {
 			if ($result === true) {
 				$this->logger->debug('Received message was pushed into data exchange', [
-					'source' => MetadataTypes\PluginSource::SOURCE_PLUGIN_EXCHANGE_REDISDB,
+					'source' => MetadataTypes\PluginSource::SOURCE_PLUGIN_REDISDB,
 					'type' => 'publish',
 					'message' => [
 						'routingKey' => $routingKey->getValue(),
@@ -142,7 +142,7 @@ final class Publisher implements ExchangePublisher\Publisher
 				]);
 			} else {
 				$this->logger->error('Received message could not be pushed into data exchange', [
-					'source' => MetadataTypes\PluginSource::SOURCE_PLUGIN_EXCHANGE_REDISDB,
+					'source' => MetadataTypes\PluginSource::SOURCE_PLUGIN_REDISDB,
 					'type' => 'publish',
 					'message' => [
 						'routingKey' => $routingKey->getValue(),

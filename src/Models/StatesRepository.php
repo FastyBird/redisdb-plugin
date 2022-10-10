@@ -81,7 +81,7 @@ class StatesRepository
 			return $getResult;
 		} catch (Throwable $ex) {
 			$this->logger->error('Content could not be loaded', [
-				'source' => Types\PluginSource::SOURCE_PLUGIN_EXCHANGE_REDISDB,
+				'source' => Types\PluginSource::SOURCE_PLUGIN_REDISDB,
 				'type' => 'state-repository',
 				'record' => [
 					'id' => $id->toString(),

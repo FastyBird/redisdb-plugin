@@ -84,14 +84,14 @@ class ClientSubscriber implements EventDispatcher\EventSubscriberInterface
 			} else {
 				// Log error action reason
 				$this->logger->warning('Received message is not in valid format', [
-					'source' => MetadataTypes\PluginSource::SOURCE_PLUGIN_EXCHANGE_REDISDB,
+					'source' => MetadataTypes\PluginSource::SOURCE_PLUGIN_REDISDB,
 					'type' => 'subscriber',
 				]);
 			}
 		} catch (Nette\Utils\JsonException $ex) {
 			// Log error action reason
 			$this->logger->warning('Received message is not valid json', [
-				'source' => MetadataTypes\PluginSource::SOURCE_PLUGIN_EXCHANGE_REDISDB,
+				'source' => MetadataTypes\PluginSource::SOURCE_PLUGIN_REDISDB,
 				'type' => 'subscriber',
 				'exception' => [
 					'message' => $ex->getMessage(),
@@ -119,7 +119,7 @@ class ClientSubscriber implements EventDispatcher\EventSubscriberInterface
 
 		if ($senderId === $this->identifier->getIdentifier()) {
 			$this->logger->debug('Received message published by itself', [
-				'source' => MetadataTypes\PluginSource::SOURCE_PLUGIN_EXCHANGE_REDISDB,
+				'source' => MetadataTypes\PluginSource::SOURCE_PLUGIN_REDISDB,
 				'type' => 'subscriber',
 			]);
 
@@ -137,7 +137,7 @@ class ClientSubscriber implements EventDispatcher\EventSubscriberInterface
 
 		} catch (Throwable $ex) {
 			$this->logger->error('Message could not be transformed into entity', [
-				'source' => MetadataTypes\PluginSource::SOURCE_PLUGIN_EXCHANGE_REDISDB,
+				'source' => MetadataTypes\PluginSource::SOURCE_PLUGIN_REDISDB,
 				'type' => 'subscriber',
 				'exception' => [
 					'message' => $ex->getMessage(),
@@ -154,7 +154,7 @@ class ClientSubscriber implements EventDispatcher\EventSubscriberInterface
 		} catch (Exceptions\UnprocessableMessage $ex) {
 			// Log error consume reason
 			$this->logger->error('Message could not be handled', [
-				'source' => MetadataTypes\PluginSource::SOURCE_PLUGIN_EXCHANGE_REDISDB,
+				'source' => MetadataTypes\PluginSource::SOURCE_PLUGIN_REDISDB,
 				'type' => 'subscriber',
 				'exception' => [
 					'message' => $ex->getMessage(),
@@ -168,18 +168,22 @@ class ClientSubscriber implements EventDispatcher\EventSubscriberInterface
 
 	private function validateSource(
 		string $source,
-	): MetadataTypes\ModuleSource|MetadataTypes\ConnectorSource|MetadataTypes\PluginSource|null
+	): MetadataTypes\ModuleSource|MetadataTypes\ConnectorSource|MetadataTypes\PluginSource|MetadataTypes\TriggerSource|null
 	{
 		if (MetadataTypes\ModuleSource::isValidValue($source)) {
 			return MetadataTypes\ModuleSource::get($source);
+		}
+
+		if (MetadataTypes\PluginSource::isValidValue($source)) {
+			return MetadataTypes\PluginSource::get($source);
 		}
 
 		if (MetadataTypes\ConnectorSource::isValidValue($source)) {
 			return MetadataTypes\ConnectorSource::get($source);
 		}
 
-		if (MetadataTypes\PluginSource::isValidValue($source)) {
-			return MetadataTypes\PluginSource::get($source);
+		if (MetadataTypes\TriggerSource::isValidValue($source)) {
+			return MetadataTypes\TriggerSource::get($source);
 		}
 
 		return null;
