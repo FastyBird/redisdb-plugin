@@ -6,23 +6,23 @@
  * @license        More in license.md
  * @copyright      https://www.fastybird.com
  * @author         Adam Kadlec <adam.kadlec@fastybird.com>
- * @package        FastyBird:RedisDbExchangePlugin!
+ * @package        FastyBird:RedisDbPlugin!
  * @subpackage     Models
  * @since          0.1.0
  *
  * @date           03.03.20
  */
 
-namespace FastyBird\RedisDbExchangePlugin\Models;
+namespace FastyBird\RedisDbPlugin\Models;
 
 use Closure;
 use Clue\React\Redis;
 use Consistence;
 use DateTimeInterface;
 use FastyBird\Metadata\Types;
-use FastyBird\RedisDbExchangePlugin\Client;
-use FastyBird\RedisDbExchangePlugin\Exceptions;
-use FastyBird\RedisDbExchangePlugin\States;
+use FastyBird\RedisDbPlugin\Client;
+use FastyBird\RedisDbPlugin\Exceptions;
+use FastyBird\RedisDbPlugin\States;
 use Nette;
 use Nette\Utils;
 use Psr\Log;
@@ -46,7 +46,7 @@ use const DATE_ATOM;
 /**
  * States manager
  *
- * @package        FastyBird:RedisDbExchangePlugin!
+ * @package        FastyBird:RedisDbPlugin!
  * @subpackage     Models
  *
  * @author         Adam Kadlec <adam.kadlec@fastybird.com>

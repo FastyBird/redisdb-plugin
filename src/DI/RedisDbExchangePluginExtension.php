@@ -1,27 +1,27 @@
 <?php declare(strict_types = 1);
 
 /**
- * RedisDbExchangePluginExtension.php
+ * RedisDbPluginExtension.php
  *
  * @license        More in license.md
  * @copyright      https://www.fastybird.com
  * @author         Adam Kadlec <adam.kadlec@fastybird.com>
- * @package        FastyBird:RedisDbExchangePlugin!
+ * @package        FastyBird:RedisDbPlugin!
  * @subpackage     DI
  * @since          0.1.0
  *
  * @date           25.02.21
  */
 
-namespace FastyBird\RedisDbExchangePlugin\DI;
+namespace FastyBird\RedisDbPlugin\DI;
 
-use FastyBird\RedisDbExchangePlugin\Client;
-use FastyBird\RedisDbExchangePlugin\Commands;
-use FastyBird\RedisDbExchangePlugin\Connections;
-use FastyBird\RedisDbExchangePlugin\Models;
-use FastyBird\RedisDbExchangePlugin\Publishers;
-use FastyBird\RedisDbExchangePlugin\Subscribers;
-use FastyBird\RedisDbExchangePlugin\Utils;
+use FastyBird\RedisDbPlugin\Client;
+use FastyBird\RedisDbPlugin\Commands;
+use FastyBird\RedisDbPlugin\Connections;
+use FastyBird\RedisDbPlugin\Models;
+use FastyBird\RedisDbPlugin\Publishers;
+use FastyBird\RedisDbPlugin\Subscribers;
+use FastyBird\RedisDbPlugin\Utils;
 use Nette;
 use Nette\DI;
 use Nette\Schema;
@@ -31,15 +31,15 @@ use function assert;
 /**
  * Message exchange extension container
  *
- * @package        FastyBird:RedisDbExchangePlugin!
+ * @package        FastyBird:RedisDbPlugin!
  * @subpackage     DI
  *
  * @author         Adam Kadlec <adam.kadlec@fastybird.com>
  */
-class RedisDbExchangePluginExtension extends DI\CompilerExtension
+class RedisDbPluginExtension extends DI\CompilerExtension
 {
 
-	public const NAME = 'fbRedisDbExchangePlugin';
+	public const NAME = 'fbRedisDbPlugin';
 
 	public static function register(
 		Nette\Configurator $config,
@@ -50,7 +50,7 @@ class RedisDbExchangePluginExtension extends DI\CompilerExtension
 			Nette\Configurator $config,
 			DI\Compiler $compiler,
 		) use ($extensionName): void {
-			$compiler->addExtension($extensionName, new RedisDbExchangePluginExtension());
+			$compiler->addExtension($extensionName, new RedisDbPluginExtension());
 		};
 	}
 

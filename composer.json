@@ -1,12 +1,14 @@
 {
-  "name" : "fastybird/redisdb-exchange-plugin",
+  "name" : "fastybird/redisdb-plugin",
   "type" : "plugin",
-  "description" : "FastyBird Redis database data exchange plugin",
+  "description" : "FastyBird Redis database data storage & exchange plugin",
   "keywords" : [
     "fastybird",
     "fb",
     "libs",
     "library",
+    "storage",
+    "state-management",
     "exchange",
     "messages",
     "queue",
@@ -31,8 +33,8 @@
 
   "support" : {
     "email" : "code@fastybird.com",
-    "issues" : "https://github.com/FastyBird/redisdb-exchange-plugin/issues",
-    "source" : "https://github.com/FastyBird/redisdb-exchange-plugin"
+    "issues" : "https://github.com/FastyBird/redisdb-plugin/issues",
+    "source" : "https://github.com/FastyBird/redisdb-plugin"
   },
 
   "prefer-stable" : true,
@@ -73,7 +75,7 @@
 
   "autoload" : {
     "psr-4" : {
-      "FastyBird\\RedisDbExchangePlugin\\" : "src/"
+      "FastyBird\\RedisDbPlugin\\" : "src/"
     }
   },
 

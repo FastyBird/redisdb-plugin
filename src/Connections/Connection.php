@@ -6,21 +6,21 @@
  * @license        More in license.md
  * @copyright      https://www.fastybird.com
  * @author         Adam Kadlec <adam.kadlec@fastybird.com>
- * @package        FastyBird:RedisDbExchangePlugin!
+ * @package        FastyBird:RedisDbPlugin!
  * @subpackage     Connections
  * @since          0.1.0
  *
  * @date           08.03.20
  */
 
-namespace FastyBird\RedisDbExchangePlugin\Connections;
+namespace FastyBird\RedisDbPlugin\Connections;
 
 use Nette;
 
 /**
  * Redis connection configuration
  *
- * @package        FastyBird:RedisDbExchangePlugin!
+ * @package        FastyBird:RedisDbPlugin!
  * @subpackage     Connections
  *
  * @author         Adam Kadlec <adam.kadlec@fastybird.com>

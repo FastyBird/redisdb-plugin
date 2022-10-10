@@ -6,20 +6,20 @@
  * @license        More in license.md
  * @copyright      https://www.fastybird.com
  * @author         Adam Kadlec <adam.kadlec@fastybird.com>
- * @package        FastyBird:RedisDbExchangePlugin!
+ * @package        FastyBird:RedisDbPlugin!
  * @subpackage     Client
  * @since          0.61.0
  *
  * @date           09.10.22
  */
 
-namespace FastyBird\RedisDbExchangePlugin\Client;
+namespace FastyBird\RedisDbPlugin\Client;
 
 use Clue\React\Redis;
-use FastyBird\RedisDbExchangePlugin\Connections;
-use FastyBird\RedisDbExchangePlugin\Events;
-use FastyBird\RedisDbExchangePlugin\Models;
-use FastyBird\RedisDbExchangePlugin\Publishers;
+use FastyBird\RedisDbPlugin\Connections;
+use FastyBird\RedisDbPlugin\Events;
+use FastyBird\RedisDbPlugin\Models;
+use FastyBird\RedisDbPlugin\Publishers;
 use Psr\EventDispatcher;
 use React\EventLoop;
 use React\Promise;

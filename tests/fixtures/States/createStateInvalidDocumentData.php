@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-use FastyBird\RedisDbExchangePlugin\States;
+use FastyBird\RedisDbPlugin\States;
 
 return [
 	'one' => [

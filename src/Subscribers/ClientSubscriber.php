@@ -6,21 +6,21 @@
  * @license        More in license.md
  * @copyright      https://www.fastybird.com
  * @author         Adam Kadlec <adam.kadlec@fastybird.com>
- * @package        FastyBird:RedisDbExchangePlugin!
+ * @package        FastyBird:RedisDbPlugin!
  * @subpackage     Subscribers
  * @since          0.2.0
  *
  * @date           09.10.21
  */
 
-namespace FastyBird\RedisDbExchangePlugin\Subscribers;
+namespace FastyBird\RedisDbPlugin\Subscribers;
 
 use FastyBird\Exchange\Consumer as ExchangeConsumer;
 use FastyBird\Exchange\Entities as ExchangeEntities;
 use FastyBird\Metadata\Types as MetadataTypes;
-use FastyBird\RedisDbExchangePlugin\Events;
-use FastyBird\RedisDbExchangePlugin\Exceptions;
-use FastyBird\RedisDbExchangePlugin\Utils;
+use FastyBird\RedisDbPlugin\Events;
+use FastyBird\RedisDbPlugin\Exceptions;
+use FastyBird\RedisDbPlugin\Utils;
 use Nette;
 use Psr\EventDispatcher as PsrEventDispatcher;
 use Psr\Log;
@@ -33,7 +33,7 @@ use function strval;
 /**
  * Redis async clients subscriber
  *
- * @package         FastyBird:RedisDbExchangePlugin!
+ * @package         FastyBird:RedisDbPlugin!
  * @subpackage      Subscribers
  *
  * @author          Adam Kadlec <adam.kadlec@fastybird.com>

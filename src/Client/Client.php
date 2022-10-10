@@ -6,16 +6,16 @@
  * @license        More in license.md
  * @copyright      https://www.fastybird.com
  * @author         Adam Kadlec <adam.kadlec@fastybird.com>
- * @package        FastyBird:RedisDbExchangePlugin!
+ * @package        FastyBird:RedisDbPlugin!
  * @subpackage     Client
  * @since          0.1.0
  *
  * @date           17.09.21
  */
 
-namespace FastyBird\RedisDbExchangePlugin\Client;
+namespace FastyBird\RedisDbPlugin\Client;
 
-use FastyBird\RedisDbExchangePlugin\Connections;
+use FastyBird\RedisDbPlugin\Connections;
 use Nette;
 use Predis;
 use Predis\Response as PredisResponse;
@@ -25,7 +25,7 @@ use function is_int;
 /**
  * Redis database client
  *
- * @package        FastyBird:RedisDbExchangePlugin!
+ * @package        FastyBird:RedisDbPlugin!
  * @subpackage     Client
  *
  * @author         Adam Kadlec <adam.kadlec@fastybird.com>

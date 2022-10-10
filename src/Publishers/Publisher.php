@@ -6,22 +6,22 @@
  * @license        More in license.md
  * @copyright      https://www.fastybird.com
  * @author         Adam Kadlec <adam.kadlec@fastybird.com>
- * @package        FastyBird:RedisDbExchangePlugin!
+ * @package        FastyBird:RedisDbPlugin!
  * @subpackage     Publishers
  * @since          0.1.0
  *
  * @date           17.09.21
  */
 
-namespace FastyBird\RedisDbExchangePlugin\Publishers;
+namespace FastyBird\RedisDbPlugin\Publishers;
 
 use Clue\React\Redis;
 use FastyBird\DateTimeFactory;
 use FastyBird\Exchange\Publisher as ExchangePublisher;
 use FastyBird\Metadata\Entities as MetadataEntities;
 use FastyBird\Metadata\Types as MetadataTypes;
-use FastyBird\RedisDbExchangePlugin\Client;
-use FastyBird\RedisDbExchangePlugin\Utils;
+use FastyBird\RedisDbPlugin\Client;
+use FastyBird\RedisDbPlugin\Utils;
 use Nette;
 use Psr\Log;
 use React\Promise;
@@ -31,7 +31,7 @@ use const DATE_ATOM;
 /**
  * Redis DB exchange publisher
  *
- * @package        FastyBird:RedisDbExchangePlugin!
+ * @package        FastyBird:RedisDbPlugin!
  * @subpackage     Publishers
  *
  * @author         Adam Kadlec <adam.kadlec@fastybird.com>

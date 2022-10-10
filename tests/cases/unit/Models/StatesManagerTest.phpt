@@ -2,9 +2,9 @@
 
 namespace Tests\Cases\Unit;
 
-use FastyBird\RedisDbExchangePlugin\Client;
-use FastyBird\RedisDbExchangePlugin\Models;
-use FastyBird\RedisDbExchangePlugin\States;
+use FastyBird\RedisDbPlugin\Client;
+use FastyBird\RedisDbPlugin\Models;
+use FastyBird\RedisDbPlugin\States;
 use Mockery;
 use Nette\Utils;
 use Ninjify\Nunjuck\TestCase\BaseMockeryTestCase;

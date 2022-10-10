@@ -2,7 +2,7 @@
 
 namespace Tests\Cases\Unit;
 
-use FastyBird\RedisDbExchangePlugin\Connections;
+use FastyBird\RedisDbPlugin\Connections;
 use Ninjify\Nunjuck\TestCase\BaseMockeryTestCase;
 use Tester\Assert;
 

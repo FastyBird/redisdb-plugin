@@ -2,8 +2,8 @@
 
 namespace Tests\Cases\Unit;
 
-use FastyBird\RedisDbExchangePlugin\Exceptions;
-use FastyBird\RedisDbExchangePlugin\States;
+use FastyBird\RedisDbPlugin\Exceptions;
+use FastyBird\RedisDbPlugin\States;
 use Nette\Utils;
 use Ninjify\Nunjuck\TestCase\BaseMockeryTestCase;
 use stdClass;

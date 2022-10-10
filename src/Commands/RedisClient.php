@@ -6,19 +6,19 @@
  * @license        More in LICENSE.md
  * @copyright      https://www.fastybird.com
  * @author         Adam Kadlec <adam.kadlec@fastybird.com>
- * @package        FastyBird:RedisDbExchangePlugin!
+ * @package        FastyBird:RedisDbPlugin!
  * @subpackage     Commands
  * @since          0.61.0
  *
  * @date           09.10.22
  */
 
-namespace FastyBird\RedisDbExchangePlugin\Commands;
+namespace FastyBird\RedisDbPlugin\Commands;
 
 use FastyBird\Metadata\Types as MetadataTypes;
-use FastyBird\RedisDbExchangePlugin\Client;
-use FastyBird\RedisDbExchangePlugin\Events;
-use FastyBird\RedisDbExchangePlugin\Exceptions;
+use FastyBird\RedisDbPlugin\Client;
+use FastyBird\RedisDbPlugin\Events;
+use FastyBird\RedisDbPlugin\Exceptions;
 use Nette;
 use Psr\EventDispatcher;
 use Psr\Log;
@@ -31,7 +31,7 @@ use Throwable;
 /**
  * Redis client command
  *
- * @package        FastyBird:RedisDbExchangePlugin!
+ * @package        FastyBird:RedisDbPlugin!
  * @subpackage     Commands
  *
  * @author         Adam Kadlec <adam.kadlec@fastybird.com>

@@ -6,16 +6,16 @@
  * @license        More in license.md
  * @copyright      https://www.fastybird.com
  * @author         Adam Kadlec <adam.kadlec@fastybird.com>
- * @package        FastyBird:RedisDbExchangePlugin!
+ * @package        FastyBird:RedisDbPlugin!
  * @subpackage     States
  * @since          0.1.0
  *
  * @date           03.03.20
  */
 
-namespace FastyBird\RedisDbExchangePlugin\States;
+namespace FastyBird\RedisDbPlugin\States;
 
-use FastyBird\RedisDbExchangePlugin\Exceptions;
+use FastyBird\RedisDbPlugin\Exceptions;
 use Nette\Utils;
 use phpDocumentor;
 use ReflectionClass;
@@ -48,7 +48,7 @@ use function ucfirst;
 /**
  * State object factory
  *
- * @package        FastyBird:RedisDbExchangePlugin!
+ * @package        FastyBird:RedisDbPlugin!
  * @subpackage     States
  *
  * @author         Adam Kadlec <adam.kadlec@fastybird.com>

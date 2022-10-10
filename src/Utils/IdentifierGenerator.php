@@ -6,14 +6,14 @@
  * @license        More in license.md
  * @copyright      https://www.fastybird.com
  * @author         Adam Kadlec <adam.kadlec@fastybird.com>
- * @package        FastyBird:RedisDbExchangePlugin!
+ * @package        FastyBird:RedisDbPlugin!
  * @subpackage     Utils
  * @since          0.61.0
  *
  * @date           09.10.22
  */
 
-namespace FastyBird\RedisDbExchangePlugin\Utils;
+namespace FastyBird\RedisDbPlugin\Utils;
 
 use Nette;
 use Ramsey\Uuid;
@@ -21,7 +21,7 @@ use Ramsey\Uuid;
 /**
  * Pub/Sub messages identifier
  *
- * @package         FastyBird:RedisDbExchangePlugin!
+ * @package         FastyBird:RedisDbPlugin!
  * @subpackage      Utils
  *
  * @author          Adam Kadlec <adam.kadlec@fastybird.com>

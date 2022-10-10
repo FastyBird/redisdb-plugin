@@ -2,12 +2,12 @@
 
 namespace Tests\Cases\Unit;
 
-use FastyBird\RedisDbExchangePlugin\Client;
-use FastyBird\RedisDbExchangePlugin\Commands;
-use FastyBird\RedisDbExchangePlugin\Connections;
-use FastyBird\RedisDbExchangePlugin\Models;
-use FastyBird\RedisDbExchangePlugin\Subscribers;
-use FastyBird\RedisDbExchangePlugin\Utils;
+use FastyBird\RedisDbPlugin\Client;
+use FastyBird\RedisDbPlugin\Commands;
+use FastyBird\RedisDbPlugin\Connections;
+use FastyBird\RedisDbPlugin\Models;
+use FastyBird\RedisDbPlugin\Subscribers;
+use FastyBird\RedisDbPlugin\Utils;
 use Tester\Assert;
 
 require_once __DIR__ . '/../../../bootstrap.php';

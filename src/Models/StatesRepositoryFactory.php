@@ -6,19 +6,19 @@
  * @license        More in license.md
  * @copyright      https://www.fastybird.com
  * @author         Adam Kadlec <adam.kadlec@fastybird.com>
- * @package        FastyBird:RedisDbExchangePlugin!
+ * @package        FastyBird:RedisDbPlugin!
  * @subpackage     Models
  * @since          0.1.0
  *
  * @date           02.03.20
  */
 
-namespace FastyBird\RedisDbExchangePlugin\Models;
+namespace FastyBird\RedisDbPlugin\Models;
 
 use Clue\React\Redis;
-use FastyBird\RedisDbExchangePlugin\Client;
-use FastyBird\RedisDbExchangePlugin\Exceptions;
-use FastyBird\RedisDbExchangePlugin\States;
+use FastyBird\RedisDbPlugin\Client;
+use FastyBird\RedisDbPlugin\Exceptions;
+use FastyBird\RedisDbPlugin\States;
 use Nette;
 use Psr\Log;
 use function class_exists;
@@ -27,7 +27,7 @@ use function sprintf;
 /**
  * State repository factory
  *
- * @package        FastyBird:RedisDbExchangePlugin!
+ * @package        FastyBird:RedisDbPlugin!
  * @subpackage     Models
  *
  * @author         Adam Kadlec <adam.kadlec@fastybird.com>

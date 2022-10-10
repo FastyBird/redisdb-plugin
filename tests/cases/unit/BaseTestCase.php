@@ -4,7 +4,7 @@ namespace Tests\Cases\Unit;
 
 use DateTimeImmutable;
 use FastyBird\DateTimeFactory;
-use FastyBird\RedisDbExchangePlugin;
+use FastyBird\RedisDbPlugin;
 use Mockery;
 use Nette;
 use Nette\DI;
@@ -51,7 +51,7 @@ abstract class BaseTestCase extends BaseMockeryTestCase
 			$config->addConfig($additionalConfig);
 		}
 
-		RedisDbExchangePlugin\DI\RedisDbExchangePluginExtension::register($config);
+		RedisDbPlugin\DI\RedisDbPluginExtension::register($config);
 
 		return $config->createContainer();
 	}

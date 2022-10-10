@@ -4,7 +4,7 @@
 # @license		More in license.md
 # @copyright	https://www.fastybird.com
 # @author		Adam Kadlec <adam.kadlec@fastybird.com>
-# @package		FastyBird:RedisDbExchangePlugin!
+# @package		FastyBird:RedisDbPlugin!
 # @subpackage	config
 # @since		0.1.0
 #
@@ -25,6 +25,6 @@ services:
       type: React\EventLoop\LoopInterface
     }
 
-fbRedisDbExchangePlugin:
+fbRedisDbPlugin:
     client:
         host: 127.0.0.1
