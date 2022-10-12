@@ -11,9 +11,9 @@
 
 ***
 
-## What is FastyBird Redis DB plugin?
+## What is Redis DB plugin?
 
-This is a plugin for [FastyBird IoT](https://www.fastybird.com) ecosystem which is
+This is a plugin for [FastyBird](https://www.fastybird.com) [IoT](https://en.wikipedia.org/wiki/Internet_of_things) ecosystem which is
 implementing [Redis](https://redis.io) PubSub exchange and states manager for reading
 and setting application state.
 
@@ -55,7 +55,7 @@ For release info check [release page](https://github.com/FastyBird/redisdb-plugi
 		<tr>
 			<td align="center">
 				<a href="https://github.com/akadlec">
-					<img width="80" height="80" src="https://avatars3.githubusercontent.com/u/1866672?s=460&amp;v=4">
+					<img alt="akadlec" width="80" height="80" src="https://avatars3.githubusercontent.com/u/1866672?s=460&amp;v=4" />
 				</a>
 				<br>
 				<a href="https://github.com/akadlec">Adam Kadlec</a>
