@@ -3,6 +3,7 @@
 [![Build Status](https://badgen.net/github/checks/FastyBird/redisdb-plugin/main?cache=300&style=flat-square)](https://github.com/FastyBird/redisdb-plugin/actions)
 [![Licence](https://badgen.net/github/license/FastyBird/redisdb-plugin?cache=300&style=flat-square)](https://github.com/FastyBird/redisdb-plugin/blob/main/LICENSE.md)
 [![Code coverage](https://badgen.net/coveralls/c/github/FastyBird/redisdb-plugin?cache=300&style=flat-square)](https://coveralls.io/r/FastyBird/redisdb-plugin)
+[![Mutation testing](https://img.shields.io/endpoint?style=flat-square&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2FFastyBird%2Fredisdb-plugin%2Fmain)](https://dashboard.stryker-mutator.io/reports/github.com/FastyBird/redisdb-plugin/main)
 
 ![PHP](https://badgen.net/packagist/php/FastyBird/redisdb-plugin?cache=300&style=flat-square)
 [![PHP latest stable](https://badgen.net/packagist/v/FastyBird/redisdb-plugin/latest?cache=300&style=flat-square)](https://packagist.org/packages/FastyBird/redisdb-plugin)
