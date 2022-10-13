@@ -337,8 +337,8 @@ jobs:
         uses: "actions/cache@v3"
         with:
           path: "var/tools/Infection"
-          key: "ori-php-infection-${{ runner.os }}"
-          restore-keys: "ori-php-infection-${{ runner.os }}"
+          key: "php-infection-${{ runner.os }}"
+          restore-keys: "php-infection-${{ runner.os }}"
 
       - name: "Mutation tests with report"
         env:
