@@ -97,13 +97,5 @@
       "phpstan/extension-installer" : true,
       "infection/extension-installer" : true
     }
-  },
-
-  "extra" : {
-    "patches" : {
-      "nette/utils" : {
-        "Bug: Offset check with null support" : "https://raw.githubusercontent.com/FastyBird/libraries-patches/master/nette.array.offsetCheck.diff"
-      }
-    }
   }
 }

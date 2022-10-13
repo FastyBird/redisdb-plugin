@@ -39,6 +39,7 @@ use function is_numeric;
 use function is_object;
 use function is_string;
 use function preg_replace;
+use function property_exists;
 use function React\Async\await;
 use function sprintf;
 use function strtolower;
@@ -100,7 +101,7 @@ class StatesManager
 				],
 			]);
 
-			throw new Exceptions\InvalidState('State could not be created: ' . $ex->getMessage(), $ex->getCode(), $ex);
+			throw new Exceptions\InvalidState('State could not be created', $ex->getCode(), $ex);
 		}
 
 		$this->dispatcher?->dispatch(new Events\StateCreated($state));
@@ -183,13 +184,13 @@ class StatesManager
 					$field = $default;
 
 					// If default is not defined => field is required
-					if (!is_string($field) || !$values->offsetExists($field)) {
+					if (!is_string($field) || !property_exists($values, $field)) {
 						throw new Exceptions\InvalidArgument(sprintf('Value for key "%s" is required', $field));
 					}
 
 					$value = $values->offsetGet($field);
 
-				} elseif ($values->offsetExists($field)) {
+				} elseif (property_exists($values, $field)) {
 					if ($values->offsetGet($field) !== null) {
 						$value = $values->offsetGet($field);
 
@@ -244,7 +245,7 @@ class StatesManager
 				],
 			]);
 
-			throw new Exceptions\InvalidState('State could not be created: ' . $ex->getMessage(), $ex->getCode(), $ex);
+			throw new Exceptions\InvalidState('State could not be created', $ex->getCode(), $ex);
 		}
 	}
 
@@ -269,7 +270,7 @@ class StatesManager
 			$isUpdated = false;
 
 			foreach ($fields as $field) {
-				if ($values->offsetExists($field)) {
+				if (property_exists($values, $field)) {
 					$value = $values->offsetGet($field);
 
 					if ($value instanceof DateTimeInterface) {
