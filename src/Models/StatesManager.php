@@ -15,16 +15,17 @@
 
 namespace FastyBird\RedisDbPlugin\Models;
 
-use Closure;
 use Clue\React\Redis;
 use Consistence;
 use DateTimeInterface;
 use FastyBird\Metadata\Types;
 use FastyBird\RedisDbPlugin\Client;
+use FastyBird\RedisDbPlugin\Events;
 use FastyBird\RedisDbPlugin\Exceptions;
 use FastyBird\RedisDbPlugin\States;
 use Nette;
 use Nette\Utils;
+use Psr\EventDispatcher;
 use Psr\Log;
 use Ramsey\Uuid;
 use React\Promise;
@@ -60,26 +61,21 @@ class StatesManager
 
 	use Nette\SmartObject;
 
-	/** @var Array<Closure> */
-	public array $onAfterCreate = [];
-
-	/** @var Array<Closure> */
-	public array $onAfterUpdate = [];
-
-	/** @var Array<Closure> */
-	public array $onAfterDelete = [];
-
 	private Log\LoggerInterface $logger;
 
 	public function __construct(
 		private readonly Client\Client|Redis\Client $client,
 		private readonly string $entity = States\State::class,
+		private readonly EventDispatcher\EventDispatcherInterface|null $dispatcher = null,
 		Log\LoggerInterface|null $logger = null,
 	)
 	{
 		$this->logger = $logger ?? new Log\NullLogger();
 	}
 
+	/**
+	 * @throws Exceptions\InvalidState
+	 */
 	public function create(
 		Uuid\UuidInterface $id,
 		Utils\ArrayHash $values,
@@ -107,11 +103,14 @@ class StatesManager
 			throw new Exceptions\InvalidState('State could not be created', $ex->getCode(), $ex);
 		}
 
-		$this->onAfterCreate($state);
+		$this->dispatcher?->dispatch(new Events\StateCreated($state));
 
 		return $state;
 	}
 
+	/**
+	 * @throws Exceptions\InvalidState
+	 */
 	public function update(
 		States\State $state,
 		Utils\ArrayHash $values,
@@ -141,7 +140,7 @@ class StatesManager
 			throw new Exceptions\InvalidState('State could not be updated', $ex->getCode(), $ex);
 		}
 
-		$this->onAfterUpdate($updatedState, $state);
+		$this->dispatcher?->dispatch(new Events\StateUpdated($updatedState, $state));
 
 		return $updatedState;
 	}
@@ -154,13 +153,15 @@ class StatesManager
 			return false;
 		}
 
-		$this->onAfterDelete($state);
+		$this->dispatcher?->dispatch(new Events\StateDeleted($state));
 
 		return true;
 	}
 
 	/**
 	 * @param Array<int|string, int|string|bool> $fields
+	 *
+	 * @throws Exceptions\InvalidState
 	 */
 	private function createKey(
 		Uuid\UuidInterface $id,
@@ -249,6 +250,8 @@ class StatesManager
 
 	/**
 	 * @param Array<string> $fields
+	 *
+	 * @throws Exceptions\InvalidState
 	 */
 	private function updateKey(
 		States\State $state,

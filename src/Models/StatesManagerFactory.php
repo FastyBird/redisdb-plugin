@@ -20,6 +20,7 @@ use FastyBird\RedisDbPlugin\Client;
 use FastyBird\RedisDbPlugin\Exceptions;
 use FastyBird\RedisDbPlugin\States;
 use Nette;
+use Psr\EventDispatcher;
 use Psr\Log;
 use function class_exists;
 use function sprintf;
@@ -41,18 +42,22 @@ class StatesManagerFactory
 
 	public function __construct(
 		private readonly Client\Client $client,
+		private readonly EventDispatcher\EventDispatcherInterface|null $dispatcher = null,
 		private readonly Log\LoggerInterface|null $logger = null,
 	)
 	{
 	}
 
+	/**
+	 * @throws Exceptions\InvalidArgument
+	 */
 	public function create(string $entity = States\State::class): StatesManager
 	{
 		if (!class_exists($entity)) {
 			throw new Exceptions\InvalidArgument(sprintf('Provided entity class %s does not exists', $entity));
 		}
 
-		return new StatesManager($this->getClient(), $entity, $this->logger);
+		return new StatesManager($this->getClient(), $entity, $this->dispatcher, $this->logger);
 	}
 
 	/**

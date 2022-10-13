@@ -34,6 +34,9 @@ class State
 
 	private Uuid\UuidInterface $id;
 
+	/**
+	 * @throws Exceptions\InvalidState
+	 */
 	public function __construct(string $id, private readonly string $raw)
 	{
 		if (!Uuid\Uuid::isValid($id)) {

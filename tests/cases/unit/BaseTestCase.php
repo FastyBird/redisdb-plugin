@@ -5,15 +5,14 @@ namespace Tests\Cases\Unit;
 use DateTimeImmutable;
 use FastyBird\DateTimeFactory;
 use FastyBird\RedisDbPlugin;
-use Mockery;
 use Nette;
 use Nette\DI;
-use Ninjify\Nunjuck\TestCase\BaseMockeryTestCase;
+use PHPUnit\Framework\TestCase;
 use function file_exists;
 use function md5;
 use function time;
 
-abstract class BaseTestCase extends BaseMockeryTestCase
+abstract class BaseTestCase extends TestCase
 {
 
 	protected DI\Container $container;
@@ -24,10 +23,10 @@ abstract class BaseTestCase extends BaseMockeryTestCase
 
 		$this->container = $this->createContainer();
 
-		$dateTimeFactory = Mockery::mock(DateTimeFactory\Factory::class);
+		$dateTimeFactory = $this->createMock(DateTimeFactory\Factory::class);
 		$dateTimeFactory
-			->shouldReceive('getNow')
-			->andReturn(new DateTimeImmutable('2020-04-01T12:00:00+00:00'));
+			->method('getNow')
+			->willReturn(new DateTimeImmutable('2020-04-01T12:00:00+00:00'));
 
 		$this->mockContainerService(
 			DateTimeFactory\Factory::class,
@@ -40,14 +39,14 @@ abstract class BaseTestCase extends BaseMockeryTestCase
 		$rootDir = __DIR__ . '/../../';
 
 		$config = new Nette\Configurator();
-		$config->setTempDirectory(TEMP_DIR);
+		$config->setTempDirectory(FB_TEMP_DIR);
 
 		$config->addParameters(['container' => ['class' => 'SystemContainer_' . md5((string) time())]]);
 		$config->addParameters(['appDir' => $rootDir, 'wwwDir' => $rootDir]);
 
 		$config->addConfig(__DIR__ . '/../../common.neon');
 
-		if ($additionalConfig && file_exists($additionalConfig)) {
+		if ($additionalConfig !== null && file_exists($additionalConfig)) {
 			$config->addConfig($additionalConfig);
 		}
 

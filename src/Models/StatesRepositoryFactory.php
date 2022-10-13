@@ -46,6 +46,9 @@ class StatesRepositoryFactory
 	{
 	}
 
+	/**
+	 * @throws Exceptions\InvalidArgument
+	 */
 	public function create(string $entity = States\State::class): StatesRepository
 	{
 		if (!class_exists($entity)) {

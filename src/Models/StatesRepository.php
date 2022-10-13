@@ -53,6 +53,10 @@ class StatesRepository
 		$this->logger = $logger ?? new Log\NullLogger();
 	}
 
+	/**
+	 * @throws Exceptions\InvalidArgument
+	 * @throws Exceptions\InvalidState
+	 */
 	public function findOne(Uuid\UuidInterface $id, int $database = 1): States\State|null
 	{
 		$raw = $this->getRaw($id, $database);
@@ -64,6 +68,9 @@ class StatesRepository
 		return States\StateFactory::create($this->entity, $raw);
 	}
 
+	/**
+	 * @throws Exceptions\InvalidState
+	 */
 	private function getRaw(Uuid\UuidInterface $id, int $database): string|null
 	{
 		try {

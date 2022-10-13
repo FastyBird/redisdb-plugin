@@ -56,6 +56,10 @@ use function ucfirst;
 final class StateFactory
 {
 
+	/**
+	 * @throws Exceptions\InvalidArgument
+	 * @throws Exceptions\InvalidState
+	 */
 	public static function create(string $stateClass, string $raw): State
 	{
 		if (!class_exists($stateClass)) {
@@ -163,9 +167,11 @@ final class StateFactory
 	}
 
 	/**
-	 * This method was inspired with same method in Nette framework
+	 * This method was inspired by same method in Nette framework
 	 *
 	 * @return Array<mixed>
+	 *
+	 * @throws ReflectionException
 	 */
 	private static function autowireArguments(
 		ReflectionMethod $method,
