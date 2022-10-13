@@ -100,7 +100,7 @@ class StatesManager
 				],
 			]);
 
-			throw new Exceptions\InvalidState('State could not be created', $ex->getCode(), $ex);
+			throw new Exceptions\InvalidState('State could not be created: ' . $ex->getMessage(), $ex->getCode(), $ex);
 		}
 
 		$this->dispatcher?->dispatch(new Events\StateCreated($state));
