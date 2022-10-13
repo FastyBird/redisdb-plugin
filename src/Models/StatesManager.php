@@ -244,7 +244,7 @@ class StatesManager
 				],
 			]);
 
-			throw new Exceptions\InvalidState('State could not be created: '. $ex->getMessage(), $ex->getCode(), $ex);
+			throw new Exceptions\InvalidState('State could not be created: ' . $ex->getMessage(), $ex->getCode(), $ex);
 		}
 	}
 
