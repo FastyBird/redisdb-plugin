@@ -19,21 +19,19 @@ final class ExtensionTest extends BaseTestCase
 	 */
 	public function testServicesRegistration(): void
 	{
-		$container = $this->createContainer();
+		self::assertNotNull($this->container->getByType(Connections\Connection::class, false));
 
-		self::assertNotNull($container->getByType(Connections\Connection::class, false));
+		self::assertNotNull($this->container->getByType(Client\Client::class, false));
+		self::assertNotNull($this->container->getByType(Client\Factory::class, false));
 
-		self::assertNotNull($container->getByType(Client\Client::class, false));
-		self::assertNotNull($container->getByType(Client\Factory::class, false));
+		self::assertNotNull($this->container->getByType(Models\StatesManagerFactory::class, false));
+		self::assertNotNull($this->container->getByType(Models\StatesRepositoryFactory::class, false));
 
-		self::assertNotNull($container->getByType(Models\StatesManagerFactory::class, false));
-		self::assertNotNull($container->getByType(Models\StatesRepositoryFactory::class, false));
+		self::assertNotNull($this->container->getByType(Handlers\Message::class, false));
 
-		self::assertNotNull($container->getByType(Handlers\Message::class, false));
+		self::assertNotNull($this->container->getByType(Commands\RedisClient::class, false));
 
-		self::assertNotNull($container->getByType(Commands\RedisClient::class, false));
-
-		self::assertNotNull($container->getByType(Utils\IdentifierGenerator::class, false));
+		self::assertNotNull($this->container->getByType(Utils\IdentifierGenerator::class, false));
 	}
 
 }
