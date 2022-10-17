@@ -1,17 +1,17 @@
 <?php declare(strict_types = 1);
 
-namespace Tests\Cases\Unit\DI;
+namespace FastyBird\RedisDbPlugin\Tests\Cases\Unit\DI;
 
 use FastyBird\RedisDbPlugin\Client;
 use FastyBird\RedisDbPlugin\Commands;
 use FastyBird\RedisDbPlugin\Connections;
 use FastyBird\RedisDbPlugin\Handlers;
 use FastyBird\RedisDbPlugin\Models;
+use FastyBird\RedisDbPlugin\Tests\Cases\Unit\BaseTestCase;
 use FastyBird\RedisDbPlugin\Utils;
 use Nette;
-use Tests\Cases\Unit\BaseTestCase;
 
-final class ExtensionTest extends BaseTestCase
+final class RedisDbPluginExtensionTest extends BaseTestCase
 {
 
 	/**

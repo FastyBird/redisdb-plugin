@@ -1,16 +1,16 @@
 <?php declare(strict_types = 1);
 
-namespace Tests\Cases\Unit\Models;
+namespace FastyBird\RedisDbPlugin\Tests\Cases\Unit\Models;
 
 use DateTimeImmutable;
 use FastyBird\RedisDbPlugin\Client;
 use FastyBird\RedisDbPlugin\Exceptions;
 use FastyBird\RedisDbPlugin\Models;
 use FastyBird\RedisDbPlugin\States;
+use FastyBird\RedisDbPlugin\Tests\Fixtures;
 use Nette\Utils;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid;
-use Tests\Fixtures;
 use const DATE_ATOM;
 
 final class StatesManagerTest extends TestCase

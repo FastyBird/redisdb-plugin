@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-namespace Tests\Cases\Unit\States;
+namespace FastyBird\RedisDbPlugin\Tests\Cases\Unit\States;
 
 use FastyBird\RedisDbPlugin\Exceptions;
 use FastyBird\RedisDbPlugin\States;

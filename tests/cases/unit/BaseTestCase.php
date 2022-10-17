@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-namespace Tests\Cases\Unit;
+namespace FastyBird\RedisDbPlugin\Tests\Cases\Unit;
 
 use DateTimeImmutable;
 use FastyBird\DateTimeFactory;
@@ -8,6 +8,8 @@ use FastyBird\RedisDbPlugin;
 use Nette;
 use Nette\DI;
 use PHPUnit\Framework\TestCase;
+use function constant;
+use function defined;
 use function file_exists;
 use function md5;
 use function time;
@@ -36,13 +38,14 @@ abstract class BaseTestCase extends TestCase
 
 	protected function createContainer(string|null $additionalConfig = null): Nette\DI\Container
 	{
-		$rootDir = __DIR__ . '/../../';
+		$rootDir = __DIR__ . '/../..';
+		$vendorDir = defined('FB_VENDOR_DIR') ? constant('FB_VENDOR_DIR') : $rootDir . '/../vendor';
 
 		$config = new Nette\Configurator();
 		$config->setTempDirectory(FB_TEMP_DIR);
 
 		$config->addParameters(['container' => ['class' => 'SystemContainer_' . md5((string) time())]]);
-		$config->addParameters(['appDir' => $rootDir, 'wwwDir' => $rootDir]);
+		$config->addParameters(['appDir' => $rootDir, 'wwwDir' => $rootDir, 'vendorDir' => $vendorDir]);
 
 		$config->addConfig(__DIR__ . '/../../common.neon');
 

@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-namespace Tests\Cases\Unit\Publisher;
+namespace FastyBird\RedisDbPlugin\Tests\Cases\Unit\Publisher;
 
 use DateTime;
 use FastyBird\DateTimeFactory;

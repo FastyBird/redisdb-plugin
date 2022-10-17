@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-namespace Tests\Cases\Unit\Models;
+namespace FastyBird\RedisDbPlugin\Tests\Cases\Unit\Models;
 
 use FastyBird\RedisDbPlugin\Client;
 use FastyBird\RedisDbPlugin\Exceptions;
