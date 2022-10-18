@@ -1,9 +1,9 @@
 <?php declare(strict_types = 1);
 
-namespace FastyBird\RedisDbPlugin\Tests\Cases\Unit\States;
+namespace FastyBird\Plugin\RedisDb\Tests\Cases\Unit\States;
 
-use FastyBird\RedisDbPlugin\Exceptions;
-use FastyBird\RedisDbPlugin\States;
+use FastyBird\Plugin\RedisDb\Exceptions;
+use FastyBird\Plugin\RedisDb\States;
 use Nette\Utils;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;

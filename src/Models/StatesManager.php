@@ -13,16 +13,16 @@
  * @date           03.03.20
  */
 
-namespace FastyBird\RedisDbPlugin\Models;
+namespace FastyBird\Plugin\RedisDb\Models;
 
 use Clue\React\Redis;
 use Consistence;
 use DateTimeInterface;
 use FastyBird\Library\Metadata\Types as MetadataTypes;
-use FastyBird\RedisDbPlugin\Client;
-use FastyBird\RedisDbPlugin\Events;
-use FastyBird\RedisDbPlugin\Exceptions;
-use FastyBird\RedisDbPlugin\States;
+use FastyBird\Plugin\RedisDb\Client;
+use FastyBird\Plugin\RedisDb\Events;
+use FastyBird\Plugin\RedisDb\Exceptions;
+use FastyBird\Plugin\RedisDb\States;
 use Nette;
 use Nette\Utils;
 use Psr\EventDispatcher;

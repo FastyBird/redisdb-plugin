@@ -13,7 +13,7 @@
  * @date           17.09.21
  */
 
-namespace FastyBird\RedisDbPlugin\Exceptions;
+namespace FastyBird\Plugin\RedisDb\Exceptions;
 
 use Exception;
 use Throwable;

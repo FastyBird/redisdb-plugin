@@ -13,9 +13,9 @@
  * @date           13.10.22
  */
 
-namespace FastyBird\RedisDbPlugin\Events;
+namespace FastyBird\Plugin\RedisDb\Events;
 
-use FastyBird\RedisDbPlugin\States;
+use FastyBird\Plugin\RedisDb\States;
 use Symfony\Contracts\EventDispatcher;
 
 /**

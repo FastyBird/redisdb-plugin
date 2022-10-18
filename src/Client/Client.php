@@ -13,9 +13,9 @@
  * @date           17.09.21
  */
 
-namespace FastyBird\RedisDbPlugin\Client;
+namespace FastyBird\Plugin\RedisDb\Client;
 
-use FastyBird\RedisDbPlugin\Connections;
+use FastyBird\Plugin\RedisDb\Connections;
 use Nette;
 use Predis;
 use Predis\Response as PredisResponse;

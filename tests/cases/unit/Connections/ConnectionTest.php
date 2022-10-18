@@ -1,8 +1,8 @@
 <?php declare(strict_types = 1);
 
-namespace FastyBird\RedisDbPlugin\Tests\Cases\Unit\Connections;
+namespace FastyBird\Plugin\RedisDb\Tests\Cases\Unit\Connections;
 
-use FastyBird\RedisDbPlugin\Connections;
+use FastyBird\Plugin\RedisDb\Connections;
 use PHPUnit\Framework\TestCase;
 
 final class ConnectionTest extends TestCase

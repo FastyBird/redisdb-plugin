@@ -13,7 +13,7 @@
  * @date           09.10.21
  */
 
-namespace FastyBird\RedisDbPlugin\Events;
+namespace FastyBird\Plugin\RedisDb\Events;
 
 use Clue\React\Redis;
 use Symfony\Contracts\EventDispatcher;

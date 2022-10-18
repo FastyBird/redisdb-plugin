@@ -13,7 +13,7 @@
  * @date           08.03.20
  */
 
-namespace FastyBird\RedisDbPlugin\Connections;
+namespace FastyBird\Plugin\RedisDb\Connections;
 
 use Nette;
 

@@ -13,7 +13,7 @@
  * @date           09.10.22
  */
 
-namespace FastyBird\RedisDbPlugin\Exceptions;
+namespace FastyBird\Plugin\RedisDb\Exceptions;
 
 class NotUpdated extends InvalidState implements Exception
 {

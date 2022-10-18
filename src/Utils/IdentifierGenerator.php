@@ -13,7 +13,7 @@
  * @date           09.10.22
  */
 
-namespace FastyBird\RedisDbPlugin\Utils;
+namespace FastyBird\Plugin\RedisDb\Utils;
 
 use Nette;
 use Ramsey\Uuid;
@@ -21,10 +21,10 @@ use Ramsey\Uuid;
 /**
  * Pub/Sub messages identifier
  *
- * @package         FastyBird:RedisDbPlugin!
- * @subpackage      Utils
+ * @package        FastyBird:RedisDbPlugin!
+ * @subpackage     Utils
  *
- * @author          Adam Kadlec <adam.kadlec@fastybird.com>
+ * @author         Adam Kadlec <adam.kadlec@fastybird.com>
  */
 final class IdentifierGenerator
 {

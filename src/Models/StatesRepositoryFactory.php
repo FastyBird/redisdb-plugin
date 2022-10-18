@@ -13,12 +13,12 @@
  * @date           02.03.20
  */
 
-namespace FastyBird\RedisDbPlugin\Models;
+namespace FastyBird\Plugin\RedisDb\Models;
 
 use Clue\React\Redis;
-use FastyBird\RedisDbPlugin\Client;
-use FastyBird\RedisDbPlugin\Exceptions;
-use FastyBird\RedisDbPlugin\States;
+use FastyBird\Plugin\RedisDb\Client;
+use FastyBird\Plugin\RedisDb\Exceptions;
+use FastyBird\Plugin\RedisDb\States;
 use Nette;
 use Psr\Log;
 use function class_exists;

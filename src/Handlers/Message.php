@@ -13,14 +13,14 @@
  * @date           09.10.21
  */
 
-namespace FastyBird\RedisDbPlugin\Handlers;
+namespace FastyBird\Plugin\RedisDb\Handlers;
 
 use FastyBird\Library\Exchange\Consumer as ExchangeConsumer;
 use FastyBird\Library\Exchange\Entities as ExchangeEntities;
 use FastyBird\Library\Metadata\Types as MetadataTypes;
-use FastyBird\RedisDbPlugin\Events;
-use FastyBird\RedisDbPlugin\Exceptions;
-use FastyBird\RedisDbPlugin\Utils;
+use FastyBird\Plugin\RedisDb\Events;
+use FastyBird\Plugin\RedisDb\Exceptions;
+use FastyBird\Plugin\RedisDb\Utils;
 use Nette;
 use Psr\EventDispatcher as PsrEventDispatcher;
 use Psr\Log;
@@ -32,10 +32,10 @@ use function strval;
 /**
  * Redis client message handler
  *
- * @package         FastyBird:RedisDbPlugin!
- * @subpackage      Handlers
+ * @package        FastyBird:RedisDbPlugin!
+ * @subpackage     Handlers
  *
- * @author          Adam Kadlec <adam.kadlec@fastybird.com>
+ * @author         Adam Kadlec <adam.kadlec@fastybird.com>
  */
 class Message
 {

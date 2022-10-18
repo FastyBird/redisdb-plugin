@@ -1,7 +1,7 @@
 <?php declare(strict_types = 1);
 
 /**
- * RedisDbPluginExtension.php
+ * RedisDbExtension.php
  *
  * @license        More in license.md
  * @copyright      https://www.fastybird.com
@@ -13,15 +13,15 @@
  * @date           25.02.21
  */
 
-namespace FastyBird\RedisDbPlugin\DI;
+namespace FastyBird\Plugin\RedisDb\DI;
 
-use FastyBird\RedisDbPlugin\Client;
-use FastyBird\RedisDbPlugin\Commands;
-use FastyBird\RedisDbPlugin\Connections;
-use FastyBird\RedisDbPlugin\Handlers;
-use FastyBird\RedisDbPlugin\Models;
-use FastyBird\RedisDbPlugin\Publishers;
-use FastyBird\RedisDbPlugin\Utils;
+use FastyBird\Plugin\RedisDb\Client;
+use FastyBird\Plugin\RedisDb\Commands;
+use FastyBird\Plugin\RedisDb\Connections;
+use FastyBird\Plugin\RedisDb\Handlers;
+use FastyBird\Plugin\RedisDb\Models;
+use FastyBird\Plugin\RedisDb\Publishers;
+use FastyBird\Plugin\RedisDb\Utils;
 use Nette;
 use Nette\DI;
 use Nette\Schema;
@@ -36,7 +36,7 @@ use function assert;
  *
  * @author         Adam Kadlec <adam.kadlec@fastybird.com>
  */
-class RedisDbPluginExtension extends DI\CompilerExtension
+class RedisDbExtension extends DI\CompilerExtension
 {
 
 	public const NAME = 'fbRedisDbPlugin';
@@ -50,7 +50,7 @@ class RedisDbPluginExtension extends DI\CompilerExtension
 			Nette\Configurator $config,
 			DI\Compiler $compiler,
 		) use ($extensionName): void {
-			$compiler->addExtension($extensionName, new RedisDbPluginExtension());
+			$compiler->addExtension($extensionName, new RedisDbExtension());
 		};
 	}
 

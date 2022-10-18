@@ -1,11 +1,11 @@
 <?php declare(strict_types = 1);
 
-namespace FastyBird\RedisDbPlugin\Tests\Cases\Unit\Models;
+namespace FastyBird\Plugin\RedisDb\Tests\Cases\Unit\Models;
 
-use FastyBird\RedisDbPlugin\Client;
-use FastyBird\RedisDbPlugin\Exceptions;
-use FastyBird\RedisDbPlugin\Models;
-use FastyBird\RedisDbPlugin\States;
+use FastyBird\Plugin\RedisDb\Client;
+use FastyBird\Plugin\RedisDb\Exceptions;
+use FastyBird\Plugin\RedisDb\Models;
+use FastyBird\Plugin\RedisDb\States;
 use Nette\Utils;
 use PHPUnit\Framework\MockObject;
 use PHPUnit\Framework\TestCase;

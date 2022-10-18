@@ -1,10 +1,10 @@
 <?php declare(strict_types = 1);
 
-namespace FastyBird\RedisDbPlugin\Tests\Cases\Unit;
+namespace FastyBird\Plugin\RedisDb\Tests\Cases\Unit;
 
 use DateTimeImmutable;
 use FastyBird\DateTimeFactory;
-use FastyBird\RedisDbPlugin;
+use FastyBird\Plugin\RedisDb;
 use Nette;
 use Nette\DI;
 use PHPUnit\Framework\TestCase;
@@ -53,7 +53,7 @@ abstract class BaseTestCase extends TestCase
 			$config->addConfig($additionalConfig);
 		}
 
-		RedisDbPlugin\DI\RedisDbPluginExtension::register($config);
+		RedisDb\DI\RedisDbExtension::register($config);
 
 		return $config->createContainer();
 	}

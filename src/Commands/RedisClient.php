@@ -13,12 +13,12 @@
  * @date           09.10.22
  */
 
-namespace FastyBird\RedisDbPlugin\Commands;
+namespace FastyBird\Plugin\RedisDb\Commands;
 
 use FastyBird\Library\Metadata\Types as MetadataTypes;
-use FastyBird\RedisDbPlugin\Client;
-use FastyBird\RedisDbPlugin\Events;
-use FastyBird\RedisDbPlugin\Exceptions;
+use FastyBird\Plugin\RedisDb\Client;
+use FastyBird\Plugin\RedisDb\Events;
+use FastyBird\Plugin\RedisDb\Exceptions;
 use Nette;
 use Psr\EventDispatcher;
 use Psr\Log;

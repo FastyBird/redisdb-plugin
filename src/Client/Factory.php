@@ -13,15 +13,15 @@
  * @date           09.10.22
  */
 
-namespace FastyBird\RedisDbPlugin\Client;
+namespace FastyBird\Plugin\RedisDb\Client;
 
 use Clue\React\Redis;
-use FastyBird\RedisDbPlugin\Connections;
-use FastyBird\RedisDbPlugin\Events;
-use FastyBird\RedisDbPlugin\Exceptions;
-use FastyBird\RedisDbPlugin\Handlers;
-use FastyBird\RedisDbPlugin\Models;
-use FastyBird\RedisDbPlugin\Publishers;
+use FastyBird\Plugin\RedisDb\Connections;
+use FastyBird\Plugin\RedisDb\Events;
+use FastyBird\Plugin\RedisDb\Exceptions;
+use FastyBird\Plugin\RedisDb\Handlers;
+use FastyBird\Plugin\RedisDb\Models;
+use FastyBird\Plugin\RedisDb\Publishers;
 use Psr\EventDispatcher;
 use React\EventLoop;
 use React\Promise;

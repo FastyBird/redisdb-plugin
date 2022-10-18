@@ -13,9 +13,9 @@
  * @date           03.03.20
  */
 
-namespace FastyBird\RedisDbPlugin\States;
+namespace FastyBird\Plugin\RedisDb\States;
 
-use FastyBird\RedisDbPlugin\Exceptions;
+use FastyBird\Plugin\RedisDb\Exceptions;
 use Nette\Utils;
 use phpDocumentor;
 use ReflectionClass;

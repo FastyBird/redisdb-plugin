@@ -17,9 +17,9 @@
     <rule ref="SlevomatCodingStandard.Files.TypeNameMatchesFileName">
         <properties>
             <property name="rootNamespaces" type="array">
-                <element key="src" value="FastyBird\RedisDbPlugin"/>
-                <element key="tests/cases/unit" value="FastyBird\RedisDbPlugin\Tests\Cases\Unit"/>
-                <element key="tests/fixtures" value="FastyBird\RedisDbPlugin\Tests\Fixtures"/>
+                <element key="src" value="FastyBird\Plugin\RedisDb"/>
+                <element key="tests/cases/unit" value="FastyBird\Plugin\RedisDb\Tests\Cases\Unit"/>
+                <element key="tests/fixtures" value="FastyBird\Plugin\RedisDb\Tests\Fixtures"/>
             </property>
         </properties>
     </rule>

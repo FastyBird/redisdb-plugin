@@ -1,11 +1,11 @@
 <?php declare(strict_types = 1);
 
-namespace FastyBird\RedisDbPlugin\Tests\Fixtures;
+namespace FastyBird\Plugin\RedisDb\Tests\Fixtures;
 
 use DateTimeImmutable;
 use DateTimeInterface;
 use Exception;
-use FastyBird\RedisDbPlugin\States;
+use FastyBird\Plugin\RedisDb\States;
 use function array_merge;
 use const DATE_ATOM;
 

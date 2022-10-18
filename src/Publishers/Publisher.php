@@ -13,15 +13,15 @@
  * @date           17.09.21
  */
 
-namespace FastyBird\RedisDbPlugin\Publishers;
+namespace FastyBird\Plugin\RedisDb\Publishers;
 
 use Clue\React\Redis;
 use FastyBird\DateTimeFactory;
 use FastyBird\Library\Exchange\Publisher as ExchangePublisher;
 use FastyBird\Library\Metadata\Entities as MetadataEntities;
 use FastyBird\Library\Metadata\Types as MetadataTypes;
-use FastyBird\RedisDbPlugin\Client;
-use FastyBird\RedisDbPlugin\Utils;
+use FastyBird\Plugin\RedisDb\Client;
+use FastyBird\Plugin\RedisDb\Utils;
 use Nette;
 use Psr\Log;
 use React\Promise;
