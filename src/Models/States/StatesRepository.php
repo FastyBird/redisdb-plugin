@@ -13,7 +13,7 @@
  * @date           02.03.20
  */
 
-namespace FastyBird\Plugin\RedisDb\Models;
+namespace FastyBird\Plugin\RedisDb\Models\States;
 
 use Clue\React\Redis;
 use FastyBird\Library\Bootstrap\Helpers as BootstrapHelpers;
@@ -21,6 +21,7 @@ use FastyBird\Library\Metadata\Types as MetadataTypes;
 use FastyBird\Plugin\RedisDb\Clients;
 use FastyBird\Plugin\RedisDb\Exceptions;
 use FastyBird\Plugin\RedisDb\States;
+use FastyBird\Plugin\RedisDb\States\State as T;
 use Nette;
 use Psr\Log;
 use Ramsey\Uuid;

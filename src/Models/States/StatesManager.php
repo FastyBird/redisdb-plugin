@@ -13,7 +13,7 @@
  * @date           03.03.20
  */
 
-namespace FastyBird\Plugin\RedisDb\Models;
+namespace FastyBird\Plugin\RedisDb\Models\States;
 
 use Clue\React\Redis;
 use Consistence;
@@ -25,6 +25,7 @@ use FastyBird\Plugin\RedisDb\Clients;
 use FastyBird\Plugin\RedisDb\Events;
 use FastyBird\Plugin\RedisDb\Exceptions;
 use FastyBird\Plugin\RedisDb\States;
+use FastyBird\Plugin\RedisDb\States\State as T;
 use Nette;
 use Nette\Utils;
 use Psr\EventDispatcher;

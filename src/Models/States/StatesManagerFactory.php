@@ -13,7 +13,7 @@
  * @date           02.03.20
  */
 
-namespace FastyBird\Plugin\RedisDb\Models;
+namespace FastyBird\Plugin\RedisDb\Models\States;
 
 use FastyBird\DateTimeFactory;
 use FastyBird\Plugin\RedisDb\Clients;
