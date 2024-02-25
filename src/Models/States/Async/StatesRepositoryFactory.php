@@ -1,7 +1,7 @@
 <?php declare(strict_types = 1);
 
 /**
- * StatesManagerFactory.php
+ * StatesRepositoryFactory.php
  *
  * @license        More in LICENSE.md
  * @copyright      https://www.fastybird.com
@@ -13,9 +13,8 @@
  * @date           02.03.20
  */
 
-namespace FastyBird\Plugin\RedisDb\Models\States;
+namespace FastyBird\Plugin\RedisDb\Models\States\Async;
 
-use FastyBird\DateTimeFactory;
 use FastyBird\Plugin\RedisDb\Clients;
 use FastyBird\Plugin\RedisDb\Exceptions;
 use FastyBird\Plugin\RedisDb\States;
@@ -25,7 +24,7 @@ use function class_exists;
 use function sprintf;
 
 /**
- * States manager factory
+ * Asynchronous state repository factory
  *
  * @template T of States\State
  *
@@ -33,15 +32,14 @@ use function sprintf;
  * @subpackage     Models
  * @author         Adam Kadlec <adam.kadlec@fastybird.com>
  */
-class StatesManagerFactory
+class StatesRepositoryFactory
 {
 
 	use Nette\SmartObject;
 
 	public function __construct(
-		private readonly Clients\Client $client,
+		private readonly Clients\Async\Client $client,
 		private readonly States\StateFactory $stateFactory,
-		private readonly DateTimeFactory\Factory $dateTimeFactory,
 		private readonly Log\LoggerInterface $logger = new Log\NullLogger(),
 	)
 	{
@@ -50,23 +48,17 @@ class StatesManagerFactory
 	/**
 	 * @param class-string<T> $entity
 	 *
-	 * @return StatesManager<T>
+	 * @return StatesRepository<T>
 	 *
 	 * @throws Exceptions\InvalidArgument
 	 */
-	public function create(string $entity = States\State::class): StatesManager
+	public function create(string $entity = States\State::class): StatesRepository
 	{
 		if (!class_exists($entity)) {
 			throw new Exceptions\InvalidArgument(sprintf('Provided entity class %s does not exists', $entity));
 		}
 
-		return new StatesManager(
-			$this->client,
-			$this->stateFactory,
-			$this->dateTimeFactory,
-			$entity,
-			$this->logger,
-		);
+		return new StatesRepository($this->client, $this->stateFactory, $entity, $this->logger);
 	}
 
 }

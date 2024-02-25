@@ -13,7 +13,7 @@
  * @date           17.09.21
  */
 
-namespace FastyBird\Plugin\RedisDb\Publishers;
+namespace FastyBird\Plugin\RedisDb\Publishers\Async;
 
 use DateTimeInterface;
 use FastyBird\DateTimeFactory;
@@ -22,19 +22,23 @@ use FastyBird\Library\Exchange\Publisher as ExchangePublisher;
 use FastyBird\Library\Metadata\Documents as MetadataDocuments;
 use FastyBird\Library\Metadata\Types as MetadataTypes;
 use FastyBird\Plugin\RedisDb\Clients;
+use FastyBird\Plugin\RedisDb\Exceptions;
 use FastyBird\Plugin\RedisDb\Utilities;
+use InvalidArgumentException;
 use Nette;
 use Psr\Log;
+use React\Promise;
+use Throwable;
 
 /**
- * Redis DB exchange publisher
+ * Redis DB exchange async publisher
  *
  * @package        FastyBird:RedisDbPlugin!
  * @subpackage     Publishers
  *
  * @author         Adam Kadlec <adam.kadlec@fastybird.com>
  */
-final class Publisher implements ExchangePublisher\Publisher
+final class Publisher implements ExchangePublisher\Async\Publisher
 {
 
 	use Nette\SmartObject;
@@ -42,21 +46,28 @@ final class Publisher implements ExchangePublisher\Publisher
 	public function __construct(
 		private readonly Utilities\IdentifierGenerator $identifier,
 		private readonly string $channel,
-		private readonly Clients\Client $client,
+		private readonly Clients\Async\Client $client,
 		private readonly DateTimeFactory\Factory $dateTimeFactory,
 		private readonly Log\LoggerInterface $logger = new Log\NullLogger(),
 	)
 	{
 	}
 
+	/**
+	 * @return Promise\PromiseInterface<bool>
+	 *
+	 * @throws InvalidArgumentException
+	 */
 	public function publish(
 		MetadataTypes\Sources\Source $source,
 		string $routingKey,
 		MetadataDocuments\Document|null $entity,
-	): bool
+	): Promise\PromiseInterface
 	{
+		$deferred = new Promise\Deferred();
+
 		try {
-			$result = $this->client->publish(
+			$this->client->publish(
 				$this->channel,
 				Nette\Utils\Json::encode([
 					'sender_id' => $this->identifier->getIdentifier(),
@@ -65,45 +76,52 @@ final class Publisher implements ExchangePublisher\Publisher
 					'created' => $this->dateTimeFactory->getNow()->format(DateTimeInterface::ATOM),
 					'data' => $entity?->toArray(),
 				]),
-			);
-
-			if ($result === true) {
-				$this->logger->debug(
-					'Received message was pushed into data exchange',
-					[
-						'source' => MetadataTypes\Sources\Plugin::REDISDB->value,
-						'type' => 'messages-publisher',
-						'message' => [
-							'routing_key' => $routingKey,
-							'source' => $source->value,
-							'data' => $entity?->toArray(),
+			)
+				->then(function () use ($source, $routingKey, $entity, $deferred): void {
+					$this->logger->debug(
+						'Received message was pushed into data exchange',
+						[
+							'source' => MetadataTypes\Sources\Plugin::REDISDB->value,
+							'type' => 'messages-async-publisher',
+							'message' => [
+								'routing_key' => $routingKey,
+								'source' => $source->value,
+								'data' => $entity?->toArray(),
+							],
 						],
-					],
-				);
+					);
 
-				return true;
-			} else {
-				$this->logger->error(
-					'Received message could not be pushed into data exchange',
-					[
-						'source' => MetadataTypes\Sources\Plugin::REDISDB->value,
-						'type' => 'messages-publisher',
-						'message' => [
-							'routing_key' => $routingKey,
-							'source' => $source->value,
-							'data' => $entity?->toArray(),
+					$deferred->resolve(true);
+				})
+				->catch(function (Throwable $ex) use ($source, $routingKey, $entity, $deferred): void {
+					$this->logger->error(
+						'Received message could not be pushed into data exchange',
+						[
+							'source' => MetadataTypes\Sources\Plugin::REDISDB->value,
+							'type' => 'messages-async-publisher',
+							'exception' => ApplicationHelpers\Logger::buildException($ex),
+							'message' => [
+								'routing_key' => $routingKey,
+								'source' => $source->value,
+								'data' => $entity?->toArray(),
+							],
 						],
-					],
-				);
+					);
 
-				return false;
-			}
+					$deferred->reject(
+						new Exceptions\InvalidState(
+							'Message could not be published into exchange',
+							$ex->getCode(),
+							$ex,
+						),
+					);
+				});
 		} catch (Nette\Utils\JsonException $ex) {
 			$this->logger->error(
 				'Data could not be converted to message',
 				[
 					'source' => MetadataTypes\Sources\Plugin::REDISDB->value,
-					'type' => 'messages-publisher',
+					'type' => 'messages-async-publisher',
 					'exception' => ApplicationHelpers\Logger::buildException($ex),
 					'message' => [
 						'routing_key' => $routingKey,
@@ -113,8 +131,12 @@ final class Publisher implements ExchangePublisher\Publisher
 				],
 			);
 
-			return false;
+			return Promise\reject(
+				new Exceptions\InvalidArgument('Provided data could not be converted to message', $ex->getCode(), $ex),
+			);
 		}
+
+		return $deferred->promise();
 	}
 
 }

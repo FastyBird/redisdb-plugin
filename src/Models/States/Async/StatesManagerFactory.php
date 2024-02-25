@@ -13,7 +13,7 @@
  * @date           02.03.20
  */
 
-namespace FastyBird\Plugin\RedisDb\Models\States;
+namespace FastyBird\Plugin\RedisDb\Models\States\Async;
 
 use FastyBird\DateTimeFactory;
 use FastyBird\Plugin\RedisDb\Clients;
@@ -25,7 +25,7 @@ use function class_exists;
 use function sprintf;
 
 /**
- * States manager factory
+ * Asynchronous states manager factory
  *
  * @template T of States\State
  *
@@ -39,7 +39,7 @@ class StatesManagerFactory
 	use Nette\SmartObject;
 
 	public function __construct(
-		private readonly Clients\Client $client,
+		private readonly Clients\Async\Client $client,
 		private readonly States\StateFactory $stateFactory,
 		private readonly DateTimeFactory\Factory $dateTimeFactory,
 		private readonly Log\LoggerInterface $logger = new Log\NullLogger(),
